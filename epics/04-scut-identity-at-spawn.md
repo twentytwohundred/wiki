@@ -2,7 +2,7 @@
 title: "Epic 4: SCUT identity at spawn"
 type: epic
 status: draft
-version: 0.2
+version: 0.3
 tags: [epic, scut, identity, agents, spawn, controls]
 created: 2026-04-28
 updated: 2026-04-28
@@ -37,20 +37,20 @@ CLAUDE.md flags identity at spawn as "don't defer this... it's load-bearing for 
 
 ## Scope
 
-When an Agent is created (CLI: `2200 agent create <name>` or a future onboarding flow), the supervisor runs the identity provisioning pipeline. Per Garfield's response (2026-04-28), the deployed SII contract has no public `nextTokenId()` view, so the pipeline runs as **two on-chain transactions** with checkpointed state in between... mint first with a placeholder URI, parse the tokenId from the receipt, pin the SII document to IPFS using the real tokenId in `agentRef`, then call `updateIdentityURI` to point on-chain at the final document.
+When an Agent is created (CLI: `2200 agent create <name>` or a future onboarding flow), the supervisor runs the identity provisioning pipeline. Per Garfield's response (2026-04-28), the deployed SII contract has no public `nextTokenId()` view, so the pipeline runs as **two on-chain transactions** with checkpointed state in between... mint first with a placeholder URI, parse the tokenId from the receipt, encode the SII document with the real tokenId in `agentRef` as a `data:` URI, then call `updateIdentityURI` to point on-chain at the final document.
 
 Sequence:
 
 1. Generate Ed25519 (signing) and X25519 (encryption) keypairs locally.
 2. Persist the private keys under encrypted-at-rest storage.
-3. **TX1: Mint with placeholder.** Call `mint(seedTeamWalletAddress, "ipfs://pending")` on the SII contract. Wait for one Base confirmation. Parse the tokenId from the `SCUTIdentityRegistered` event log on the receipt.
+3. **TX1: Mint with placeholder.** Call `mint(seedTeamWalletAddress, "data:application/json;base64,e30=")` on the SII contract. The placeholder is `{}` (the smallest non-empty value the contract accepts; the contract reverts on empty URIs). Wait for one Base confirmation. Parse the tokenId from the `SCUTIdentityRegistered` event log on the receipt.
 4. Construct the SII v1 document with the real `agentRef.tokenId`, the public keys, and the empty relay list.
-5. Pin the SII document to IPFS via Pinata. Receive the CID. Final URI = `ipfs://<cid>`.
-6. **TX2: Update URI.** Call `updateIdentityURI(tokenId, "ipfs://<cid>")` from the seed-team wallet (token owner). Wait for confirmation.
+5. Encode the document as a data URI: `'data:application/json;base64,' + Buffer.from(JSON.stringify(doc)).toString('base64')`.
+6. **TX2: Update URI.** Call `updateIdentityURI(tokenId, finalDataUri)` from the seed-team wallet (token owner). Wait for confirmation.
 7. Write the resulting `scut://8453/0x199b48E27a28881502b251B0068F388Ce750feff/<tokenId>` URI plus public keys back into the Agent's Identity file.
 8. Surface a Passive notification confirming registration (or an Important notification on failure).
 
-After this epic, every Agent has a `scut_uri` field in its Identity, signing and encryption keys reachable to the runtime, the SII document content-addressed on IPFS, and the identity verifiable against on-chain state. No messaging primitives yet; that is Phase B.
+After this epic, every Agent has a `scut_uri` field in its Identity, signing and encryption keys reachable to the runtime, and the SII document stored entirely on-chain as a `data:` URI inside the contract's URI slot. The URI _is_ the document; there is no second hop, no hoster, no gateway. Verification is `base64-decode(URI) → JSON.parse → schema check`.
 
 There is no UI in this epic. The CLI is the surface. Web/mobile config of identities lands when Epic 15 / 16 land.
 
@@ -67,10 +67,10 @@ States, persisted to `state/identities/<agent_id>/provision-state.json`:
 | `pending` | RPC accepted, nothing done yet | Restart from the top |
 | `keys_generated` | Ed25519 + X25519 keypairs exist on disk | Resume at TX1 (mint) |
 | `mint_submitted` | TX1 broadcast; awaiting Base confirmation | Poll for receipt; if confirmed, advance |
-| `token_minted` | TX1 confirmed; tokenId parsed from `SCUTIdentityRegistered` event | Resume at IPFS pin |
-| `doc_pinned` | SII document pinned to IPFS via Pinata; CID stored | Resume at TX2 (updateIdentityURI) |
+| `token_minted` | TX1 confirmed; tokenId parsed from `SCUTIdentityRegistered` event | Resume at document encoding |
+| `doc_encoded` | Final SII document encoded as a `data:` URI; URI persisted to disk | Resume at TX2 (updateIdentityURI) |
 | `update_submitted` | TX2 broadcast; awaiting Base confirmation | Poll for receipt; if confirmed, advance |
-| `registered` | TX2 confirmed; on-chain URI now points at the real document | Done; write to Identity file |
+| `registered` | TX2 confirmed; on-chain URI now contains the real document | Done; write to Identity file |
 | `errored` | Pipeline failed, recovery requires user attention | Surface notification, leave state for inspection |
 
 Each transition writes the new state file atomically (temp + rename), so a crash between writes leaves a recoverable file on disk. Both `mint_submitted` and `update_submitted` persist the transaction hash so resume can poll a known tx rather than re-broadcast.
@@ -128,26 +128,24 @@ The `chainId` (8453) and `contract` (`0x199b48E27a28881502b251B0068F388Ce750feff
 
 Document filename on disk: `state/identities/<agent_id>/identity.json` (local staging copy). Final URI on-chain: `ipfs://<cid>` after pinning.
 
-### Identity document publishing (IPFS via Pinata)
+### Identity document encoding (on-chain `data:` URI)
 
-Per Garfield's recommendation (2026-04-28), the SII document is content-addressed on IPFS via Pinata, not served from a 2200-side HTTPS hoster. Three reasons drove this decision:
+Per Garfield's 2026-04-28 follow-up: the SII document is encoded directly into the on-chain URI as a `data:application/json;base64,...` string, not stored separately on IPFS or any HTTPS hoster. The contract's URI slot _holds_ the document; resolvers decode it inline. Three properties this gives us:
 
-1. **Tamper-evidence comes free.** A CID is a content hash; the on-chain URI is the integrity check. Anyone validating an SII document verifies the content matches the URI without trusting a hoster.
-2. **Survives 2200 outages.** Identity documents resolve through any IPFS gateway; an outage on a single 2200 instance does not make seed-team identities unresolvable.
-3. **Uniform with SCUT-register.** Garfield's `register.openscut.ai` (Epic 1 on the SCUT side) uses the same path. One IDocumentStore abstraction across both services, not two parallel mechanisms.
+1. **Tamper-evidence is structural.** The URI _is_ the document. There is nothing to tamper with that wouldn't change the URI itself.
+2. **No hoster outage failure mode.** Every Base archive node mirrors every SII document forever. Replication is free. There is no Pinata or 2200-side hoster to operate or pay for.
+3. **Resolver gets simpler.** The resolver's gateway-fallback chain is replaced by `base64-decode(URI) → JSON.parse`. Faster, fewer failure modes, less code on both sides.
 
-The supervisor's `publish` step:
+The trade is gas. A typical SII document encodes to ~500-700 bytes; the mint+update pipeline runs ~600-700k gas total per registration vs. ~270k for a CID URI. Roughly 2.5x. Per-spawn cost lands at ~$0.015-0.025 in steady-state Base conditions. Doug's framing (2026-04-28 PM) was "we own everything, no subscriptions" and that explicitly chose the gas-cost-vs-storage-subscription trade.
 
-- Reads `config/scut.toml` for `pinata_jwt` (or a future generic pin-provider URL) and the gateway-fallback chain.
-- POSTs the SII JSON to Pinata's `pinJSONToIPFS` endpoint (or equivalent for the configured pin provider).
-- Receives the CID. Final URI = `ipfs://<cid>`.
-- Advances pipeline state to `doc_pinned`. Persists the CID to `state/identities/<agent_id>/cid.txt` so a resume after crash does not re-pin.
+The supervisor's encoding step:
 
-The pin operation goes through an `IDocumentStore` interface so swap-in is one config change, not a code change. **Coordination ask flagged to Doug:** if SCUT-register exposes its `IDocumentStore` Pinata adapter as a shared package, 2200 imports it rather than duplicating; otherwise 2200 ships its own and converges later.
+- Constructs the SII document JSON in memory with the real `tokenId` from TX1's receipt.
+- Encodes: `'data:application/json;base64,' + Buffer.from(JSON.stringify(doc)).toString('base64')`.
+- Advances pipeline state to `doc_encoded`. Persists the URI to `state/identities/<agent_id>/data-uri.txt` so a resume after crash uses the same encoded value rather than re-deriving.
+- Validates that the URI is below the contract's max-bytes limit before TX2; reject early with a clear error if it would.
 
-The SCUT resolver caches resolved documents for 5 minutes per [`packages/resolver/src/routes/resolve.ts`](https://github.com/douglashardman/openscut/blob/main/packages/resolver/src/routes/resolve.ts), so the gateway fetch is once per document per cache window per resolver, not per SCUT message. For an identity document that updates rarely, the latency cost is negligible.
-
-**Failure mode:** if the pin fails, pipeline halts at `token_minted` (the on-chain mint already landed; the document is staged locally). The next invocation retries the pin. Tier-2 notification surfaces the failure with the staged document path so the operator can pin manually if Pinata is down.
+No external dependencies. No retry loop on a third-party API. The entire step is local.
 
 ### On-chain registration
 
@@ -162,8 +160,8 @@ event SCUTIdentityRegistered(uint256 indexed tokenId, address indexed owner, str
 
 The supervisor uses `ethers.js` v6 to:
 
-1. Read `config/scut.toml` for the seed-team wallet's signing credentials and gas-fee strategy.
-2. Call `mint(seedTeamWalletAddress, "ipfs://pending")`. The placeholder is non-empty (the contract reverts on empty URIs; selector `URIEmpty`).
+1. Read `config/scut.toml` for the seed-team wallet's signing credentials, RPC endpoint, and gas-fee strategy.
+2. Call `mint(seedTeamWalletAddress, "data:application/json;base64,e30=")`. The placeholder decodes to `{}` (empty object), which is non-empty enough to satisfy the contract's `URIEmpty` revert guard.
 3. Wait for one Base confirmation (configurable).
 4. Parse the tokenId from the `SCUTIdentityRegistered` event log on the receipt. The standard `Transfer` from `0x0` is also emitted; prefer `SCUTIdentityRegistered` because it carries the URI for verification.
 
@@ -173,19 +171,25 @@ The supervisor uses `ethers.js` v6 to:
 function updateIdentityURI(uint256 tokenId, string calldata newURI) external;
 ```
 
-Only the token owner (the seed-team wallet) can call. Cheaper than `mint` (~50k gas vs ~140k) because no `_safeMint` and only one SSTORE plus an event.
+Only the token owner (the seed-team wallet) can call. Slightly cheaper than `mint` (no `_safeMint`), but the URI bytes themselves dominate gas at ~32-byte SSTORE chunks.
 
 The supervisor:
 
-1. Calls `updateIdentityURI(tokenId, "ipfs://<cid>")` with the real CID from the pin step.
+1. Calls `updateIdentityURI(tokenId, finalDataUri)` with the encoded data URI.
 2. Waits for confirmation.
 3. Advances pipeline state to `registered`.
 
+**RPC consistency gotcha.** Garfield validated against `mainnet.base.org` and observed: that endpoint is load-balanced, and reads after a write can hit a backend that has not yet seen the new state for ~1-2 blocks. In practice this manifests as TX2's pre-flight simulation reverting with `ERC721NonexistentToken(<just-minted-tokenId>)` even though the mint succeeded.
+
+The supervisor handles this with a poll-`ownerOf` loop between `token_minted` and `update_submitted`: after parsing the tokenId from TX1's receipt, the supervisor calls `ownerOf(tokenId)` until a backend with the new state answers (typically ~1.5 seconds). Only then does it broadcast TX2.
+
+For production scale, the operator should configure a dedicated RPC endpoint (Alchemy, QuickNode, or a self-hosted Base node) via `config/scut.toml`'s `rpc_url` field, which removes the race entirely. The poll workaround stays as a defense-in-depth measure regardless. **This is Simon's lane to scope when 2200 moves toward a real production deployment.**
+
 **Gas strategy.** EIP-1559 with `maxPriorityFeePerGas` at 0.05 gwei (Garfield's refinement; Base's typical priority is 0.001-0.01 gwei, so 0.05 is generous without overpaying). `maxFeePerGas` capped at 5x current base fee. Gas-limit auto-estimated with a 20% buffer. Push through on spikes.
 
-**Wallet model.** v1 uses a single seed-team-shared custodial wallet on Base. Doug confirmed (2026-04-28): "$500 loaded on that wallet." Per-spawn cost with the two-tx pipeline is ~$0.013-0.02 in steady-state Base conditions ($0.005-0.05 worst case), so $500 covers ~25,000 spawns of runway. The wallet's private key (or a remote-signer URL) lives in `config/scut.toml`, encrypted at rest with the same per-instance master key as Agent keys. Per-Agent wallets are out of v1 scope; if 2200 ever needs them (managed-service multi-tenant), that is a follow-on epic with its own decision record.
+**Wallet model.** v1 uses a single seed-team-shared custodial wallet on Base. Doug confirmed (2026-04-28): "$500 loaded on that wallet." Per-spawn cost with the data-URI two-tx pipeline is ~$0.015-0.025 in steady-state Base conditions, so $500 covers ~20,000-30,000 spawns of runway. The wallet's private key (or a remote-signer URL) lives in `config/scut.toml`, encrypted at rest with the same per-instance master key as Agent keys. Per-Agent wallets are out of v1 scope; if 2200 ever needs them (managed-service multi-tenant), that is a follow-on epic with its own decision record.
 
-**Funding alerts.** The supervisor reads the wallet balance via `provider.getBalance(seedTeamWalletAddress)` (RPC-direct; no hosted SCUT-side balance API needed) after every successful registration. It computes "registrations remaining" by dividing the balance by the current gas-cost-per-spawn estimate (steady-state ~$0.013 with two transactions). Below a configurable threshold (default: 100 spawns of headroom), it emits a tier-2 (Important) notification: "Identity wallet balance is low: $X remaining (≈N more spawns). Top up via Doug's documented flow." Below 10 spawns, tier-1 (Critical) and the supervisor refuses to provision new identities until topped up.
+**Funding alerts.** The supervisor reads the wallet balance via `provider.getBalance(seedTeamWalletAddress)` (RPC-direct; no hosted SCUT-side balance API needed) after every successful registration. It computes "registrations remaining" by dividing the balance by the current gas-cost-per-spawn estimate (~$0.020 midpoint). Below a configurable threshold (default: 100 spawns of headroom), it emits a tier-2 (Important) notification: "Identity wallet balance is low: $X remaining (≈N more spawns). Top up via Doug's documented flow." Below 10 spawns, tier-1 (Critical) and the supervisor refuses to provision new identities until topped up.
 
 ### Identity field shape in the Identity file
 
@@ -201,7 +205,7 @@ scut:
   chain_id: 8453
   contract: "0x199b48E27a28881502b251B0068F388Ce750feff"
   token_id: 12345
-  identity_doc_uri: ipfs://bafybeih...           # CID from Pinata pin
+  identity_doc_uri: "data:application/json;base64,eyJzaWlWZXJzaW9uIjox..."  # full document encoded inline
   public_keys:
     ed25519: <base64>
     x25519: <base64>
@@ -242,20 +246,34 @@ The `--no-identity` escape hatch on `create` exists so a developer can spawn an 
 - **Epic 2.** Supervisor, control-plane RPC, Identity loader, schema versioning, notification file format. All in place.
 - **Epic 4.5 (sibling).** Schema v2 (cost_caps) lands first; this epic bumps to v3.
 - **Epic 7 substrate.** Notification routing for the wallet-balance and provisioning notifications. Currently the runtime emits notifications to local files (per Epic 2's interim implementation). v1 of this epic uses the same path; full notification routing lands in Epic 7.
-- **OpenSCUT.** Contract `0x199b48E27a28881502b251B0068F388Ce750feff` on Base (deployed). Resolver at `https://resolver.openscut.ai/scut/v1/resolve` (deployed).
-- **Pinata account.** Doug provisions the JWT and configures `pinata_jwt` in `config/scut.toml`.
+- **OpenSCUT.** Contract `0x199b48E27a28881502b251B0068F388Ce750feff` on Base (deployed). Resolver at `https://resolver.openscut.ai/scut/v1/resolve` (deployed). Token #6 on the contract is a live demonstration of the data-URI flow.
 - **Seed-team wallet address.** Doug shares out-of-band when the wallet is funded.
 
-## Open coordination items
+## Path B: optional `register.openscut.ai` fallback
 
-- **`IDocumentStore` shared package.** Garfield's `register.openscut.ai` faces the same circularity (SCUT-register's Epic 1 pipeline is also two-tx). He proposed sharing the Pinata pin code via an `IDocumentStore` interface with a Pinata adapter and gateway-fallback chain. Worth coordinating before either of us writes the per-service code twice. Doug's call on whether to ship as a shared package now or duplicate-and-converge later.
+Garfield ships an optional Fastify service at `register.openscut.ai` that runs the entire mint-then-update pipeline on behalf of agents. 2200 _does not need to call it_ for Path A (the spec target above), but it exists as a fallback if 2200's mint integration ever has trouble or if a future deployment context needs to skip running the on-chain wallet.
 
-## Open product calls (none — answered 2026-04-28)
+Endpoints:
+
+- `POST /scut/v1/register` — submit public keys and optional metadata; service returns `scut://` URI plus tx hashes.
+- `POST /scut/v1/update` — submit a new SII document signed with the Agent's Ed25519 key; service rewrites the on-chain URI.
+- `POST /scut/v1/transfer` — submit an Ed25519-signed transfer challenge to graduate the token from custodial (service wallet) to self-custody (Agent's own wallet). Useful later if Agents ever need on-chain self-custody.
+- `GET /scut/v1/health` — wallet address, current balance, runway estimate.
+
+**Path A (default).** 2200 keeps its own minting. Seed-team wallet pays gas. Full sovereignty. Spec target above. Recommended for production.
+
+**Path B (fallback).** 2200's spawn pipeline becomes a single HTTPS POST to `register.openscut.ai`. SCUT-funded service wallet pays gas. Less code in 2200, more dependency on SCUT's infra. Path B is acceptable as a stopgap if Path A integration is ever blocked (e.g., wallet funding interruption, dedicated-RPC outage), but the supervisor's checkpointed pipeline already does the hard work, so the marginal complexity of Path A is small enough that sovereignty wins by default.
+
+The supervisor's CLI exposes `2200 agent identity provision <name> --via=register-service` as the Path B opt-in; default is Path A.
+
+## Open product calls (none — all answered 2026-04-28)
 
 - ~~Per-Agent vs shared custodial wallet at v1?~~ Shared, per Doug's 2026-04-28 chat.
 - ~~Funding ceiling and topup mechanism?~~ Garfield owns the topup; the supervisor enforces a low-balance gate via notifications.
-- ~~Identity-doc hoster: HTTPS or IPFS?~~ IPFS via Pinata, per Garfield's 2026-04-28 reply (tamper-evidence, outage resilience, uniformity with SCUT-register).
-- ~~One-tx or two-tx mint pipeline?~~ Two-tx. The deployed contract has no public `nextTokenId()` view, so prediction is not viable; mint with placeholder then `updateIdentityURI` is the path.
+- ~~Identity-doc hoster: HTTPS, IPFS, or on-chain `data:` URIs?~~ On-chain `data:` URIs, per Garfield's 2026-04-28 follow-up. Doug's "we own everything, no subscriptions" framing chose this over the original IPFS-via-Pinata path.
+- ~~One-tx or two-tx mint pipeline?~~ Two-tx. The deployed contract has no public `nextTokenId()` view, so prediction is not viable.
+- ~~Path A (2200 mints itself) vs Path B (register.openscut.ai)?~~ Path A is the spec target; Path B is the documented fallback.
+- ~~`IDocumentStore` shared package coordination?~~ Moot. With on-chain `data:` URIs there is no document hosting on either side, so no pin-code to share.
 
 ## Out of scope (deferred to Phase B and beyond)
 
@@ -299,17 +317,27 @@ Per Garfield's 2026-04-28 reply: the deployed SII contract has no public `nextTo
 
 Two-tx is the right answer.
 
-### Why IPFS instead of HTTPS for the identity doc
+### Why on-chain `data:` URIs instead of IPFS or HTTPS
 
-Garfield argued for IPFS via Pinata over a 2200-side HTTPS hoster. The arguments are summarized in the [Identity document publishing](#identity-document-publishing-ipfs-via-pinata) section above. Conceded after the original 2200-side HTTPS proposal because his three reasons (tamper-evidence via content hash, outage resilience, uniformity with SCUT-register) outweigh the original latency / operational-simplicity case. If a future use case requires HTTPS specifically, an alternate `IDocumentStore` adapter is one config flip; it is not a one-way door.
+The original (v0.1) spec proposed a 2200-side HTTPS hoster. Garfield's first reply (v0.2 update) argued for IPFS via Pinata over HTTPS for tamper-evidence, outage resilience, and uniformity with `register.openscut.ai`'s storage path. Doug then framed the broader infrastructure preference as "we own everything, no subscriptions," and Garfield came back (v0.3 update) with on-chain `data:` URIs as the third path that satisfies all the constraints:
+
+- Tamper-evidence is structural rather than content-hashed. The URI _is_ the document.
+- No hoster, no subscription, no third-party dependency. Every Base archive node mirrors every SII document.
+- Resolver gets simpler. No gateway-fallback chain. Just `base64-decode → JSON.parse`.
+- Cost scales with use, not capacity. Gas you already control instead of a storage subscription you're locked into.
+
+The trade is gas. ~$0.015-0.025 per spawn vs ~$0.013 for the IPFS path; ~25K spawns of runway from $500 instead of ~38K. Acceptable given the simplicity and operational independence wins.
 
 ### Coordination with Garfield
 
-The contract spec, the resolver, the relay strategy, and the document-pinning provider are all SCUT-side concerns Garfield owns. Hobby's lane stops at the runtime integration. Three artifacts in flight:
+The contract spec, the resolver, and the data-URI approach are all SCUT-side concerns Garfield owns. Hobby's lane stops at the runtime integration. Four artifacts in flight:
 
-1. The inbox brief at `wiki/inbox/garfield/2026-04-28-2200-needs-from-scut-for-epic-4.md` lists what 2200 needs from Garfield. Sent.
-2. Garfield's reply at `wiki/inbox/hobby/2026-04-28-to-hobby-re-epic-4-integration.md` answers the six asks and surfaces the two-tx pipeline finding. Received and integrated.
-3. **Open coordination ask:** the `IDocumentStore` shared-package question (above). Doug's call on whether to ship as a shared package or duplicate-and-converge later.
+1. The inbox brief at `wiki/inbox/garfield/archive/2026-04-28-2200-needs-from-scut-for-epic-4.md` lists what 2200 needed from Garfield. Sent and answered.
+2. Garfield's first reply at `wiki/inbox/hobby/archive/2026-04-28-to-hobby-re-epic-4-integration.md` answered the six asks and surfaced the two-tx pipeline finding. Integrated in v0.2.
+3. Hobby's ack at `wiki/inbox/garfield/2026-04-28-to-garfield-re-epic-4-integration-acks.md` confirmed the v0.2 spec.
+4. Garfield's follow-up at `wiki/inbox/hobby/2026-04-28-to-hobby-re-epic-4-followup-register-and-data-uri.md` swapped IPFS for on-chain `data:` URIs and shipped the optional `register.openscut.ai` Path B fallback. Integrated in v0.3.
+
+All SCUT-side blockers are resolved. The contract, resolver, and data-URI approach are validated against mainnet; token #6 on the contract is a live demonstration. No further coordination is needed before the build starts.
 
 ### Connection to Epic 4.5 (cost caps and usage telemetry)
 
@@ -319,7 +347,9 @@ Epic 4.5 attaches budgets and usage telemetry to the SCUT URI established here. 
 
 Spec drafted by Hobby on 2026-04-28 after Doug's 2026-04-28 chat answered the open product calls (shared custodial wallet, $500 loaded, Garfield owns the topup mechanism).
 
-Spec v0.2 (2026-04-28 PM): integrated Garfield's reply. Locked SCUT-side answers: contract address on Base mainnet (`0x199b48E27a28881502b251B0068F388Ce750feff`, chainId 8453, EIP-165 interface id `0x6fe513d9`), full mint and updateIdentityURI ABIs, gas-strategy refinement (priority 0.05 gwei not 1), pin via Pinata IPFS instead of 2200-side HTTPS, resolver endpoint locked to `resolver.openscut.ai`, two-tx pipeline (mint with placeholder, parse tokenId from event, pin to IPFS, updateIdentityURI), runway recalculated at ~25K spawns from $500 instead of 50K, RPC-direct wallet balance reads.
+Spec v0.2 (2026-04-28 PM): integrated Garfield's first reply. Locked SCUT-side answers: contract address on Base mainnet (`0x199b48E27a28881502b251B0068F388Ce750feff`, chainId 8453, EIP-165 interface id `0x6fe513d9`), full mint and updateIdentityURI ABIs, gas-strategy refinement (priority 0.05 gwei not 1), pin via Pinata IPFS instead of 2200-side HTTPS, resolver endpoint locked to `resolver.openscut.ai`, two-tx pipeline (mint with placeholder, parse tokenId from event, pin to IPFS, updateIdentityURI), runway recalculated at ~25K spawns from $500, RPC-direct wallet balance reads.
+
+Spec v0.3 (2026-04-28 evening): integrated Garfield's follow-up. Two changes: (1) IPFS-via-Pinata replaced with on-chain `data:application/json;base64,...` URIs after Doug's "we own everything, no subscriptions" framing... no hoster, no Pinata, no `IDocumentStore` coordination needed; gas trades up to ~$0.015-0.025 per spawn for ~20-30K runway. (2) Optional Path B (`register.openscut.ai` Fastify service) documented as fallback to 2200's own minting; Path A remains the spec target. Plus: RPC consistency gotcha on `mainnet.base.org` documented (poll `ownerOf` workaround in v1, dedicated RPC for production via Simon).
 
 Build-phase decision per [[build-phase-decisions]]; this record captures the lock so the implementation work and the parallel Epic 4.5 substrate can all proceed off a single shared spec.
 
