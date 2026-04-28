@@ -190,6 +190,8 @@ cat > "$WIKI_CLONE_DIR/_Sidebar.md" <<'SIDEBAR'
 - [[voice-and-framing|Voice and framing]]
 - [[design-language|Design language]]
 - [[upgrade-readiness|Upgrade readiness]]
+- [[license-posture|License posture]]
+- [[build-phase-decisions|Build-phase decisions]]
 
 **Decisions**
 

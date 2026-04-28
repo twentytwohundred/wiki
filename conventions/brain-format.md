@@ -72,11 +72,11 @@ If two docs would have the same name (e.g. multiple `handoff.md` files), include
 
 ### Decision records have a specific shape
 
-See [[decision-format]] (to be written) for the full template. Short version: every decision record has Context, Decision, Consequences, and References sections, plus tags including `decision`.
+Every decision record has Context, Decision, Consequences (with what-gets-better and what-could-get-worse sub-sections), Implementation guidance, References, and Format provenance sections. Tags include `decision`. Filename is `YYYY-MM-DD-short-name.md`. The records in `wiki/decisions/` are the running examples.
 
 ### Epic specs have a specific shape
 
-See [[epic-format]] (to be written) for the full template. Short version: every epic spec has Scope, Includes, Done When, Depends On, and Notes. The epic map ([[03-epic-map]]) summarizes; the per-epic spec details.
+Every epic spec has Scope, Includes, Done When, Depends On, Notes, and an Upgrade-readiness section (per [[upgrade-readiness]]). The epic map ([[03-epic-map]]) summarizes; the per-epic spec at `wiki/epics/NN-name.md` details. The records in `wiki/epics/` are the running examples.
 
 ### Handoffs have their own format
 
@@ -84,7 +84,7 @@ See [[handoff-format]] for the full spec. Handoffs are chronological artifacts a
 
 ### Inbox messages are minimal
 
-See [[inbox-format]] (to be written). Inbox messages are short, transient, and don't need full Brain-format frontmatter. They have a simpler header.
+Inbox messages are short, transient, and don't need full Brain-format frontmatter. Filename convention: `YYYY-MM-DD-HHMMSS-from-[sender]-re-[short-topic].md`. Body contains a short greeting line, the message, and a sign-off. They live under `wiki/inbox/[recipient]/` and may be moved to `wiki/inbox/[recipient]/archive/` once handled.
 
 ## What does NOT need retrofitting
 

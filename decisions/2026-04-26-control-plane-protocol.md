@@ -97,7 +97,7 @@ Options considered:
 
 ## License posture
 
-JSON-RPC 2.0 is an open specification; implementing a client/server creates no derivative-work obligation. Pattern lift, not code lift. Reference implementations exist in many licenses; if we adopt code from one, the standing licensing rule ([[feedback_track_licensing]]) applies.
+JSON-RPC 2.0 is an open specification; implementing a client/server creates no derivative-work obligation. Pattern lift, not code lift. Reference implementations exist in many licenses; if we adopt code from one, the standing licensing rule ([[license-posture]]) applies.
 
 UDS and NDJSON are protocol primitives, not copyrightable.
 
@@ -106,12 +106,12 @@ UDS and NDJSON are protocol primitives, not copyrightable.
 - Epic 2 spec: [[02-agent-runtime-minimum]] (the "architecture choices that are not pre-decided" section)
 - MCP-native runtime: [[2026-04-25-mcp-native]] (also speaks JSON-RPC)
 - Upgrade-readiness disciplines 2, 3, and 7: [[upgrade-readiness]]
-- Build-phase decide-and-tell: [[feedback_decide_and_tell_in_build_phase]]
+- Build-phase decide-and-tell: [[build-phase-decisions]]
 - JSON-RPC 2.0 spec: https://www.jsonrpc.org/specification
 
 ## Format provenance
 
-Decision recorded by Hobby on 2026-04-26 during Epic 2 build-phase prep. The choice was a build-time call per [[feedback_decide_and_tell_in_build_phase]]; this record captures the lock so the supervisor PR (and downstream PRs that consume the control-plane) hook into a known protocol vocabulary.
+Decision recorded by Hobby on 2026-04-26 during Epic 2 build-phase prep. The choice was a build-time call per [[build-phase-decisions]]; this record captures the lock so the supervisor PR (and downstream PRs that consume the control-plane) hook into a known protocol vocabulary.
 
 ---
 

@@ -70,7 +70,7 @@ Epic 2's runtime spec must include:
 
 ## License posture
 
-MCP is an open spec maintained by Anthropic. Implementing an MCP client/server from spec creates no derivative-work obligation on 2200. Pattern lift, not code lift. Reference implementations exist in multiple licenses; if we ever pull code from one, we apply the standing rule (`feedback_track_licensing`).
+MCP is an open spec maintained by Anthropic. Implementing an MCP client/server from spec creates no derivative-work obligation on 2200. Pattern lift, not code lift. Reference implementations exist in multiple licenses; if we ever pull code from one, we apply the standing rule ([[license-posture]]).
 
 ## References
 

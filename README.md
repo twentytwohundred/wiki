@@ -44,7 +44,7 @@ As of 2026-04-28:
 
 - Vision, architecture, and epic map locked. Prior-art analysis complete (twelve targets surveyed, executive doc plus deep findings appendix).
 - **Seventeen decision records locked.** See the [[_Sidebar]] for the index.
-- **Five conventions** active: [[brain-format]], [[handoff-format]], [[voice-and-framing]], [[design-language]], [[upgrade-readiness]].
+- **Seven conventions** active: [[brain-format]], [[handoff-format]], [[voice-and-framing]], [[design-language]], [[upgrade-readiness]], [[license-posture]], [[build-phase-decisions]].
 - **Epic 2 (Agent runtime minimum) shipped.** Spec at [[02-agent-runtime-minimum]]. Supervisor, Identity loader, Brain (filesystem-first), baseline tools, plan/run/perm wrapping, integer schema versioning, control-plane protocol over UDS+JSON-RPC.
 - **Epic 3 (local pub integration via OpenPub) shipped.** Spec at [[03-local-pub-integration]]. Pub supervision substrate, user and Agent pub identities, four pub MCP tools, WebSocket wake source, end-to-end smoke test against `@openpub-ai/pub-server@0.3.3`.
 - **Subepics 3.5, 3.6, 3.7, 3.8 shipped.** Two-agent demo runbook reproducible end-to-end ([[03.5-two-agent-demo]]); six LLM providers wired (Anthropic native; OpenAI, DeepSeek, Kimi, OpenRouter, Gemini via the OpenAI-compatible adapter); two-tier model selection per Agent; pub message router with per-pub roster sidecars; ack-spiral structural guards in the wake source.

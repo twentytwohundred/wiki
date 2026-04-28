@@ -8,7 +8,7 @@ updated: 2026-04-26
 linked_docs:
   - '[[02-agent-runtime-minimum]]'
   - '[[03-epic-map]]'
-  - '[[feedback_track_licensing]]'
+  - '[[license-posture]]'
 canonical_path: wiki/decisions/2026-04-26-toolchain-pick.md
 ---
 
@@ -42,7 +42,7 @@ Open within those constraints:
 | Test runner | **Vitest 2.x** | Pre-decided. Fast, ESM-native, jest-compatible API, built-in v8 coverage. |
 | Lint | **ESLint 9.x + typescript-eslint 8.x** flat config with `strictTypeChecked` + `stylisticTypeChecked` recommended sets. Type-aware rules enabled via `parserOptions.projectService`. | Strict-type-checked catches a real class of bugs (unsafe assignments, floating promises, misuse of `any`) at lint time. Worth the extra cycles. Flat config is the modern way; legacy `.eslintrc` is deprecated. |
 | Format | **Prettier 3.x** | Pre-decided. Repo style: no semicolons, single quotes, trailing commas, 100-char width, LF line endings. |
-| Package manager | **pnpm 9.x** | Stricter dependency hoisting (catches phantom deps), faster than npm/yarn at scale, content-addressable store reduces disk usage across multiple projects. Aligned with `feedback_track_licensing` reference to `pnpm license-checker`. |
+| Package manager | **pnpm 9.x** | Stricter dependency hoisting (catches phantom deps), faster than npm/yarn at scale, content-addressable store reduces disk usage across multiple projects. Aligned with [[license-posture]] reference to `pnpm license-checker`. |
 | Node runtime | **Node 22+** (LTS), pinned in `.nvmrc` | Current LTS at the start of build. Matches CI. |
 
 **Other locked-in flags worth recording:**
@@ -74,7 +74,7 @@ Open within those constraints:
 ### Adding a new dependency
 
 - Always with a documented purpose. Run `pnpm add` and ensure it lands in the right section (`dependencies` for runtime, `devDependencies` for build/test/lint tooling).
-- License-check before merging: `pnpm licenses list` summary in the PR description. Per [[feedback_track_licensing]], any non-MIT/Apache/BSD license needs explicit review.
+- License-check before merging: `pnpm licenses list` summary in the PR description. Per [[license-posture]], any non-MIT/Apache/BSD license needs explicit review.
 
 ### Adding a new file outside `src/` and `tests/`
 
@@ -101,18 +101,18 @@ All toolchain picks are MIT or Apache-2.0:
 - Prettier: MIT
 - pnpm: MIT
 
-All compatible with 2200's Elastic License v2 distribution per [[feedback_track_licensing]]. Standard package-licensing discipline applies.
+All compatible with 2200's Elastic License v2 distribution per [[license-posture]]. Standard package-licensing discipline applies.
 
 ## References
 
 - Epic 2 spec: [[02-agent-runtime-minimum]] (the "architecture choices that are not pre-decided" section flagged this work)
-- Standing licensing rule: [[feedback_track_licensing]]
-- Build-phase decide-and-tell: [[feedback_decide_and_tell_in_build_phase]]
+- Standing licensing rule: [[license-posture]]
+- Build-phase decide-and-tell: [[build-phase-decisions]]
 - PR landing this toolchain: `epic-2/project-tooling` (PR #1 on `twentytwohundred/2200`)
 
 ## Format provenance
 
-Decision recorded by Hobby on 2026-04-26 at the start of Epic 2 build. The pick was a build-time call per [[feedback_decide_and_tell_in_build_phase]]; this record is the after-the-fact documentation that future contributors and future-Hobby can read to understand the locked toolchain.
+Decision recorded by Hobby on 2026-04-26 at the start of Epic 2 build. The pick was a build-time call per [[build-phase-decisions]]; this record is the after-the-fact documentation that future contributors and future-Hobby can read to understand the locked toolchain.
 
 ---
 

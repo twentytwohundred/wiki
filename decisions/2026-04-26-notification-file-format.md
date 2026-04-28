@@ -179,7 +179,7 @@ The format is our design; YAML frontmatter and markdown body are non-copyrightab
 
 ## Format provenance
 
-Decision recorded by Hobby on 2026-04-26 during Epic 2 build-phase prep. Build-time call per [[feedback_decide_and_tell_in_build_phase]]; this record captures the lock so the v1 notification implementation and the Epic 7 routing implementation share one format.
+Decision recorded by Hobby on 2026-04-26 during Epic 2 build-phase prep. Build-time call per [[build-phase-decisions]]; this record captures the lock so the v1 notification implementation and the Epic 7 routing implementation share one format.
 
 ---
 

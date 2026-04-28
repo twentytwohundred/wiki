@@ -9,7 +9,7 @@ linked_docs:
   - '[[02-agent-runtime-minimum]]'
   - '[[2026-04-25-tool-baseline]]'
   - '[[2026-04-25-mcp-native]]'
-  - '[[feedback_track_licensing]]'
+  - '[[license-posture]]'
 canonical_path: wiki/decisions/2026-04-26-web-search-provider.md
 ---
 
@@ -122,7 +122,7 @@ Per the [[2026-04-25-tool-baseline]] tool-level idempotency table, `web.search` 
 - The `web.search` MCP server lives in `src/tools/web-search/mcp-server.ts`. It registers under the baseline tool list at runtime.
 - Configuration: `WebSearchConfig` shape includes provider name and credential `SecretRef`. Identity files declare the provider via `tools.web_search.provider: tavily | brave`.
 - Tests: provider mocks for both Tavily and Brave; integration tests behind a `INTEGRATION_TEST=1` env-gated suite that hits the real APIs (skipped in CI unless secrets are wired).
-- Per [[feedback_track_licensing]], record the provider names and licenses in `THIRD_PARTY_NOTICES.md` even though the integration is API-only (pattern lift, no code copy from provider SDKs).
+- Per [[license-posture]], record the provider names and licenses in `THIRD_PARTY_NOTICES.md` even though the integration is API-only (pattern lift, no code copy from provider SDKs).
 
 ## License posture
 
@@ -137,11 +137,11 @@ Per the [[2026-04-25-tool-baseline]] tool-level idempotency table, `web.search` 
 - Tool baseline + plan/run/perm: [[2026-04-25-tool-baseline]]
 - MCP-native runtime: [[2026-04-25-mcp-native]] (provider abstraction registers as an MCP server)
 - Upgrade-readiness discipline 5: [[upgrade-readiness]] (SecretRef indirection)
-- Standing licensing rule: [[feedback_track_licensing]]
+- Standing licensing rule: [[license-posture]]
 
 ## Format provenance
 
-Decision recorded by Hobby on 2026-04-26 during Epic 2 build-phase prep. The pick was a build-time call per [[feedback_decide_and_tell_in_build_phase]]; this record locks both the abstraction shape and the v1 default before the baseline-tools PR lands.
+Decision recorded by Hobby on 2026-04-26 during Epic 2 build-phase prep. The pick was a build-time call per [[build-phase-decisions]]; this record locks both the abstraction shape and the v1 default before the baseline-tools PR lands.
 
 ---
 

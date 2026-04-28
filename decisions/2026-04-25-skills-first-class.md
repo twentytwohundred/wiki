@@ -113,7 +113,7 @@ Roster, Brain, and related primitives that summarize an Agent's capabilities now
 
 ## License posture
 
-Skill objects we author internally carry 2200's license (Elastic License v2). Skills imported from external sources retain their authors' licensing; the Skill record stores the upstream license string and 2200 surfaces it to the user. AGPL-licensed Skills are flagged at install ([[feedback_track_licensing]]) because their viral terms can affect the surrounding instance.
+Skill objects we author internally carry 2200's license (Elastic License v2). Skills imported from external sources retain their authors' licensing; the Skill record stores the upstream license string and 2200 surfaces it to the user. AGPL-licensed Skills are flagged at install ([[license-posture]]) because their viral terms can affect the surrounding instance.
 
 ## References
 

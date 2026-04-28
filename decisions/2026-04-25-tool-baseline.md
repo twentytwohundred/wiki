@@ -81,7 +81,7 @@ The Epic 2 spec must include:
 
 ## License posture
 
-The baseline tool list will draw architectural inspiration from OpenClaw's 31 (MIT, [[feedback_track_licensing]]). Pattern lift, not code lift, unless a specific tool implementation is small and worth copying with notice preservation. The plan/run/perm shape is a discipline, not copyrightable. Default to clean reimplementation; document attribution in the Epic 2 spec.
+The baseline tool list will draw architectural inspiration from OpenClaw's 31 (MIT, [[license-posture]]). Pattern lift, not code lift, unless a specific tool implementation is small and worth copying with notice preservation. The plan/run/perm shape is a discipline, not copyrightable. Default to clean reimplementation; document attribution in the Epic 2 spec.
 
 ## References
 

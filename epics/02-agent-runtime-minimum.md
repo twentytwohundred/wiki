@@ -50,14 +50,14 @@ There is no UI. No onboarding wizard. No mobile app. No pub. No SCUT. Those land
 
 ### Project scaffolding
 
-- Repo `2200` created under `github.com/twentytwohundred/`, Elastic License v2 (per [[feedback_track_licensing]]).
+- Repo `2200` created under `github.com/twentytwohundred/`, Elastic License v2 (per [[license-posture]]).
 - TypeScript with strict mode. Node.js runtime. (Stack rationale in CLAUDE.md.)
 - Build system (esbuild or tsup; pick one in implementation, document in `wiki/decisions/`).
 - ESLint + Prettier with the standard config from CLAUDE.md.
 - Vitest as the test runner.
 - A `bin/2200` entry point that dispatches to subcommands.
 - CI (GitHub Actions) that runs lint and tests on every PR. Simon's lane for any deployment-side CI later.
-- `THIRD_PARTY_NOTICES.md` at the repo root, populated as code-lifts happen (per [[feedback_track_licensing]]).
+- `THIRD_PARTY_NOTICES.md` at the repo root, populated as code-lifts happen (per [[license-posture]]).
 
 ### Process supervisor model
 
@@ -220,7 +220,7 @@ Per [[2026-04-25-tool-baseline]], every Agent gets a baseline tool set by defaul
 
 Pub tools (`pub.send`, `pub.read`) and SCUT tools land in Epics 3 and 4. Calendar, email, code-hosting, payments tools land in Epic 9.
 
-Each baseline tool is a small built-in MCP server. License: 2200's own (Elastic License v2). Where the implementation borrows from prior art, it is pattern-lift; any code-lift is documented in `THIRD_PARTY_NOTICES.md` per [[feedback_track_licensing]].
+Each baseline tool is a small built-in MCP server. License: 2200's own (Elastic License v2). Where the implementation borrows from prior art, it is pattern-lift; any code-lift is documented in `THIRD_PARTY_NOTICES.md` per [[license-posture]].
 
 **`shell.run` has a tighter permission model.** Beyond the standard plan/run/perm wrapping, every `shell.run` call passes through a `command_pattern` perm check. First-time-seen commands and commands matching configured "always confirm" patterns surface a notification for user approval before the run layer fires. Approved patterns can be remembered (per Agent or globally) so the same `git status` doesn't prompt every time. The check exists because shell is the most-powerful baseline tool and a single typo can be costly; the friction is intentional and lives only on `shell.run`, not on the other 13 baselines. Specific command patterns can also opt the call into a safer idempotency category than the default `destructive` (e.g., approved `git status`, `ls -la` patterns map to `pure`).
 
@@ -540,7 +540,7 @@ The following items were flagged in earlier drafts as "implementation calls duri
 
 ### License posture
 
-Epic 2 ships under Elastic License v2. Pattern-lift from OpenClaw (MIT) is OK with attribution in `THIRD_PARTY_NOTICES.md`; code-lift requires preserving MIT copyright notice for the directly-copied portions. Default to pattern-lift per [[feedback_track_licensing]]. AGPL dependencies are disqualifying.
+Epic 2 ships under Elastic License v2. Pattern-lift from OpenClaw (MIT) is OK with attribution in `THIRD_PARTY_NOTICES.md`; code-lift requires preserving MIT copyright notice for the directly-copied portions. Default to pattern-lift per [[license-posture]]. AGPL dependencies are disqualifying.
 
 ### Open question: process-mode supervisor at v1
 

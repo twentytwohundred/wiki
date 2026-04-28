@@ -21,7 +21,7 @@ Permanent reference appendix to [[prior-art-analysis]]. The executive synthesis 
 
 **How to read this doc.** One section per Section 7 study-plan target. Each section quotes file paths and line numbers from the OpenClaw clone at `/Users/dhardman/code/2200-reference/openclaw/` so findings are verifiable. Use this when the executive synthesis names a pattern but you need the underlying mechanics, file pointers, or code-shape detail before implementing.
 
-**License posture.** OpenClaw is MIT (Copyright (c) 2025 Peter Steinberger), 2200 ships under Elastic License v2. MIT → Elastic v2 is permitted. Architectural patterns are not copyrightable — free to emulate. Verbatim code copies require preserving the MIT copyright notice; default to "lift the pattern, reimplement" rather than "lift the code." See `feedback_track_licensing` memory for the standing rule.
+**License posture.** OpenClaw is MIT (Copyright (c) 2025 Peter Steinberger), 2200 ships under Elastic License v2. MIT → Elastic v2 is permitted. Architectural patterns are not copyrightable — free to emulate. Verbatim code copies require preserving the MIT copyright notice; default to "lift the pattern, reimplement" rather than "lift the code." See [[license-posture]] for the standing rule.
 
 ---
 
