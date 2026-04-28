@@ -49,6 +49,7 @@ As of 2026-04-28:
 - **Epic 3 (local pub integration via OpenPub) shipped.** Spec at [[03-local-pub-integration]]. Pub supervision substrate, user and Agent pub identities, four pub MCP tools, WebSocket wake source, end-to-end smoke test against `@openpub-ai/pub-server@0.3.3`.
 - **Subepics 3.5, 3.6, 3.7, 3.8 shipped.** Two-agent demo runbook reproducible end-to-end ([[03.5-two-agent-demo]]); six LLM providers wired (Anthropic native; OpenAI, DeepSeek, Kimi, OpenRouter, Gemini via the OpenAI-compatible adapter); two-tier model selection per Agent; pub message router with per-pub roster sidecars; ack-spiral structural guards in the wake source.
 - **Multi-Agent coordination working** end-to-end on the seed-team box. Agents stay in lane, respect explicit `@`-mentions, and do not produce ack chains.
+- **Epic 4 Phase A and Epic 4.5 specs drafted** (2026-04-28). The control-plane substrate before the seed team migrates into the platform: SCUT identity at spawn ([[04-scut-identity-at-spawn]]) and cost caps + usage telemetry ([[04.5-cost-caps-and-usage-telemetry]]). Awaiting Doug's review.
 
 The project will live in this wiki until 2200 itself can host it. That migration is the launch moment.
 

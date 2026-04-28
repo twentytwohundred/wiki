@@ -224,6 +224,8 @@ cat > "$WIKI_CLONE_DIR/_Sidebar.md" <<'SIDEBAR'
 - [[02-agent-runtime-minimum|Epic 2: Agent runtime minimum]]
 - [[03-local-pub-integration|Epic 3: Local pub integration]]
 - [[03.5-two-agent-demo|Epic 3.5: Two-agent demo]]
+- [[04-scut-identity-at-spawn|Epic 4 Phase A: SCUT identity at spawn]]
+- [[04.5-cost-caps-and-usage-telemetry|Epic 4.5: Cost caps and usage telemetry]]
 
 **Parked**
 

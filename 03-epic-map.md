@@ -89,18 +89,41 @@ Closed by [PR F (#26)](https://github.com/twentytwohundred/2200/pull/26) on 2026
 
 ## Epic 4: SCUT identity and cross-instance messaging
 
-**Scope.** Every Agent spawned in 2200 gets a SCUT identity. Agents can send and receive SCUT messages. Known contacts list exists.
+Split into two phases. Phase A is the identity substrate; Phase B is messaging on top of it.
 
-**Includes:**
-- SCUT registration at Agent spawn (custodial, using the Epic 1 pattern from SCUT)
-- SCUT inbox for each Agent, wired into the loop as an event source
-- SCUT send from Agent (pub tool or new scut tool)
-- Known contacts list, persisted per instance
-- User approval flow for messages from unknown contacts (creates a notification)
+### Epic 4 Phase A: SCUT identity at spawn
+
+**Spec at [[04-scut-identity-at-spawn]].** Status: drafted 2026-04-28, awaiting Doug review.
+
+**Scope.** Every Agent spawned in 2200 gets a custodial Ed25519 + X25519 keypair, an on-chain tokenId on a Base SII-compliant registry, and a `scut://` URI that addresses the Agent across instances. Substrate only... no inbox, no send, no contacts list yet.
+
+**Done when.** A new Agent created via CLI ends up with a registered SCUT URI in its Identity file, public keys verifiable on-chain, and a published SII document at the configured hoster. Pipeline survives kill-and-restart at any of its six states.
+
+**Depends on.** Epic 2. Garfield-side SCUT contract on Base. See the [Garfield brief](inbox/garfield/2026-04-28-2200-needs-from-scut-for-epic-4) for the coordination.
+
+### Epic 4 Phase B: Cross-instance messaging
+
+**Spec to be drafted after Phase A locks.**
+
+**Scope.** SCUT inbox per Agent, wired into the loop as an event source. SCUT send from Agent (new `scut.send` tool). Known contacts list, persisted per instance. User approval flow for messages from unknown contacts (creates a notification).
 
 **Done when.** An Agent in one 2200 instance can send a SCUT message to an Agent in another 2200 instance and get a reply. Doug can send a SCUT message from his fleet to Dana's fleet when Dana has one.
 
-**Depends on.** Epic 2. Benefits from SCUT Epic 1 (autonomous registration) being complete.
+**Depends on.** Phase A. Garfield-side relay infrastructure.
+
+---
+
+## Epic 4.5: Cost caps and usage telemetry
+
+**Spec at [[04.5-cost-caps-and-usage-telemetry]].** Status: drafted 2026-04-28, awaiting Doug review.
+
+**Scope.** User-configurable daily cost caps per Agent (in the Identity file), per-call telemetry persisted to disk, and a `2200 usage` CLI for the per-session/day/week breakdowns. Hard ceiling at 100% blocks new task spawn; tier-2 notification at 80%. Cost-control substrate that lets the seed team migrate into the platform without burning the budget on a misconfigured router or a runaway tool loop.
+
+**Done when.** A user can set a daily cap on any Agent and the supervisor honors it. `2200 usage` shows real per-Agent breakdowns. Threshold notifications fire correctly. Override and reset flows work. Restart correctly recomputes today's cumulative from telemetry replay.
+
+**Depends on.** Epic 2 (supervisor, Identity loader, schema versioning, notification format). Epic 4 Phase A for the per-Agent identifier shape; build can run partially in parallel.
+
+**Note.** Pattern-lifted from Claude Code's per-session/day usage UI, concept only ([[license-posture]]). Implements layers 1 and 4 of the eight-layer protection system in [[2026-04-24-cost-behavior-shape]] plus the data substrate that other layers will use.
 
 ---
 
