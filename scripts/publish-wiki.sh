@@ -220,6 +220,8 @@ cat > "$WIKI_CLONE_DIR/_Sidebar.md" <<'SIDEBAR'
 
 - [[01-seed-team-coordination|Epic 1: Seed team coordination]]
 - [[02-agent-runtime-minimum|Epic 2: Agent runtime minimum]]
+- [[03-local-pub-integration|Epic 3: Local pub integration]]
+- [[03.5-two-agent-demo|Epic 3.5: Two-agent demo]]
 
 **Parked**
 
@@ -228,7 +230,7 @@ SIDEBAR
 
 log "Generating _Footer.md..."
 cat > "$WIKI_CLONE_DIR/_Footer.md" <<'FOOTER'
-[2200](https://github.com/twentytwohundred/2200) · [Elastic License v2](https://github.com/twentytwohundred/2200/blob/main/LICENSE) · published from canonical source via `scripts/publish-wiki.sh`
+[twentytwohundred org](https://github.com/twentytwohundred) · [Elastic License v2](https://github.com/twentytwohundred/.github/blob/main/LICENSE) · [2200.ai](https://2200.ai) · published from a canonical Brain-format tree
 FOOTER
 
 # --- Commit and push ---------------------------------------------------------
