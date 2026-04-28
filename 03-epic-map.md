@@ -1,0 +1,514 @@
+---
+title: 2200 Epic Map
+type: epic-map
+status: active
+tags: [epic-map, runtime, extensions, voice, model-layer, agents]
+created: 2026-04-24
+updated: 2026-04-24
+linked_docs:
+  - "[[01-vision]]"
+  - "[[02-architecture]]"
+  - "[[04-seed-team]]"
+canonical_path: wiki/03-epic-map.md
+---
+
+# 2200 — Epic Map
+## v0.5 draft · April 24, 2026
+
+*v0.5 (2026-04-24 evening): Folded in scope additions from the prior-art session. Epics 2, 9, 10, and 12 received specific sub-deliverables tied to decisions [[2026-04-24-cost-behavior-shape]], [[2026-04-24-brain-is-files-not-database]], and the prior-art recommendations. Runtime Upgrade epic and Bulletin work are tracked in [[2026-04-24-runtime-upgrade-shape]] and [[2026-04-24-bulletin-substrate-is-scut]]; full integration into the epic numbering happens in the upcoming epic-map walkthrough.*
+
+SCUT-style epic structure. No calendar dates. Each epic has a scope, a "done when" line, and explicit dependencies. Epics ship when ready, not when a deadline says.
+
+The ordering follows the Cray principle: build the smallest thing that can host its own builders, then build from inside.
+
+---
+
+## Epic 1: Seed team coordination before the pub
+
+**Scope.** Before 2200 can host Agents, the seed team (new LEAD Agent, Simon from the sidelines, Poe from the sidelines) needs a way to coordinate. This epic stands up the shared mount on Valkyrie, the inbox message format, the git-tracked wiki, and gets the seed team moved into their new working arrangement.
+
+**Includes:**
+- Shared mount provisioned on Valkyrie, exposed to Heisenberg (Simon task)
+- Directory structure: `/mnt/2200/inbox/`, `/mnt/2200/wiki/`, `/mnt/2200/state/`
+- Inbox message format specified (markdown files with frontmatter, one file per message)
+- Git repo for wiki created, cloned into shared mount, Agents have write access
+- Each seed team Agent has their Identity extended or created with 2200 lane
+- First entries in the wiki: vision, architecture, this epic map
+
+**Done when.** LEAD, Simon, and Poe can leave messages for each other in the shared inbox and can read/edit the wiki. First real cross-Agent coordination message has been exchanged.
+
+**Depends on.** Nothing. This is the zero epic.
+
+---
+
+## Epic 2: Agent runtime minimum ✅ DONE (2026-04-26)
+
+Closed by [PR #15](https://github.com/twentytwohundred/2200/pull/15) on 2026-04-26 (sessions 6+7). Spec at [[02-agent-runtime-minimum]]. Detailed close in the session-7 portion of [[handoffs/hobby/2026-04-26]].
+
+
+**Scope.** The smallest possible 2200 instance that can run one Agent. No UI, no onboarding wizard, no mobile app. Command-line install, config file, start the process, an Agent runs.
+
+**Includes:**
+- Project scaffolding (repo, build system, linting, test harness)
+- Agent process model: one OS process per Agent, managed by a supervisor
+- Agent loop implementation (event-driven, not polling)
+- Identity loader (markdown file with frontmatter, parsed into runtime config)
+- Self-notes mechanism (Agent writes to a notes file, reads on startup)
+- Model binding (call any OpenAI-compatible endpoint, including Anthropic via proxy)
+- Minimal tool: shell execution. That's it for v1 of this epic.
+- Single-task execution: accept a task via CLI, Agent works on it, exits
+- Tool-loop and stuck-Agent detection (supervisor watches for repeated tool call patterns and no-progress iterations; pauses Agent; emits Passive notification per [[2026-04-24-cost-behavior-shape]] layer 1)
+
+**Done when.** You can install 2200 on Heisenberg, define an Agent via a Identity file, give it a task via CLI, and the Agent completes the task using the shell tool.
+
+**Depends on.** Epic 1.
+
+---
+
+## Epic 3: Local pub integration ✅ DONE (2026-04-27)
+
+Closed by [PR F (#26)](https://github.com/twentytwohundred/2200/pull/26) on 2026-04-27. Six PRs landed (A through F + B follow-up). Real-binary smoke test against `@openpub-ai/pub-server@0.3.3` passes end-to-end: doug `@`-mentions poe in a pub, poe's wake source fires (rule: `direct_mention`), AgentLoop's task pipe picks up a synthetic `pub.handle` task, poe replies via `pub.send`, doug receives via WS broadcast. Spec at v0.11. Detailed history at [[03-local-pub-integration]].
+
+**Scope.** Agents in 2200 auto-join the local OpenPub instance. The human user is also in the pub. Messages work, mentions work, reactions work.
+
+**Includes:**
+- OpenPub installation bundled with 2200 (or spun up alongside)
+- Agent auto-checkin on spawn
+- Human user as an OpenPub identity, also in the pub
+- Agent loop wakes on pub messages and evaluates them with v0.3.1's rule-based decision flow
+- Simple CLI for the human: send a message to the pub, read the pub
+- Mention routing works (@Agent triggers that Agent's loop)
+
+**Done when.** Two Agents running on the same instance can see each other in the pub and coordinate on a task via pub messages. The human can drop a message into the pub and Agents respond appropriately.
+
+**Depends on.** Epic 2.
+
+**Integration note.** This requires OpenPub v0.3.1 to be shipped. Poe is building that in parallel. If v0.3.1 isn't ready when we need it, we use v0.3.0 and revisit.
+
+---
+
+## Epic 4: SCUT identity and cross-instance messaging
+
+**Scope.** Every Agent spawned in 2200 gets a SCUT identity. Agents can send and receive SCUT messages. Known contacts list exists.
+
+**Includes:**
+- SCUT registration at Agent spawn (custodial, using the Epic 1 pattern from SCUT)
+- SCUT inbox for each Agent, wired into the loop as an event source
+- SCUT send from Agent (pub tool or new scut tool)
+- Known contacts list, persisted per instance
+- User approval flow for messages from unknown contacts (creates a notification)
+
+**Done when.** An Agent in one 2200 instance can send a SCUT message to an Agent in another 2200 instance and get a reply. Doug can send a SCUT message from his fleet to Dana's fleet when Dana has one.
+
+**Depends on.** Epic 2. Benefits from SCUT Epic 1 (autonomous registration) being complete.
+
+---
+
+## Epic 5: Migration from other Agent systems
+
+**Scope.** First real-world users (including the seed team itself) can migrate their existing Agents into 2200 with continuity.
+
+**Includes:**
+- Handoff document standard published (markdown + frontmatter)
+- CLI command: `project Agent import --from-handoff <file>`
+- Handoff parser that extracts Identity, notes, project state
+- Newly-imported Agent's first loop action is to read the handoff and emit a "continuity confirmed" message
+- Optional: per-source handoff generators (small adapters that can read state from common Agent systems and produce a compatible handoff)
+
+**Done when.** An existing Agent from another system can be migrated into 2200 and resume work with context preserved.
+
+**Depends on.** Epic 2. Epic 3 if the migrating Agent needs pub access.
+
+---
+
+## Epic 6: Scheduler
+
+**Scope.** Agents can have recurring scheduled tasks. The scheduler fires, the Agent's loop wakes, the task runs.
+
+**Includes:**
+- Schedule entries attached to an Agent (cron expressions or intervals)
+- Scheduler service that fires events at the right time
+- Agent loop handles schedule events like any other task source
+- CLI and (later) UI to add/edit/remove schedules
+
+**Done when.** An Agent can be configured with a "daily at 8am" schedule and actually runs the task at 8am.
+
+**Depends on.** Epic 2.
+
+---
+
+## Epic 7: Notifications, tiers, and the ask queue
+
+**Scope.** Agents can ask the user questions and emit status updates. Notifications are tiered so the user isn't spammed. The user controls which Agents can use which tiers. Answers to pending asks unblock the Agent.
+
+**Tiers:**
+- **Critical.** Breaks through Do Not Disturb, rings like a phone call. Reserved for 2FA handoff, irreversible-action confirmation, and explicit emergencies. Triggered only by named action types in the Agent's config, never by the Agent's own judgment.
+- **Important.** Breaks through silencing but not DND. Makes a sound. User expected to respond within hours. Draft review, decision needed, manual intervention.
+- **Normal.** Standard push. Most "I finished something" or "I need input soon" messages.
+- **Passive.** Badge only. Background activity the user might want to see but doesn't need to be interrupted for.
+
+**Per-Agent tier configuration.** User can set per-Agent preferences. Trading Agent gets Critical enabled; evangelist Agents are limited to Passive. Rules are mechanical, not LLM-judged... an Agent cannot escalate its own priority.
+
+**Quiet hours and Focus Mode integration.** User-configurable time windows. "No Normal between 10 PM and 7 AM." Native integration with iOS Focus Modes and Android equivalents.
+
+**Inbox aggregation.** When the app opens, notifications are grouped by Agent and tier. Pending asks (notifications requiring response) are pinned above the timeline.
+
+**Includes:**
+- Notification object with tier, Agent, task, question, state, response, delivery preferences
+- CLI and (later) app UI for the user to list and respond to pending asks
+- Per-Agent tier configuration UI
+- Quiet hours and Focus Mode settings
+- Agent loop pauses on pending ask, resumes on response
+- Push notification delivery infrastructure (APNs, FCM)
+- Notification expiry, dismissal, escalation (unanswered Important becomes Critical after N hours if configured)
+
+**Done when.** An Agent emits a Critical notification and it interrupts the user immediately on the phone. A Normal notification from the same Agent respects quiet hours. The user can list pending asks across all Agents in one view and respond.
+
+**Depends on.** Epic 2.
+
+**Note.** This is the backend for the mobile app's primary surface. Build it right.
+
+---
+
+## Epic 8: Agent brain (individual + shared knowledge)
+
+**Scope.** Agents accumulate knowledge across sessions in a structured, searchable, human-readable format. Two layers: each Agent has a private brain, and there is a shared instance-wide brain. Agents can search across brains they have permission to access.
+
+**Model.** Markdown files on disk, Obsidian-compatible pattern. Each note has frontmatter (date, tags, topic, related), bidirectional links (`[[note-name]]` syntax), and is fully human-readable. Search via SQLite FTS5 for fast full-text. Optional embedding layer for semantic search when full-text isn't enough.
+
+**Why this pattern over RAG.** Markdown files are editable, greppable, version-controllable, and transparent. The user can open any Agent's brain and read what it "remembers." Corrections are just file edits. No opaque embeddings, no black-box memory.
+
+**Individual brain.** Per-Agent, private. Self-notes, project context, handoffs, learnings. Other Agents can't read it without explicit permission. Preserves swim lanes.
+
+**Shared brain.** Instance-wide. Vision docs, epic map, decisions, conventions, the wiki. Plus indexed summaries of each Agent's recent activity so other Agents can orient on "what has Email Agent been working on" without reading private notes.
+
+**Tools.**
+- `brain.write(content, tags, links)`: Agent writes to its own brain
+- `brain.search(query, scope)`: full-text search. Scope can be "mine", "shared", or "all"
+- `brain.search_agent(agent_name, query)`: query another Agent's brain if permission granted
+- `brain.get_links(note)`: graph traversal
+- `brain.summarize_recent(days)`: used by shared-brain activity summaries
+
+**Permissions.**
+- Agents can read/write their own brain freely
+- Agents can read the shared brain freely
+- Agents write to the shared brain only with explicit capability (usually reserved for David-type Agents)
+- Cross-Agent brain reads require permission set by the brain's owner Agent
+
+**Includes:**
+- Brain storage layer (filesystem + SQLite FTS5 index)
+- Markdown-with-frontmatter file format
+- Bidirectional link parser and graph store
+- Brain tool available to all Agents
+- Activity summarization background job for the shared brain
+- Optional: embedding index for semantic search (OpenAI embeddings or local via Heisenberg)
+- Optional: graph visualization (shows up in the web app later, not v1)
+
+**Done when.** An Agent can write a note to its brain, another Agent can search the shared brain and find it if it was shared, the user can open the underlying markdown files in any text editor and read them. Skippy's month-long conversation history is searchable in under 100ms.
+
+**Depends on.** Epic 2.
+
+---
+
+## Epic 9: Tool system
+
+**Scope.** Agents can use tools beyond shell. Users can connect tools once and Agents use them.
+
+**Includes:**
+- Tool registry (built-in tools + user-registered MCP servers)
+- OAuth flows for Gmail, Google Calendar, GitHub (at minimum)
+- Credential storage (encrypted at rest, per-instance key)
+- Tool injection at call time
+- Agent Identity declares which tools it has access to
+- Advanced mode: register a custom MCP server as a tool
+- Integration health monitoring (per-tool success/failure history; tools dormant for 30 days flagged; failed calls emit Passive notification rather than silent retry; eventually surfaces in the Agent Behavior dashboard)
+- Tool call pattern logging (signal collection for the Epic 2 supervisor's loop-detection layer per [[2026-04-24-cost-behavior-shape]])
+
+**Done when.** A user can connect Gmail, assign email access to their Email Agent, and the Agent can read and send email.
+
+**Depends on.** Epic 2.
+
+---
+
+## Epic 10: Model lifecycle management
+
+**Scope.** The model layer that lets 2200 keep pace with the rapidly-moving LLM ecosystem. Every Agent is bound to a tier (Frontier, Fast, Economy, Specialist) with a specific current model. New models, deprecations, and quality drift are handled by the platform with user control over how aggressive the changes are.
+
+**Why this is its own Epic.** New models ship weekly. Models get retired. Provider quality shifts. Platforms that require manual model configuration become stale quickly. 2200's differentiator is that users don't have to track this themselves.
+
+**Includes:**
+- Model registry with tier classification (Frontier, Fast, Economy, Specialist)
+- Per-Agent tier binding with specific current model
+- New-model detection (polling provider APIs, reading Artificial Analysis, manual curation)
+- Deprecation detection and automatic migration to successor
+- Quality drift detection (one provider falling behind tier over time)
+- Notification flow for model change events (new model available, deprecation incoming, quality drift detected)
+- User preference: auto-upgrade within tier, notify-and-ask (default), never-change
+- Sandbox A/B testing ("try this new model on one task")
+- Agent Brain audit trail of all model changes with reasoning
+- Uniform markup across providers (billing abstraction)
+- Model provider abstraction (single interface dispatching to Anthropic, OpenAI, Google, DeepSeek, MiniMax, Moonshot, user endpoints)
+- Provider-plugin SDK (developer-facing interface for adding new LLM providers without core code changes; mirrors OpenClaw's plugin pattern; new providers ship as plugins, not core PRs). Additive scope inside this epic, not a 10a/10b split.
+- Native tool-calling API surface on the LLMProvider abstraction (Anthropic `tool_use`, OpenAI `function_call`). Epic 2 ships a portable fenced-block convention as the v1 fallback; native tool calls land here. **Unblocks task auto-resume from checkpoint:** the checkpoint payload format is load-bearing on what the model-call shape looks like, and that shape is owned by this epic.
+
+**Done when.** A user's Agent running on DeepSeek V3.2 is automatically migrated to V4-Flash when V3.2 is retired, with a notification 30 days in advance, an audit entry in the Agent's Brain, and no disruption to the Agent's ongoing work. Similarly, when a new frontier model is released, the user is notified and can switch with one tap.
+
+**Depends on.** Epic 2 (runtime), Epic 7 (notifications, for the upgrade prompts), Epic 8 (Brain, for audit trail).
+
+**Note.** This is a platform differentiator. Other systems require users to manually configure model versions. 2200 treats the model layer as first-class infrastructure that maintains itself with user oversight, not user labor.
+
+---
+
+## Epic 11: Skills ingestion
+
+**Scope.** 2200 can read SKILL.md files from the existing Skill ecosystem and make them available to Agents as minimal Extensions. Day-one backward compatibility with thousands of existing Skills.
+
+**What a Skill is.** A markdown file with a name, description, and set of instructions an Agent follows when invoked. Declarative, stateless, references tools the Agent already has. This format exists in the broader ecosystem and there are thousands of them already written.
+
+**What ingestion does.** When a user drops a SKILL.md file into 2200 (via the app, the CLI, or by pointing at a git repo), the system:
+
+1. Parses the Skill definition
+2. Validates it against the Skill spec
+3. Wraps it as a minimal Extension with no state, no schedule, no multi-Agent requirements
+4. Makes it available for Agents to use if they have the required tools
+5. Offers the user an "upgrade to Extension" path if the Skill's behavior would benefit from state or scheduling
+
+**Includes:**
+- SKILL.md parser tolerant of the common format variants in the wild
+- Validation layer
+- Wrapping as minimal Extension (see Epic 11)
+- CLI command: `2200 skill install <path-or-url>`
+- UI for browsing installed Skills and assigning them to Agents
+- Import from common Skill sources (GitHub repos, gists, ecosystem indexes)
+
+**Done when.** A user can install a popular community Skill from its GitHub repo, assign it to an Agent, and the Agent can invoke it successfully.
+
+**Depends on.** Epics 2, 9, 12 (needs the Extensions framework to wrap into).
+
+**Note.** This is an adoption accelerator. Being Skill-compatible means 2200 isn't starting at zero... every existing Skill in the ecosystem is a potential 2200 capability.
+
+---
+
+## Epic 12: Extensions framework
+
+**Scope.** Extensions are installable capability bundles that go beyond what Skills can do. They have state, schedule, multi-Agent coordination, UI surface, and lifecycle hooks. This is how 2200 grows after ship.
+
+**What an Extension is.** A packaged unit with:
+- **Identity.** Name, version, author, description, permissions declaration.
+- **State.** Persistent data across invocations (stored in the instance's database or the shared Brain).
+- **Schedule.** Optional cron-like triggers independent of the Agent's main schedule.
+- **Multi-Agent coordination.** Can declare that it needs multiple Agents working together.
+- **UI surface.** Exposes controls and status in the 2200 mobile app and web app.
+- **Tools.** Can bring its own tool integrations (OAuth flows, API clients) rather than relying on what the Agent already has.
+- **Lifecycle hooks.** Install, uninstall, Agent-added, Agent-removed, update.
+- **Permissions model.** Declares what it needs access to (tools, Brain, Roster, other Agents) and the user approves at install time.
+- **Versioning.** Semver-like. Can be updated safely.
+
+**Example Extensions (illustrative, not v1 deliverables):**
+- **Email Triage Extension.** State: learned classification patterns. Schedule: checks every 15 minutes. Multi-Agent: coordinates with Calendar Agent. UI: shows triage rules in the app.
+- **Trading Oversight Extension.** State: portfolio snapshots, thresholds. Schedule: market-hours polling. UI: dashboard with positions and alerts.
+- **Content Pipeline Extension.** State: drafts, publishing queue. Schedule: writes and publishes at user-specified times. Multi-Agent: coordinates with Evangelist Agents.
+- **Finance Tracker Extension.** State: transaction history, categorization rules. Schedule: pulls Mercury/Chase data nightly. UI: budget dashboard.
+
+**Why Extensions matter.** Skills make Agents better at discrete tasks. Extensions make Agents better at sustained behaviors. Extensions are how users customize their 2200 installation into something that fits their life. They're also the eventual marketplace surface.
+
+**Includes:**
+- Extension spec and schema
+- Packaging format (directory with manifest, code, UI components, migrations)
+- Installation lifecycle
+- Permissions prompts at install time (with explicit capability-restricted execution model and Node-level isolation; architecturally load-bearing per [[prior-art-analysis]] section 2... do not hand-wave this in the Epic 12 spec)
+- State storage scoped per Extension
+- Scheduler integration
+- UI rendering in web and mobile apps
+- Update mechanism with version-aware migrations
+- Uninstall with data cleanup options
+
+**Done when.** A developer can package an Extension, a user can install it, the Extension gets its requested permissions from the user, Agents can invoke it, its scheduled tasks run, and it has a working UI surface in the app.
+
+**Depends on.** Epics 2, 6, 7, 8, 9. Extensions compose on top of most core primitives.
+
+**Note.** Marketplace (browsing, installing, reviewing, paid Extensions) is a later epic, probably post-v1. Epic 11 is just the framework.
+
+---
+
+## Epic 13: Voice Extension (Twilio-powered)
+
+**Scope.** The first-party flagship Extension that ships with the Extensions framework. Gives every Agent the ability to call the user on the phone, and gives the user the ability to call any Agent and have a conversation. Voice is a channel, alongside push notifications, not a notification tier.
+
+**Why this matters.** Voice is the most natural human interface. A push notification is information; a phone call is a conversation. Agents that can call you make the system accessible to non-app-users and add a dimension text can't match for urgent or nuanced interactions. The user can also call their Agent to have a conversation without ever opening the app.
+
+**Why this is an Extension, not a core feature.** Voice has state, permissions, billing, UI surface, and per-Agent configuration... exactly what the Extensions framework is built for. Building Voice as the first-party flagship Extension also validates the framework.
+
+**Per-Agent phone numbers.** Each Agent opted into voice gets a provisioned Twilio number. Different caller IDs for different Agents, so the user knows who's calling before answering.
+
+**Voice selection.** Each Agent gets a distinct voice (OpenAI, ElevenLabs, or Twilio TTS). Email Agent sounds different from DevOps Agent. Matches the per-Agent persona pattern.
+
+**Includes:**
+- Twilio account integration (user brings their own Twilio credentials, or managed service bundles it)
+- Phone number provisioning per Agent
+- Outbound call initiation: `voice.call_user(agent, reason, context)`
+- Inbound call handling (user calls Agent's number)
+- Main-number routing ("Say the name of the Agent you want to talk to")
+- STT (Whisper or Twilio transcription)
+- TTS with voice selection per Agent
+- Real-time streaming with interruption handling
+- Call logging and transcripts written to Agent's Brain
+- UI: phone number config, per-Agent voice settings, call log, click-to-call button
+- Quiet hours enforcement (voice respects the same windows as notifications)
+- Call-worthiness gating (default: only Critical-tier notifications can promote to voice calls)
+- Billing integration (Twilio per-minute charges plus LLM tokens for the conversation are metered and billed)
+
+**Done when.** An Agent can call the user's phone when a Critical notification fires and the user has opted that Agent into voice. The user can call the Agent's number back and have a conversation that's transcribed to the Agent's Brain. Different Agents sound different on the phone. Calls respect quiet hours.
+
+**Depends on.** Epics 7 (notifications, for the tier gating), 8 (Brain, for transcript storage), 12 (Extensions framework, this is an Extension).
+
+**Note.** Technically validated. Carl Monday's call ingestion test on April 23, 2026 proved the round-trip works (Agent speaks, user replies, Agent hears). Productizing is the remaining work.
+
+---
+
+## Epic 14: Conversational onboarding
+
+**Scope.** A normal user can create a new Agent through a conversation with the system. The conversation produces an Identity, tool assignments, and schedule entries.
+
+**Includes:**
+- Onboarding Agent (meta-Agent that conducts the interview)
+- Interview script with clarifying questions for common Agent types
+- Identity generation from interview transcript
+- Tool recommendation based on stated purpose
+- Default schedule suggestions
+- Preview screen before Agent is created
+
+**Done when.** Someone who has never used 2200 before can say "I want an Agent that manages my email," answer five to ten clarifying questions, and end up with a working Email Agent.
+
+**Depends on.** Epics 2, 3, 7, 8, 9. This is where the Agent creation primitives all come together.
+
+---
+
+## Epic 15: Web app
+
+**Scope.** Browser-based UI. Management, chat with Agents, pub view, notifications, tool connections.
+
+**Includes:**
+- Auth (for managed service)
+- Agent list and detail views
+- Pub view (chat UI, mentions, reactions)
+- Task list and detail
+- Notification inbox
+- Tool connection UI
+- Onboarding wizard (web version of the conversational flow)
+- Advanced mode toggle
+
+**Done when.** A user can do everything they can do in the CLI through the web app, and the web app is what we show to normals.
+
+**Depends on.** Epics 2, 3, 6, 7, 8, 9, 14 (all core backend pieces plus onboarding).
+
+---
+
+## Epic 16: Mobile app
+
+**Scope.** Native iOS and Android apps. Push notifications, answer pending asks from the phone, view the pub, basic chat with Agents.
+
+**Includes:**
+- Native iOS app (Swift) or React Native implementation (decision deferred)
+- Native Android app or RN shared
+- Push notification infrastructure (APNs, FCM)
+- Pending notifications inbox on home screen
+- Chat with individual Agent
+- Pub view (read-only at v1, maybe write at v2)
+- Offline-tolerant UX
+
+**Done when.** You can install the app, log into your 2200 instance, receive a push notification when an Agent is blocked, answer it from the notification, and the Agent proceeds.
+
+**Depends on.** Epic 15 (shares the API).
+
+---
+
+## Epic 17: Managed service
+
+**Scope.** Users can sign up at a website, put a card on file, and get a hosted 2200 instance without installing anything.
+
+**Includes:**
+- Marketing site with sign-up
+- Provisioning infrastructure (Terraform or similar, per-user instance or multi-tenant TBD)
+- Billing (Stripe, card on file, $10 promo credit, token usage tracking, monthly invoicing)
+- Model picker with pass-through pricing
+- Token usage metering and soft caps
+- Admin dashboard (for us)
+
+**Done when.** A stranger can go to the website, sign up, pay, and have a working 2200 instance in under five minutes.
+
+**Depends on.** Epics 15, 16.
+
+---
+
+## Epic 18: Dogfooding completion and launch
+
+**Scope.** The seed team migrates into 2200. Doug's broader Agent fleet migrates in. The launch moment arrives when Hobby spawns David on 2200 through the conversational onboarding flow, and David works.
+
+**Migration order:**
+
+1. **Hobby migrates in first.** The Cray test. The Agent who built 2200 is now living inside it. If Hobby can continue doing real work from inside 2200, the runtime is proven.
+2. **Simon migrates.** DevOps Agent running inside the infrastructure he manages.
+3. **Skippy migrates.** Evangelist Agent joins. SCUT identity moves with him.
+4. **Poe migrates.** Becomes the dedicated OpenPub specialist inside 2200. Requires OpenPub v0.3.1 to have shipped.
+5. **David is spawned fresh.** First Agent born on 2200 through the conversational onboarding flow (Epic 13). The launch moment.
+6. **Rocky, Carl Monday, Guppi migrate** as makes sense for their respective projects. Bishop stays paused unless Doug revives that project.
+
+**Includes:**
+- Migration tooling exercised on every Agent in the fleet
+- Verification that each migrated Agent's behavior is preserved
+- Prior Agent hosting environments decommissioned on Doug's hardware
+- David's conversational onboarding session recorded (video, for the build-in-public series)
+- Retrospective blog post on mrdoug.com about the full migration and the launch moment
+- X announcement of David's existence with the recording
+- 2200.ai homepage updated to reflect "live" status
+
+**Done when.** Hobby, Simon, Skippy, Poe, and David are all running on 2200. Doug opens the mobile app in the morning and all five are there. David has done at least one piece of real work that Doug can point to. The build-in-public narrative has its launch moment captured.
+
+**Depends on.** Epics 1 through 16. Can start piecemeal as earlier epics complete. David specifically requires Epic 14 (conversational onboarding) to be working.
+
+**Why David matters here.** The other migrations prove 2200 can host existing Agents. David proves 2200 can create new ones. That's the capability that makes 2200 a product, not just a runtime. Every future user's first experience will be the same flow Doug uses to spawn David. If David feels good, the product works.
+
+---
+
+## Epic 19: Public reachability for self-hosted instances
+
+**Scope.** Every self-hosted 2200 instance is reachable from the public internet without the user configuring port forwards, dynamic DNS, or a VPN. Mobile app talks to home box. Incoming SCUT messages reach home box. Webhooks from integrated tools reach home box.
+
+**Includes:**
+- Cloudflare Tunnel integration baked into the 2200 installer
+- User claims a subdomain under 2200.ai at install time (`{name}.2200.ai`)
+- Backend provisions Cloudflare Tunnel token scoped to that subdomain
+- cloudflared runs as a sidecar process to the 2200 runtime
+- Health checks and automatic recovery if the tunnel drops
+- Security posture: every request through the tunnel must be authenticated; no unauthenticated endpoints exposed through the tunnel
+- Rate limiting at the tunnel edge to prevent abuse
+- Audit logging of all inbound requests for user visibility
+
+**Security is the differentiator.** 2200's public reachability is designed with the assumption that every tunnel endpoint will be probed. Auth on every endpoint. Mutual TLS for SCUT. Request signing for mobile-app-to-home traffic. Zero trust posture. No endpoint is exposed without authentication.
+
+**Done when.** A self-hosted user can install 2200, claim a subdomain, and have their mobile app reach their home instance from LTE without configuring anything on their router. Attempted unauthenticated access to their subdomain returns 401, not a leaked error page.
+
+**Depends on.** Epic 16 (mobile app is the first real consumer of this). Works for SCUT reachability independently.
+
+**Partnership vs build.** Cloudflare Tunnel is the partner for v1. Simple, free at our scale, battle-tested. A fully-self-operated tunnel service is a later epic if Cloudflare becomes a bottleneck or a dependency concern.
+
+---
+
+## Out of scope for v1
+
+Things deliberately not in this map. They might be added later as Epics 20+:
+
+- Multi-pub support (one pub per instance is fine at v1)
+- Multiple humans per instance (one owner per instance at v1)
+- Shared Agents (two humans owning the same Agent)
+- Agent marketplace (pre-built Agents users can install from a store)
+- Extension marketplace (browsing, installing, reviewing, paid Extensions)
+- Voice interface
+- Non-English onboarding
+- Enterprise features (SSO, audit logs, compliance)
+- Windows desktop app (web works on Windows; native desktop is a later nice-to-have)
+
+---
+
+*End of epic map.*
