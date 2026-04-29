@@ -23,7 +23,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-12 of 19 numbered epics shipped on `main` as of 2026-04-29 ... Epic 5 (Migration), Epic 9 Phase A (Tool system substrate), Epic 14 Phase A (Conversational onboarding), and Epic 15 Phase A (Web app: Fleet, Agent detail, Inbox, ⌘K + runtime HTTP server) all shipped this day. Next: continue down the map (4B cross-instance messaging, 7B inbox routing, 8B-D shared brain, 9B/C tool depth, 10 model lifecycle, 11 skills ingestion, 12 extensions framework, 13 voice extension, 16 mobile, 17 managed service, 18 dogfooding, 19 public reachability).
+13 of 19 numbered epics have shipped phases on `main` as of 2026-04-29. Today's adds: Epic 5 (Migration), Epic 9 Phase A (Tool system), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app), Epic 8 Phase B (Shared brain). Next, continuing down the map: 7B inbox routing, 9B OAuth + credential vault, 10 model lifecycle, 11 skills ingestion, 12 extensions framework, 13 voice extension, 16 mobile, 17 managed service, 18 dogfooding, 19 public reachability.
 
 | # | Epic | Status |
 |---|---|---|
@@ -249,7 +249,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 8: Agent brain (individual + shared knowledge)
 
-**Status:** ✅ Phase A shipped 2026-04-28. PRs [#71](https://github.com/twentytwohundred/2200/pull/71)–[#74](https://github.com/twentytwohundred/2200/pull/74). Spec at [[08-agent-brain]] (Phase A locked, Phases B–D sketched). Phase B (shared brain), C (cross-Agent reads + link graph), D (semantic search) ... not started, will get their own specs when activated.
+**Status:** ✅ Phase A shipped 2026-04-28. ✅ Phase B (shared brain at `<home>/shared/brain/`) shipped 2026-04-29 in [PR #99](https://github.com/twentytwohundred/2200/pull/99). PRs [#71](https://github.com/twentytwohundred/2200/pull/71)–[#74](https://github.com/twentytwohundred/2200/pull/74) for Phase A. Spec at [[08-agent-brain]] (Phase A locked, Phases B–D sketched). Phase B substrate ships read-only `BrainStore.forShared` + `BrainIndex.openShared` + `2200 shared-brain list / show / search / rebuild / import` CLI; agent-side write capability gated on Identity flag arrives in Phase C, alongside cross-Agent reads + link graph. Phase D (semantic search) parked.
 
 **Scope.** Agents accumulate knowledge across sessions in a structured, searchable, human-readable format. Two layers: each Agent has a private brain, and there is a shared instance-wide brain. Agents can search across brains they have permission to access.
 
