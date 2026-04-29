@@ -23,7 +23,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-15 of 19 numbered epics have shipped phases on `main` as of 2026-04-29. Today's adds (across four sessions): Epic 5 (Migration), Epic 9 Phase A (Tool system), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app), Epic 8 Phase B (Shared brain), Epic 10 Phase A (Model lifecycle catalog), Epic 12 Phase A (Extensions framework substrate), Epic 11 Phase A (Skills ingestion). Remaining: 4B cross-instance messaging (blocked on Garfield), 7B inbox routing, 8C-D cross-Agent + semantic, 9B/C tool depth, 13 voice extension, 15B/C web app deeper, 16 mobile app, 17 managed service, 18 dogfooding, 19 public reachability.
+15 of 19 numbered epics have shipped phases on `main` as of 2026-04-29. Today's adds (across five sessions): Epic 5 (Migration), Epic 9 Phase A (Tool system), Epic 9 Phase B substrate (encrypted credential vault + vault SecretRef), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app), Epic 8 Phase B (Shared brain), Epic 10 Phase A (Model lifecycle catalog), Epic 12 Phase A (Extensions framework substrate), Epic 11 Phase A (Skills ingestion). Plus the scheduler flake fix (PR #103) and per-epic spec files for 10/11/12 + 8B updates. Remaining: 4B cross-instance messaging (blocked on Garfield), 7B inbox routing, 8C-D cross-Agent + semantic, 9B-2/9B-3 OAuth + token refresh, 9C HTTP transport, 13 voice extension, 15B/C web app deeper, 16 mobile app, 17 managed service, 18 dogfooding, 19 public reachability.
 
 | # | Epic | Status |
 |---|---|---|
@@ -40,7 +40,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 8A | Agent brain (private, filesystem + FTS5) | ✅ Shipped 2026-04-28 |
 | 8B | Shared brain | ✅ Shipped 2026-04-29 |
 | 8C–D | Cross-Agent reads, semantic search | Not started |
-| 9 | Tool system | ✅ Phase A shipped 2026-04-29 |
+| 9 | Tool system | ✅ Phase A shipped 2026-04-29; ✅ Phase B substrate (vault) shipped 2026-04-29 |
 | 10 | Model lifecycle management | ✅ Phase A shipped 2026-04-29 |
 | 11 | Skills ingestion | ✅ Phase A shipped 2026-04-29 |
 | 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 |
@@ -52,7 +52,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 18 | Dogfooding completion and launch | Not started |
 | 19 | Public reachability for self-hosted instances | Not started |
 
-Runtime + web-app `main@8ee4026` ... 911 runtime tests + 64 web tests / 110+ files / lint+typecheck+format+build clean across both workspace packages.
+Runtime + web-app `main` ... 935 runtime tests + 64 web tests / 120+ files / lint+typecheck+format+build clean across both workspace packages.
 
 ---
 
