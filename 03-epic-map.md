@@ -33,7 +33,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 4A | SCUT identity at spawn | ✅ Shipped 2026-04-28 (v0.4) |
 | 4B | Cross-instance messaging | Not started |
 | 4.5 | Cost caps and usage telemetry | ✅ Shipped 2026-04-27 |
-| 5 | Migration from other Agent systems | 🔜 Next |
+| 5 | Migration from other Agent systems | ✅ Phase A shipped 2026-04-29 |
 | 6 | Scheduler | ✅ Shipped 2026-04-28 |
 | 7A | Notifications + ask queue | ✅ Shipped 2026-04-28 |
 | 7B | Inbox routing into notifications | Deferred |
@@ -51,7 +51,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 18 | Dogfooding completion and launch | Not started |
 | 19 | Public reachability for self-hosted instances | Not started |
 
-Runtime substrate `main@273dfc3` ... 741 tests / 60 files / lint+typecheck+build clean.
+Runtime + web-app substrate `main@0d47b72` ... 865 runtime tests + 2 web tests / 74 files / lint+typecheck+format+build clean across both workspace packages.
 
 ---
 
@@ -239,7 +239,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 **Done when.** An Agent emits a Critical notification and it interrupts the user immediately on the phone. A Normal notification from the same Agent respects quiet hours. The user can list pending asks across all Agents in one view and respond.
 
-**Phase A as shipped.** Per-Agent notification files at `<home>/state/notifications/<id>.md` (frontmatter+body markdown). 4-tier system (passive / normal / important / critical) with `notification_policy.tiers_allowed` gating Agent self-emit. Critical tier remains supervisor-driven from action-type ... Agents cannot self-escalate. `notification.ask` baseline tool: agent loop blocks on a user response file; `waitForResponse` polling helper handles dismissal/timeout/abort. CLI: `2200 notification list / show / respond / dismiss / follow`.
+**Phase A as shipped.** Per-Agent notification files at `<home>/state/notifications/<id>.md` (frontmatter+body markdown). 4-tier system (passive / normal / important / critical) with `notification_policy.tiers_allowed` gating Agent self-emit. Critical tier remains supervisor-driven from action-type ... Agents cannot self-escalate. `notification.ask` baseline tool: Agent loop blocks on a user response file; `waitForResponse` polling helper handles dismissal/timeout/abort. CLI: `2200 notification list / show / respond / dismiss / follow`.
 
 **Depends on.** Epic 2.
 
@@ -363,7 +363,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 **Includes:**
 - SKILL.md parser tolerant of the common format variants in the wild
 - Validation layer
-- Wrapping as minimal Extension (see Epic 11)
+- Wrapping as minimal Extension (see Epic 12)
 - CLI command: `2200 skill install <path-or-url>`
 - UI for browsing installed Skills and assigning them to Agents
 - Import from common Skill sources (GitHub repos, gists, ecosystem indexes)
@@ -416,7 +416,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 **Depends on.** Epics 2, 6, 7, 8, 9. Extensions compose on top of most core primitives.
 
-**Note.** Marketplace (browsing, installing, reviewing, paid Extensions) is a later epic, probably post-v1. Epic 11 is just the framework.
+**Note.** Marketplace (browsing, installing, reviewing, paid Extensions) is a later epic, probably post-v1. Epic 12 is just the framework.
 
 ---
 
@@ -552,7 +552,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 2. **Simon migrates.** DevOps Agent running inside the infrastructure he manages.
 3. **Skippy migrates.** Evangelist Agent joins. SCUT identity moves with him.
 4. **Poe migrates.** Becomes the dedicated OpenPub specialist inside 2200. Requires OpenPub v0.3.1 to have shipped.
-5. **David is spawned fresh.** First Agent born on 2200 through the conversational onboarding flow (Epic 13). The launch moment.
+5. **David is spawned fresh.** First Agent born on 2200 through the conversational onboarding flow (Epic 14). The launch moment.
 6. **Rocky, Carl Monday, Guppi migrate** as makes sense for their respective projects. Bishop stays paused unless Doug revives that project.
 
 **Includes:**

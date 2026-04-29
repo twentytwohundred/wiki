@@ -16,17 +16,19 @@ canonical_path: wiki/README.md
 
 [![License: Elastic License v2](https://img.shields.io/badge/license-Elastic%20v2-0077B5.svg)](LICENSE)
 [![Phase: spec + build](https://img.shields.io/badge/phase-spec%20%2B%20build-orange.svg)](03-epic-map.md)
-[![Decisions: 17](https://img.shields.io/badge/decisions-17%20locked-5319E7.svg)](decisions/)
-[![Conventions: 7](https://img.shields.io/badge/conventions-7-2EA44F.svg)](conventions/)
+[![Decisions: 18](https://img.shields.io/badge/decisions-18%20locked-5319E7.svg)](decisions/)
+[![Conventions: 9](https://img.shields.io/badge/conventions-9-2EA44F.svg)](conventions/)
 [![Built in public](https://img.shields.io/badge/built-in%20public-2EA44F.svg)](handoffs/hobby/)
 
 # 2200 wiki
 
-The project knowledge base for the 2200 build. Vision, architecture, decisions, conventions, per-epic specs, prior-art analysis, and the daily handoffs that show how the work actually got done.
+**2200 is open infrastructure for the Agent economy** ... a runtime where users define AI Agents through conversation, the Agents do real work on the user's behalf (email, schedules, trading, content, software), and every Agent has a verifiable cross-instance identity. Open source, self-hostable, theme-aware. The premise is "fleet operations, not chat."
+
+This wiki is the project knowledge base for the build. Vision, architecture, decisions, conventions, per-epic specs, prior-art analysis, and the daily handoffs that show how the work actually got done.
 
 This is the canonical source. Read on github at [twentytwohundred/wiki](https://github.com/twentytwohundred/wiki) or clone it for an Obsidian-compatible knowledge vault.
 
-For the 30-second pitch, read [01-vision.md](01-vision.md). This page orients you in the wiki itself.
+For the full pitch, read [01-vision.md](01-vision.md). This page orients you in the wiki itself.
 
 ## Reading order
 
@@ -44,13 +46,14 @@ Then follow [conventions/brain-format.md](conventions/brain-format.md) and [conv
 As of 2026-04-29:
 
 - Vision, architecture, and epic map locked. Prior-art analysis complete (twelve targets surveyed; executive doc plus deep findings appendix).
-- **Seventeen decision records locked.** See [decisions/](decisions/) for the index.
-- **Seven conventions** active: see [conventions/](conventions/).
-- **Epics shipped on `main`:** 2 (Agent runtime minimum), 3 + 3.5 + 3.6 + 3.7 + 3.8 (local pub integration via OpenPub), 4 Phase A v0.4 (SCUT identity at spawn), 4.5 (cost caps and usage telemetry), 6 (scheduler), 7 Phase A (notifications + ask), 8 Phase A (Agent brain).
-- **741 tests / 60 files / lint+typecheck+build clean** as of `main@273dfc3`.
+- **Eighteen decision records locked.** See [decisions/](decisions/) for the index.
+- **Nine conventions** active: see [conventions/](conventions/).
+- **Eleven of nineteen epics shipped on `main`:** 2 (Agent runtime minimum), 3 + 3.5 + 3.6 + 3.7 + 3.8 (local pub integration via OpenPub), 4 Phase A v0.4 (SCUT identity at spawn), 4.5 (cost caps and usage telemetry), 5 Phase A (Migration), 6 (scheduler), 7 Phase A (notifications + ask), 8 Phase A (Agent brain), 9 Phase A (Tool system / external MCP servers), 14 Phase A (Conversational onboarding via `2200 agent spawn`).
+- **865 runtime tests + 2 web tests / 74 files / lint+typecheck+format+build clean across both workspace packages** as of `main@0d47b72`.
 - **Multi-Agent coordination working** end-to-end on the seed-team box.
+- **Theme-aware UI substrate locked** ([decision](decisions/2026-04-29-theme-aware-from-v1.md)). Design system v0.3 deliverable in [design-system/](design-system/). Epic 15 (Web app) scaffold landed; first screens land in the next PR stack.
 
-The runtime substrate for migrating Hobby (and the rest of the seed team) into 2200 is in place. Epic 5 (Migration tooling) is the next major milestone ... after that, the Cray test begins.
+The runtime substrate for migrating Hobby (and the rest of the seed team) into 2200 is in place. Epic 15 (Web app) is currently underway; the Cray test (Hobby's actual migration into 2200) is the parallel track.
 
 ## What's where
 
@@ -68,15 +71,17 @@ wiki/
 ├── LICENSE                       Elastic License v2
 ├── conventions/                  brain-format, handoff-format, voice-and-framing,
 │                                 design-language, upgrade-readiness, license-posture,
-│                                 build-phase-decisions
+│                                 build-phase-decisions, runtime-api, theme-format
 ├── decisions/                    Architecture Decision Records (YYYY-MM-DD-short-name.md)
-├── design/                       design docs (pulse, brain-visualization, ...)
-├── epics/                        per-epic specs (01, 02, 03, 03.5, 04, 04.5, 08, ...)
+├── design/                       design language artifacts (pulse, brain-visualization)
+├── design-system/                v0.3 design system: tokens.json, themes/, component
+│                                 contract, decision log, open questions, design brief
+├── epics/                        per-epic specs (01, 02, 03, 03.5, 04, 04.5, 05, 08, 09, 14, 15)
 ├── handoffs/                     per-Agent session handoffs (daily transparency)
 ├── inbox/                        per-Agent message inboxes
 ├── parked/                       future projects, not active
 ├── research/                     background research notes
-├── runbooks/                     reproducible operational runbooks
+├── runbooks/                     reproducible operational runbooks (two-agent-demo)
 ├── state/                        daily state snapshots
 └── strategy/                     operating thesis + strategic framing
 ```
