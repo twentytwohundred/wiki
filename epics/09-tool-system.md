@@ -57,26 +57,33 @@ Epic 9 phases the substrate, the OAuth orchestration, and the integration health
 
 ### Phase B — OAuth orchestration + encrypted credential vault
 
+**Status:** SHIPPED 2026-04-29 across PRs #104 (substrate), #105 (resolver context), #106 (OAuth flow), #107 (token refresh).
+
 **Done when.** A user runs `2200 oauth google --agent <name> --scopes gmail.readonly,calendar.readonly`, gets a browser-opened auth flow, and the resulting refresh token lands in the Agent's encrypted credential vault. The Identity's `mcp_servers` block references the credential by SecretRef name. Tokens are refreshed automatically on expiry.
 
-**Includes:**
+**What shipped:**
 
-- `src/runtime/credentials/`: per-Agent encrypted credential store (master-key wrapped, mirrors the SCUT keystore pattern from Epic 4).
-- New SecretRef source: `vault` (id is a credential name in the per-Agent vault).
-- OAuth client + redirect-server (one-shot localhost server during the auth flow).
-- Token refresh loop (background job per Agent, runs through the scheduler).
-- CLI: `2200 oauth google`, `2200 oauth github`, `2200 oauth slack`, `2200 oauth status <agent>`, `2200 oauth revoke <agent> <name>`.
+- `src/runtime/credentials/` ... per-Agent encrypted credential store (AES-256-GCM, HKDF-derived per-Agent wrapping key off the SCUT-keystore master key in a separate namespace).
+- SecretRef source `vault` ... id `<credential>` resolves against the calling Agent's vault; `<agent>:<credential>` against another's (supervisor-mediated).
+- OAuth Authorization Code + PKCE flow (`src/runtime/oauth/flow.ts`) with one-shot localhost redirect server and built-in google / github / slack provider registry.
+- Auto-refresh background service in the supervisor (`TokenRefreshService`, 60s tick, refreshes access tokens within 5 min of expiry; per-credential failure cooldown; rotates the refresh_token when the provider rotates).
+- CLI: `2200 oauth providers / login / refresh / status / revoke`. `oauth login` writes two vault entries (access + companion `-refresh`) so SecretRef consumers lift the access token directly with no per-spawn round-trip.
+
+**B-3 deferral:** OAuth refresh runs supervisor-level (not via the scheduler) because the unit of work is across-Agent and supervisor-owned. The original spec's "background job per Agent, runs through the scheduler" was simplified during build to one supervisor service.
 
 ### Phase C — HTTP MCP transport + integration health
 
+**Status:** SHIPPED 2026-04-29 across PRs #108 (HTTP transport) and #109 (tool health).
+
 **Done when.** A user can register an HTTP MCP server (e.g., a hosted commercial MCP service), and the supervisor tracks per-tool success/failure history. Tools dormant for 30+ days surface in `2200 agent status <name>` as a yellow indicator. Repeated failures emit Passive notifications.
 
-**Includes:**
+**What shipped:**
 
-- HTTP MCP transport (alongside stdio).
-- Per-tool counters in the existing telemetry JSONL stream.
-- `tool_health.md` per Agent listing dormant + failing tools.
-- Tool call pattern logging for the cost-behavior loop-detection layer per [[2026-04-24-cost-behavior-shape]].
+- HTTP MCP transport (`src/runtime/mcp/http-transport.ts`) using the SDK's `StreamableHTTPClientTransport`. Identity declares `transport: 'http'` with `url`, `auth: { type: 'bearer', token: SecretRef } | { type: 'none' }`, and optional static `headers`. Schema is a discriminatedUnion at v5 (no version bump; existing stdio identities unchanged).
+- Per-Agent tool health (`src/runtime/tools/health.ts`): aggregates the run records the dispatcher already writes (`<brain>/.records/run/...`) into per-tool stats (total / ok / error / mean duration / recent-failure rate / dormant flag). Diff-stable markdown rendering for `<brain>/tool_health.md`. `2200 agent tool-health <name>` prints (or `--write`s); `2200 agent status` shows a one-line summary.
+- Defaults: dormant >30 days, recent-failure window 20 calls, failing if rate > 25% with at least 4 recent calls.
+
+**C-3 ("Tool call pattern logging for the cost-behavior loop-detection layer") was not built as a new layer in Phase C.** That capability already shipped in Epic 2 ([[02-agent-runtime-minimum]]) as the in-process detector framework: tool-repetition, no-progress, error-storm, tool-timeout. Each trip writes a record at `<brain>/.records/detector-trips/<id>.md`, a Passive-tier notification at `<state>/notifications/<id>.md`, and flips `<agent>/pulse.json` to `redlined`. Phase C-2's `tool_health.md` reads the same run records and exposes the patterns via the agent-tool-health CLI; both layers operate over the same dataset.
 
 ## What gets reused (integrate over build)
 
