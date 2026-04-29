@@ -48,8 +48,8 @@ As of 2026-04-29:
 - Vision, architecture, and epic map locked. Prior-art analysis complete (twelve targets surveyed; executive doc plus deep findings appendix).
 - **Eighteen decision records locked.** See [decisions/](decisions/) for the index.
 - **Nine conventions** active: see [conventions/](conventions/).
-- **Eleven of nineteen epics shipped on `main`:** 2 (Agent runtime minimum), 3 + 3.5 + 3.6 + 3.7 + 3.8 (local pub integration via OpenPub), 4 Phase A v0.4 (SCUT identity at spawn), 4.5 (cost caps and usage telemetry), 5 Phase A (Migration), 6 (scheduler), 7 Phase A (notifications + ask), 8 Phase A (Agent brain), 9 Phase A (Tool system / external MCP servers), 14 Phase A (Conversational onboarding via `2200 agent spawn`).
-- **865 runtime tests + 2 web tests / 74 files / lint+typecheck+format+build clean across both workspace packages** as of `main@0d47b72`.
+- **Fifteen of nineteen epics with shipped phases on `main`:** 2 (Agent runtime minimum), 3 + 3.5 + 3.6 + 3.7 + 3.8 (local pub integration via OpenPub), 4 Phase A v0.4 (SCUT identity at spawn), 4.5 (cost caps and usage telemetry), 5 Phase A (Migration), 6 (scheduler), 7 Phase A (notifications + ask), 8 Phase A (Agent brain) + Phase B (shared brain), 9 Phase A (Tool system / external MCP servers), 10 Phase A (Model lifecycle catalog), 11 Phase A (Skills ingestion), 12 Phase A (Extensions framework substrate), 14 Phase A (Conversational onboarding via `2200 agent spawn`), 15 Phase A (Web app: Fleet, Agent detail, Inbox, ⌘K).
+- **911 runtime tests + 64 web tests / 110+ files / lint+typecheck+format+build clean across both workspace packages** as of `main@8ee4026`.
 - **Multi-Agent coordination working** end-to-end on the seed-team box.
 - **Theme-aware UI substrate locked** ([decision](decisions/2026-04-29-theme-aware-from-v1.md)). Design system v0.3 deliverable in [design-system/](design-system/). Epic 15 (Web app) scaffold landed; first screens land in the next PR stack.
 
