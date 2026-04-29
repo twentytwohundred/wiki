@@ -13,9 +13,11 @@ canonical_path: wiki/03-epic-map.md
 ---
 
 # 2200 — Epic Map
-## v0.6 · 2026-04-29
+## v0.7 · 2026-04-29 (post-session-7)
 
-*v0.6 (2026-04-29): Refreshed status across the map. Eight epics now shipped on `main`; Epic 5 (Migration tooling) is next. Status markers and PR references added per epic. Sub-epics 3.5–3.8 documented. Earlier "drafted, awaiting review" markers on Epic 4 Phase A and 4.5 replaced with shipped state.*
+*v0.7 (2026-04-29): Sessions 6 + 7 closed Epic 9 Phases B and C, shipped the Pulse runtime emitter (Epic 2 follow-on), shipped Epic 8 Phase C (cross-Agent brain reads). Build is now warning-free after a refactor that split unused-import-leaking modules. Manual-test sweep (real Google/GitHub OAuth, hosted MCP, Pulse-in-UI) deferred to a single focused session post-NY trip.*
+
+*v0.6 (2026-04-29): Refreshed status across the map. Eight epics now shipped on `main`. Sub-epics 3.5–3.8 documented. Earlier "drafted, awaiting review" markers on Epic 4 Phase A and 4.5 replaced with shipped state.*
 
 SCUT-style epic structure. No calendar dates. Each epic has a scope, a "done when" line, and explicit dependencies. Epics ship when ready, not when a deadline says.
 
@@ -23,36 +25,37 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-15 of 19 numbered epics have shipped phases on `main` as of 2026-04-29. Today's adds (across five sessions): Epic 5 (Migration), Epic 9 Phase A (Tool system), Epic 9 Phase B substrate (encrypted credential vault + vault SecretRef), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app), Epic 8 Phase B (Shared brain), Epic 10 Phase A (Model lifecycle catalog), Epic 12 Phase A (Extensions framework substrate), Epic 11 Phase A (Skills ingestion). Plus the scheduler flake fix (PR #103) and per-epic spec files for 10/11/12 + 8B updates. Remaining: 4B cross-instance messaging (blocked on Garfield), 7B inbox routing, 8C-D cross-Agent + semantic, 9B-2/9B-3 OAuth + token refresh, 9C HTTP transport, 13 voice extension, 15B/C web app deeper, 16 mobile app, 17 managed service, 18 dogfooding, 19 public reachability.
+16 of 19 numbered epics have shipped phases on `main` as of 2026-04-29 (sessions 1-7). Today's adds across the seven sessions: Epic 5 (Migration), Epic 8 Phase B (Shared brain), Epic 8 Phase C (cross-Agent reads), Epic 9 Phase A (Tool system), Epic 9 Phase B (vault + OAuth flows + token refresh), Epic 9 Phase C (HTTP MCP transport + tool health), Epic 10 Phase A (Model lifecycle catalog), Epic 11 Phase A (Skills ingestion), Epic 12 Phase A (Extensions framework substrate), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app). Plus the scheduler flake fix (#103), Pulse runtime emitter (#111), and a build-warning cleanup (#110). Remaining open: 4B cross-instance messaging (blocked on Garfield), 7B inbox routing (deferred-unblocked), 8D semantic search (parked), 11B/12B/14B Phase B follow-ons, 13 voice extension, 15B/C web app deeper, 16 mobile app, 17 managed service, 18 dogfooding, 19 public reachability.
 
 | # | Epic | Status |
 |---|---|---|
 | 1 | Seed team coordination before the pub | ✅ Shipped |
-| 2 | Agent runtime minimum | ✅ Shipped 2026-04-26 |
+| 2 | Agent runtime minimum | ✅ Shipped 2026-04-26; Pulse v0.2 emitter follow-on shipped 2026-04-29 (#111) |
 | 3 | Local pub integration (incl. sub-epics 3.5–3.8) | ✅ Shipped 2026-04-27 |
 | 4A | SCUT identity at spawn | ✅ Shipped 2026-04-28 (v0.4) |
 | 4B | Cross-instance messaging | Not started (blocked on Garfield's relay) |
 | 4.5 | Cost caps and usage telemetry | ✅ Shipped 2026-04-27 |
 | 5 | Migration from other Agent systems | ✅ Phase A shipped 2026-04-29 |
-| 6 | Scheduler | ✅ Shipped 2026-04-28 |
+| 6 | Scheduler | ✅ Shipped 2026-04-28; flake fix 2026-04-29 (#103) |
 | 7A | Notifications + ask queue | ✅ Shipped 2026-04-28 |
-| 7B | Inbox routing into notifications | Deferred |
+| 7B | Inbox routing into notifications | Deferred (unblocked) |
 | 8A | Agent brain (private, filesystem + FTS5) | ✅ Shipped 2026-04-28 |
-| 8B | Shared brain | ✅ Shipped 2026-04-29 |
-| 8C–D | Cross-Agent reads, semantic search | Not started |
-| 9 | Tool system | ✅ Phase A shipped 2026-04-29; ✅ Phase B substrate (vault) shipped 2026-04-29 |
-| 10 | Model lifecycle management | ✅ Phase A shipped 2026-04-29 |
-| 11 | Skills ingestion | ✅ Phase A shipped 2026-04-29 |
-| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 |
+| 8B | Shared brain | ✅ Shipped 2026-04-29 (#99) |
+| 8C | Cross-Agent reads with permission | ✅ Shipped 2026-04-29 (#112) |
+| 8D | Semantic search | Parked (per spec ... only if FTS5 falls over) |
+| 9 | Tool system | ✅ Phases A + B + C shipped 2026-04-29 (#81-#84, #99-#109; manual-test smoke pending) |
+| 10 | Model lifecycle management | ✅ Phase A shipped 2026-04-29 (catalog + CLI); B/C/D not started |
+| 11 | Skills ingestion | ✅ Phase A shipped 2026-04-29 (parse + read-only registry); B not started |
+| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 (manifest + registry substrate); B not started |
 | 13 | Voice Extension (Twilio) | Not started |
-| 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29 |
-| 15 | Web app | ✅ Phase A shipped 2026-04-29 |
+| 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29; B (interview persistence + replay) not started |
+| 15 | Web app | ✅ Phase A shipped 2026-04-29; B/C deferred |
 | 16 | Mobile app | Not started |
 | 17 | Managed service | Not started |
 | 18 | Dogfooding completion and launch | Not started |
 | 19 | Public reachability for self-hosted instances | Not started |
 
-Runtime + web-app `main` ... 935 runtime tests + 64 web tests / 120+ files / lint+typecheck+format+build clean across both workspace packages.
+Runtime `main` ... 1030+ runtime tests + 64 web tests across the workspace. `pnpm verify` clean, `pnpm build` warning-free.
 
 ---
 
@@ -78,7 +81,7 @@ Runtime + web-app `main` ... 935 runtime tests + 64 web tests / 120+ files / lin
 
 ## Epic 2: Agent runtime minimum
 
-**Status:** ✅ Shipped 2026-04-26. Closed by [PR #15](https://github.com/twentytwohundred/2200/pull/15) (sessions 6+7). Spec at [[02-agent-runtime-minimum]]. Detailed close in the session-7 portion of [[handoffs/hobby/2026-04-26]].
+**Status:** ✅ Shipped 2026-04-26. Closed by [PR #15](https://github.com/twentytwohundred/2200/pull/15). Spec at [[02-agent-runtime-minimum]]. Detailed close in the session-7 portion of [[handoffs/hobby/2026-04-26]]. Pulse v0.2 runtime emitter follow-on shipped 2026-04-29 ([PR #111](https://github.com/twentytwohundred/2200/pull/111)) ... full activity-state palette (resting / working_light / working_medium / working_hard / redlined / stopped) + numeric intensity, written to `<agent>/pulse.json` at 4 Hz with hysteresis. Detector trips still pin the dot synchronously via `setTrip` / `clearTrip`.
 
 
 **Scope.** The smallest possible 2200 instance that can run one Agent. No UI, no onboarding wizard, no mobile app. Command-line install, config file, start the process, an Agent runs.
@@ -174,7 +177,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 5: Migration from other Agent systems
 
-**Status:** 🔜 In flight. Spec drafted 2026-04-29 at [[05-migration]] (Phase A). Implementation under way on the `epic-5/*` branch family. With Epic 8 Phase A (Brain) shipped, the brain bulk-import substrate is in place; the remaining work is the orchestration layer that turns a handoff document into a fully-provisioned 2200 Agent. After this, Hobby moves into 2200 ... the Cray test.
+**Status:** ✅ Phase A shipped 2026-04-29. Spec at [[05-migration]]. Migration orchestrator + handoff parser + `2200 agent migrate --from-handoff <file>` CLI in place; brain bulk-import + identity-builder + provisioning pipeline integrated. After this lands in real use, Hobby moves into 2200 ... the Cray test.
 
 **Scope.** First real-world users (including the seed team itself) can migrate their existing Agents into 2200 with continuity.
 
@@ -250,7 +253,9 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 8: Agent brain (individual + shared knowledge)
 
-**Status:** ✅ Phase A shipped 2026-04-28. ✅ Phase B (shared brain at `<home>/shared/brain/`) shipped 2026-04-29 in [PR #99](https://github.com/twentytwohundred/2200/pull/99). PRs [#71](https://github.com/twentytwohundred/2200/pull/71)–[#74](https://github.com/twentytwohundred/2200/pull/74) for Phase A. Spec at [[08-agent-brain]] (Phase A locked, Phases B–D sketched). Phase B substrate ships read-only `BrainStore.forShared` + `BrainIndex.openShared` + `2200 shared-brain list / show / search / rebuild / import` CLI; agent-side write capability gated on Identity flag arrives in Phase C, alongside cross-Agent reads + link graph. Phase D (semantic search) parked.
+**Status:** ✅ Phase A shipped 2026-04-28 (#71-#74). ✅ Phase B (shared brain at `<home>/shared/brain/`) shipped 2026-04-29 (#99). ✅ Phase C (cross-Agent brain reads with permission) shipped 2026-04-29 (#112). Spec at [[08-agent-brain]]. Phase D (semantic search) parked. Phase B-write (capability-gated `shared_brain.write` + Identity flag) and link-graph traversal still open per spec; the shipped surface is the read path.
+
+**Phase C as shipped.** Permission-gated cross-Agent brain access. Each Agent owns `<home>/state/brain/<owner>/permissions.json` listing readers (sorted + deduped). New baseline tools `brain.search_agent` and `brain.list_agent` check permission at dispatch time and throw `BrainPermissionDeniedError` (with the exact CLI to grant access in the error message). Self-search routes through the warm registry handle. Cross-Agent searches open the target's `brain.db` with SQLite read-only mode (`fileMustExist: true`) so the owner's writer is unaffected. CLI: `2200 brain permissions <agent> [--add reader] [--remove reader]`.
 
 **Scope.** Agents accumulate knowledge across sessions in a structured, searchable, human-readable format. Two layers: each Agent has a private brain, and there is a shared instance-wide brain. Agents can search across brains they have permission to access.
 
@@ -294,7 +299,23 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 9: Tool system
 
-**Status:** ✅ Phase A shipped 2026-04-29. PRs [#81](https://github.com/twentytwohundred/2200/pull/81), [#82](https://github.com/twentytwohundred/2200/pull/82), [#83](https://github.com/twentytwohundred/2200/pull/83), [#84](https://github.com/twentytwohundred/2200/pull/84). Spec at [[09-tool-system]]. An Agent's Identity declares `mcp_servers[]` with stdio command + SecretRef env; the Agent process spawns each at start, namespaces tools, expands wildcard grants, and the restart manager keeps servers alive with the locked backoff/notification policy. Phase B (OAuth + encrypted credential vault) and Phase C (HTTP transport + integration health) sketched in spec. Some integrations (Gmail, Calendar, GitHub) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated.
+**Status:** ✅ Phases A, B, and C shipped 2026-04-29. Closed in [[handoffs/hobby/2026-04-29-session-6]] (Phase B + C-1) and [[handoffs/hobby/2026-04-29-session-7]] (cleanup). Spec at [[09-tool-system]]. Some integrations (Gmail, Calendar, GitHub) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated.
+
+**Phase A as shipped.** [PRs #81-#84](https://github.com/twentytwohundred/2200/pulls?q=is%3Apr+epic-9). An Agent's Identity declares `mcp_servers[]` with stdio command + SecretRef env; the Agent process spawns each at start, namespaces tools, expands wildcard grants, and the restart manager keeps servers alive with the locked backoff / notification policy.
+
+**Phase B as shipped.** Encrypted per-Agent credential vault + OAuth flow + auto-refresh.
+
+- B substrate (#104, #105): AES-256-GCM vault with HKDF-derived per-Agent wrapping keys; new SecretRef source `vault` with `<agent>:<credential>` cross-Agent form; resolver context wired through `AgentProcess` so vault refs resolve against the calling Agent.
+- B-2 (#106): Authorization Code + PKCE flow for built-in providers (google, github, slack). One-shot 127.0.0.1 redirect server, state nonce, S256 challenge. CLI: `2200 oauth providers / login / status / revoke`.
+- B-3 (#107): Supervisor-level `TokenRefreshService`. 60s tick; refreshes anything within 5 min of expiry; rotates refresh tokens when the provider rotates; per-credential failure cooldown. `oauth login` writes two vault entries (access + companion `-refresh`) so SecretRef consumers lift the access token directly.
+
+**Phase C as shipped.** HTTP MCP transport + tool health.
+
+- C-1 (#108): Streamable HTTP MCP transport via `StreamableHTTPClientTransport`. Identity admits `transport: 'http'` with `url`, `auth: { type: 'none' | 'bearer', token: SecretRef }`, `headers`. Discriminated union at v5; existing stdio identities unchanged.
+- C-2 (#109): `aggregateToolHealth` + `renderToolHealthMd` over the run records the dispatcher already writes. CLI `2200 agent tool-health <name> [--write]` prints (or persists) a markdown report flagging dormant + failing tools. `agent status` shows a one-line summary.
+- C-3 already covered by Epic 2's detector framework (tool-repetition, no-progress, error-storm, tool-timeout); Phase C-2 reads the same dataset.
+
+**Manual-test sweep pending.** Real Google + GitHub OAuth client-credentials provisioning, plus a hosted-MCP smoke. Deferred to one focused session post-NY trip per Doug's 2026-04-29 direction.
 
 **Scope.** Agents can use tools beyond shell. Users can connect tools once and Agents use them.
 
