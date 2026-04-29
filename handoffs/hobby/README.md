@@ -28,6 +28,7 @@ The first action of every new session is to read the most recent handoff. That s
 | 2026-04-28 | [[2026-04-28]] | Epic 4 Phase A (SCUT identity at spawn) v0.4 lock. Epic 6 (scheduler). Epic 7 Phase A (notifications + ask). Epic 8 Phase A (Agent brain with FTS5). |
 | 2026-04-29 (s1) | [[2026-04-29]] | Three Phase-A epics shipped end-to-end across 13 PRs: Epic 5 (Migration), Epic 9 Phase A (Tool system substrate), Epic 14 Phase A (Conversational onboarding via `2200 agent spawn`). Theme-aware-from-v1 decision locked. Wiki cleanup (collapsed three github surfaces to one canonical wiki). 865 tests / 72 files. |
 | 2026-04-29 (s2) | [[2026-04-29-session-2]] | Design system v0.3 from Claude Design relocated into `wiki/design-system/`. Three substrate docs drafted: Epic 15 spec, runtime-api convention, theme-format convention. First Epic 15 scaffold PR (#90) shipped: pnpm workspace + apps/web/ Vite+React+TS bootstrap. Boundary discipline mechanically enforced via lint. |
+| 2026-04-29 (s3) | [[2026-04-29-session-3]] | Epic 15 Phase A substrate marathon. Five PRs (#90-#94): tokens generator + ThemeProvider; primitives library + /dev/components page; runtime HTTP server with bearer auth + 2200 web CLI; API client + WebSocket subscription + live Fleet screen. Headline criterion (Agent state change pulses Fleet without refresh) is exercisable end-to-end. Agent detail / Inbox / ⌘K deferred for next session. 884 runtime tests + 64 web tests = 948 total. |
 
 ## How to add to this index
 
