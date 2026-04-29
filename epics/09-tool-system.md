@@ -1,8 +1,8 @@
 ---
 title: "Epic 9: Tool system"
 type: epic
-status: draft
-version: 0.1
+status: locked
+version: 1.0
 tags: [epic, tools, mcp, integrations, oauth, secrets]
 created: 2026-04-29
 updated: 2026-04-29
@@ -142,18 +142,20 @@ No new external dependencies for Phase A beyond the MCP server NPM packages (whi
 | Tool-call inspectability | Every external tool call goes through the existing dispatcher's plan/run/perm wrapping; no special-case path. |
 | Inspectable persisted artifacts | Identity is markdown. Credential vault (Phase B) is per-credential encrypted blobs at known paths. Token files are inspectable as opaque ciphertext. |
 
-## Open product calls (Phase A)
+## Locked decisions (Phase A)
 
-- **Tool grant: explicit list vs. wildcard.** The Identity's `tools:` array currently lists exact names. With external MCP servers exposing dozens of tools each, requiring `github.list_issues, github.create_issue, github.list_pull_requests, ...` is verbose. Options: (a) require explicit list; (b) allow `github.*`; (c) auto-grant all of a registered server's tools, with explicit list overriding to a subset. Recommend (b) for ergonomic default with (a) still available for fine-grained restriction. Need Doug's sign-off before locking.
+Doug signed off on all three open product calls 2026-04-29:
 
-- **Backoff + crash policy on stdio MCP servers.** Default: 3 fast retries (200ms, 1s, 5s), then 30s exponential backoff up to 5 minutes; emit Passive notification at first restart, Important at 5+ consecutive failures. Reasonable defaults; would benefit from Doug's review before locking.
+- **Tool grant: wildcards allowed.** The Identity `tools:` array supports `github.*` to grant every tool in the `github` namespace, alongside the existing exact-name form. Both shapes coexist; an Identity can mix `github.*` with explicit `slack.send` etc. Wildcards are pattern-matched at registry-build time. Resolves to "(b)" from the prior open-question list.
 
-- **MCP server source pinning.** When the Identity says `command: npx -y @modelcontextprotocol/server-github`, the version is whatever npm resolves at spawn time. Pin to a specific version in the example? Add an explicit `version:` field? Recommend: examples in docs pin via `@N.N.N`; spec does not enforce.
+- **Backoff + crash policy on stdio MCP servers.** 3 fast retries at 200ms, 1s, 5s; then exponential backoff starting at 30s capped at 5 minutes. The supervisor emits a Passive notification on the first restart and an Important notification after 5 consecutive failures. State persists across supervisor restart so a perpetually-failing server does not flap silently.
+
+- **MCP server source pinning.** No `version:` field in the schema. Documentation examples pin via `@N.N.N` (e.g. `args: ['-y', '@modelcontextprotocol/server-github@1.4.2']`) so the practice is visible; the spec does not enforce. Operators who want lockfile-grade pinning install the MCP server as a normal npm dep and reference it by absolute path. Resolves to docs-only convention.
 
 ## Format provenance
 
-Spec drafted by Hobby, 2026-04-29, after Epic 5 Phase A landed. Implementation begins on `epic-9/identity-mcp-servers` once the Phase A scope is signed off (the open product calls above).
+Spec drafted by Hobby, 2026-04-29, after Epic 5 Phase A landed. Doug signed off on the three open product calls the same day; spec moved from draft to locked. Implementation begins on `epic-9/identity-mcp-servers`.
 
 ---
 
-*Phase A scope locks once Doug signs off on the open product calls. Phases B and C sketched for sequencing and to make the "shape of the world after Epic 9" visible.*
+*Phase A scope locked. Phases B and C sketched for sequencing and to make the "shape of the world after Epic 9" visible.*

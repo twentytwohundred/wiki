@@ -39,7 +39,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 7B | Inbox routing into notifications | Deferred |
 | 8A | Agent brain (private, filesystem + FTS5) | ✅ Shipped 2026-04-28 |
 | 8B–D | Shared brain, cross-Agent reads, semantic search | Not started |
-| 9 | Tool system | Not started |
+| 9 | Tool system | 🔜 In flight (Phase A) |
 | 10 | Model lifecycle management | Not started |
 | 11 | Skills ingestion | Not started |
 | 12 | Extensions framework | Not started |
@@ -293,7 +293,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 9: Tool system
 
-**Status:** Spec drafted 2026-04-29 at [[09-tool-system]]; awaiting Doug sign-off on three open product calls before Phase A implementation begins. Some integrations (Gmail, Calendar) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated. OAuth flows + per-Agent credential storage are Phase B.
+**Status:** 🔜 In flight. Spec locked 2026-04-29 at [[09-tool-system]] (Phase A: stdio MCP server registration). Implementation under way on the `epic-9/*` branch family. Some integrations (Gmail, Calendar) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated. OAuth flows + per-Agent credential storage are Phase B.
 
 **Scope.** Agents can use tools beyond shell. Users can connect tools once and Agents use them.
 
