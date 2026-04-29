@@ -1,10 +1,11 @@
 ---
-title: 2200 Design Brief — Themes Addendum
+title: 2200 Design Brief ... Themes Addendum
 type: design-brief-addendum
 status: v0.1
 audience: Claude Design (Opus)
 created: 2026-04-29
 parent: 2200-design-brief.md
+canonical_path: wiki/design-system/2200-design-brief-themes-addendum.md
 ---
 
 # Addendum: Theme Architecture

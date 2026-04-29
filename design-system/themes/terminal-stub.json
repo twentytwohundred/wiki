@@ -1,0 +1,50 @@
+{
+  "$schema": "https://2200.local/schemas/theme-v1.json",
+  "id": "terminal-stub",
+  "name": "Terminal · Stub",
+  "version": "0.3.0",
+  "base": "dark",
+  "status": "stub",
+  "description": "Stub manifest demonstrating how a third theme would slot into the system. Not yet visually QA'd; provided as a contract example for community/custom themes.",
+  "tokens": {
+    "color-bg-primary":    "oklch(0.13 0.01 150)",
+    "color-bg-secondary":  "oklch(0.16 0.012 150)",
+    "color-bg-elevated":   "oklch(0.20 0.014 150)",
+    "color-bg-hover":      "oklch(0.24 0.016 150)",
+    "color-bg-inset":      "oklch(0.10 0.008 150)",
+    "color-bg-overlay":    "oklch(0.08 0.006 150 / 0.72)",
+
+    "color-border-default":  "oklch(0.30 0.04 150)",
+    "color-border-emphasis": "oklch(0.40 0.06 150)",
+    "color-border-strong":   "oklch(0.52 0.08 150)",
+    "color-divider":         "oklch(0.30 0.04 150)",
+
+    "color-text-primary":   "oklch(0.92 0.10 145)",
+    "color-text-secondary": "oklch(0.72 0.08 145)",
+    "color-text-muted":     "oklch(0.55 0.06 145)",
+    "color-text-disabled":  "oklch(0.40 0.04 145)",
+    "color-text-inverse":   "oklch(0.13 0.01 150)",
+
+    "color-status-running":      "oklch(0.85 0.18 145)",
+    "color-status-running-bg":   "oklch(0.30 0.10 145 / 0.40)",
+    "color-status-attention":    "oklch(0.85 0.18 90)",
+    "color-status-attention-bg": "oklch(0.32 0.10 90 / 0.40)",
+    "color-status-error":        "oklch(0.72 0.20 25)",
+    "color-status-error-bg":     "oklch(0.32 0.10 25 / 0.40)",
+    "color-status-info":         "oklch(0.78 0.14 200)",
+    "color-status-info-bg":      "oklch(0.30 0.08 200 / 0.40)",
+
+    "color-accent":     "oklch(0.85 0.18 145)",
+    "color-accent-bg":  "oklch(0.24 0.06 145)",
+    "color-accent-fg":  "oklch(0.13 0.01 150)",
+
+    "color-focus-ring": "oklch(0.85 0.18 145)",
+
+    "shadow-elevation-1": "0 0 0 1px oklch(0.85 0.18 145 / 0.18), 0 1px 2px oklch(0 0 0 / 0.5)",
+    "shadow-elevation-2": "0 0 0 1px oklch(0.85 0.18 145 / 0.18), 0 12px 32px oklch(0 0 0 / 0.6)"
+  },
+  "_notes": [
+    "Phosphor green on near-black, monitor-flavored. Demonstrates tokens API only.",
+    "Before shipping: validate text contrast on bg-primary, tune status colors for chroma compatibility, decide on focus-ring vs status-info collision."
+  ]
+}
