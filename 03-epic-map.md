@@ -23,7 +23,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-11 of 19 numbered epics shipped on `main` as of 2026-04-29 ... Epic 5 (Migration), Epic 9 Phase A (Tool system substrate), and Epic 14 Phase A (Conversational onboarding) all shipped this day. The next moment is the UX epic (15: Web app); when that gets built against the theme-aware substrate locked in [[../decisions/2026-04-29-theme-aware-from-v1]], the architecture choices made today get tested for real.
+12 of 19 numbered epics shipped on `main` as of 2026-04-29 ... Epic 5 (Migration), Epic 9 Phase A (Tool system substrate), Epic 14 Phase A (Conversational onboarding), and Epic 15 Phase A (Web app: Fleet, Agent detail, Inbox, ⌘K + runtime HTTP server) all shipped this day. Next: continue down the map (4B cross-instance messaging, 7B inbox routing, 8B-D shared brain, 9B/C tool depth, 10 model lifecycle, 11 skills ingestion, 12 extensions framework, 13 voice extension, 16 mobile, 17 managed service, 18 dogfooding, 19 public reachability).
 
 | # | Epic | Status |
 |---|---|---|
@@ -45,13 +45,13 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 12 | Extensions framework | Not started |
 | 13 | Voice Extension (Twilio) | Not started |
 | 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29 |
-| 15 | Web app | Not started |
+| 15 | Web app | ✅ Phase A shipped 2026-04-29 |
 | 16 | Mobile app | Not started |
 | 17 | Managed service | Not started |
 | 18 | Dogfooding completion and launch | Not started |
 | 19 | Public reachability for self-hosted instances | Not started |
 
-Runtime + web-app substrate `main@0d47b72` ... 865 runtime tests + 2 web tests / 74 files / lint+typecheck+format+build clean across both workspace packages.
+Runtime + web-app `main@04498d3` ... 884 runtime tests + 64 web tests / 100+ files / lint+typecheck+format+build clean across both workspace packages.
 
 ---
 
@@ -479,7 +479,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 15: Web app
 
-**Status:** Not started. **Theme-aware from v1** per [[2026-04-29-theme-aware-from-v1]] ... the design system Claude Design is producing is token-driven; implementation must follow the architecture (CSS variables for all visual values, arrangeable layout regions, API-driven frontend with no runtime-type imports). Three themes ship at launch (Default Dark, Default Light, one TBD). Marketplace is v1.5+.
+**Status:** ✅ Phase A shipped 2026-04-29. PRs [#90](https://github.com/twentytwohundred/2200/pull/90)–[#98](https://github.com/twentytwohundred/2200/pull/98) (nine PRs across two sessions). Spec at [[15-web-app]]. Phase A delivered: pnpm workspace + Vite/React/TS scaffold; tokens generator + ThemeProvider with class swap; full primitives library + `/dev/components` page; runtime HTTP server (Fastify) + bearer auth + `2200 web` CLI; API client + WebSocket subscription with auto-reconnect; live Fleet screen (Mission Control variant) with WS-driven status pulses; Agent detail screen (Identity Card variant) with start/stop endpoints; Inbox screen (V2 Keyboard Triage) with j/k navigation + respond/dismiss endpoints; ⌘K command palette overlay. 64 web tests + 884 runtime tests passing. Theme-aware from v1 per [[2026-04-29-theme-aware-from-v1]]. Phase B (Onboarding wizard, Pub canvas, Budget ledger) and Phase C (Settings, tool-connection UI, schedule editor, brain browser) deferred.
 
 **Scope.** Browser-based UI. Management, chat with Agents, pub view, notifications, tool connections.
 
