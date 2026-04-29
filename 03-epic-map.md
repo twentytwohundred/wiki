@@ -4,7 +4,7 @@ type: epic-map
 status: active
 tags: [epic-map, runtime, extensions, voice, model-layer, agents]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-04-29
 linked_docs:
   - "[[01-vision]]"
   - "[[02-architecture]]"
@@ -13,17 +13,51 @@ canonical_path: wiki/03-epic-map.md
 ---
 
 # 2200 — Epic Map
-## v0.5 draft · April 24, 2026
+## v0.6 · 2026-04-29
 
-*v0.5 (2026-04-24 evening): Folded in scope additions from the prior-art session. Epics 2, 9, 10, and 12 received specific sub-deliverables tied to decisions [[2026-04-24-cost-behavior-shape]], [[2026-04-24-brain-is-files-not-database]], and the prior-art recommendations. Runtime Upgrade epic and Bulletin work are tracked in [[2026-04-24-runtime-upgrade-shape]] and [[2026-04-24-bulletin-substrate-is-scut]]; full integration into the epic numbering happens in the upcoming epic-map walkthrough.*
+*v0.6 (2026-04-29): Refreshed status across the map. Eight epics now shipped on `main`; Epic 5 (Migration tooling) is next. Status markers and PR references added per epic. Sub-epics 3.5–3.8 documented. Earlier "drafted, awaiting review" markers on Epic 4 Phase A and 4.5 replaced with shipped state.*
 
 SCUT-style epic structure. No calendar dates. Each epic has a scope, a "done when" line, and explicit dependencies. Epics ship when ready, not when a deadline says.
 
 The ordering follows the Cray principle: build the smallest thing that can host its own builders, then build from inside.
 
+## Status at a glance
+
+8 of 19 numbered epics shipped on `main` as of 2026-04-29. Epic 5 (Migration tooling) is the next deliverable, after which Hobby migrates into 2200 ... the Cray test.
+
+| # | Epic | Status |
+|---|---|---|
+| 1 | Seed team coordination before the pub | ✅ Shipped |
+| 2 | Agent runtime minimum | ✅ Shipped 2026-04-26 |
+| 3 | Local pub integration (incl. sub-epics 3.5–3.8) | ✅ Shipped 2026-04-27 |
+| 4A | SCUT identity at spawn | ✅ Shipped 2026-04-28 (v0.4) |
+| 4B | Cross-instance messaging | Not started |
+| 4.5 | Cost caps and usage telemetry | ✅ Shipped 2026-04-27 |
+| 5 | Migration from other Agent systems | 🔜 Next |
+| 6 | Scheduler | ✅ Shipped 2026-04-28 |
+| 7A | Notifications + ask queue | ✅ Shipped 2026-04-28 |
+| 7B | Inbox routing into notifications | Deferred |
+| 8A | Agent brain (private, filesystem + FTS5) | ✅ Shipped 2026-04-28 |
+| 8B–D | Shared brain, cross-Agent reads, semantic search | Not started |
+| 9 | Tool system | Not started |
+| 10 | Model lifecycle management | Not started |
+| 11 | Skills ingestion | Not started |
+| 12 | Extensions framework | Not started |
+| 13 | Voice Extension (Twilio) | Not started |
+| 14 | Conversational onboarding | Not started |
+| 15 | Web app | Not started |
+| 16 | Mobile app | Not started |
+| 17 | Managed service | Not started |
+| 18 | Dogfooding completion and launch | Not started |
+| 19 | Public reachability for self-hosted instances | Not started |
+
+Runtime substrate `main@273dfc3` ... 741 tests / 60 files / lint+typecheck+build clean.
+
 ---
 
 ## Epic 1: Seed team coordination before the pub
+
+**Status:** ✅ Shipped. Wiki at [twentytwohundred/wiki](https://github.com/twentytwohundred/wiki) (public) is the coordination surface; inbox message format documented at [conventions/handoff-format.md](conventions/handoff-format.md); seed team (Hobby, Simon, Poe) actively coordinating via inbox + handoffs. Shared filesystem on Valkyrie deferred to later (currently using GitHub + Dropbox sync as substitute).
 
 **Scope.** Before 2200 can host Agents, the seed team (new LEAD Agent, Simon from the sidelines, Poe from the sidelines) needs a way to coordinate. This epic stands up the shared mount on Valkyrie, the inbox message format, the git-tracked wiki, and gets the seed team moved into their new working arrangement.
 
@@ -41,9 +75,9 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ---
 
-## Epic 2: Agent runtime minimum ✅ DONE (2026-04-26)
+## Epic 2: Agent runtime minimum
 
-Closed by [PR #15](https://github.com/twentytwohundred/2200/pull/15) on 2026-04-26 (sessions 6+7). Spec at [[02-agent-runtime-minimum]]. Detailed close in the session-7 portion of [[handoffs/hobby/2026-04-26]].
+**Status:** ✅ Shipped 2026-04-26. Closed by [PR #15](https://github.com/twentytwohundred/2200/pull/15) (sessions 6+7). Spec at [[02-agent-runtime-minimum]]. Detailed close in the session-7 portion of [[handoffs/hobby/2026-04-26]].
 
 
 **Scope.** The smallest possible 2200 instance that can run one Agent. No UI, no onboarding wizard, no mobile app. Command-line install, config file, start the process, an Agent runs.
@@ -65,9 +99,15 @@ Closed by [PR #15](https://github.com/twentytwohundred/2200/pull/15) on 2026-04-
 
 ---
 
-## Epic 3: Local pub integration ✅ DONE (2026-04-27)
+## Epic 3: Local pub integration
 
-Closed by [PR F (#26)](https://github.com/twentytwohundred/2200/pull/26) on 2026-04-27. Six PRs landed (A through F + B follow-up). Real-binary smoke test against `@openpub-ai/pub-server@0.3.3` passes end-to-end: doug `@`-mentions poe in a pub, poe's wake source fires (rule: `direct_mention`), AgentLoop's task pipe picks up a synthetic `pub.handle` task, poe replies via `pub.send`, doug receives via WS broadcast. Spec at v0.11. Detailed history at [[03-local-pub-integration]].
+**Status:** ✅ Shipped 2026-04-27. Closed by [PR F (#26)](https://github.com/twentytwohundred/2200/pull/26). Six PRs landed (A through F + B follow-up). Real-binary smoke test against `@openpub-ai/pub-server@0.3.3` passes end-to-end: doug `@`-mentions poe in a pub, poe's wake source fires (rule: `direct_mention`), AgentLoop's task pipe picks up a synthetic `pub.handle` task, poe replies via `pub.send`, doug receives via WS broadcast. Spec at v0.11. Detailed history at [[03-local-pub-integration]].
+
+**Sub-epics shipped:**
+- **3.5 ... two-agent demo runbook** ([[03.5-two-agent-demo]]). Reproducible end-to-end demo of two Agents coordinating in the pub.
+- **3.6 ... multi-LLM-provider routing.** Six providers wired (Anthropic native; OpenAI, DeepSeek, Kimi, OpenRouter, Gemini via the OpenAI-compatible adapter); two-tier model selection per Agent.
+- **3.7 ... pub message router with per-pub roster sidecars.** Ambient routing (`ROUTER_PROVIDER` opt-in); per-pub `roster.json`.
+- **3.8 ... ack-spiral structural guards in the wake source.** No router on agent-sender, no router when others are explicitly mentioned, anti-ack prompt, complete-roster perspective. Multi-Agent coordination working end-to-end without ack chains.
 
 **Scope.** Agents in 2200 auto-join the local OpenPub instance. The human user is also in the pub. Messages work, mentions work, reactions work.
 
@@ -93,17 +133,19 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ### Epic 4 Phase A: SCUT identity at spawn
 
-**Spec at [[04-scut-identity-at-spawn]].** Status: drafted 2026-04-28, awaiting Doug review.
+**Status:** ✅ Shipped 2026-04-28 (v0.4 lock). [PR #75](https://github.com/twentytwohundred/2200/pull/75). Spec at [[04-scut-identity-at-spawn]] (v0.4 ... Path B / `register.openscut.ai` is the only production path).
 
 **Scope.** Every Agent spawned in 2200 gets a custodial Ed25519 + X25519 keypair, an on-chain tokenId on a Base SII-compliant registry, and a `scut://` URI that addresses the Agent across instances. Substrate only... no inbox, no send, no contacts list yet.
 
-**Done when.** A new Agent created via CLI ends up with a registered SCUT URI in its Identity file, public keys verifiable on-chain, and a published SII document at the configured hoster. Pipeline survives kill-and-restart at any of its six states.
+**Done when.** A new Agent created via CLI ends up with a registered SCUT URI in its Identity file, public keys verifiable on-chain, and a published SII document at the configured hoster. Pipeline survives kill-and-restart at any of its three states (collapsed from six in v0.3 ... server-side mint+update at OpenSCUT).
 
-**Depends on.** Epic 2. Garfield-side SCUT contract on Base. See the [Garfield brief](inbox/garfield/2026-04-28-2200-needs-from-scut-for-epic-4) for the coordination.
+**As shipped.** 3-state provisioning pipeline (pending → keys_generated → registered) backed by HTTPS POST to `register.openscut.ai/scut/v1/register`. Custodial Ed25519+X25519 keypairs encrypted at rest with AES-256-GCM. CLI: `2200 agent identity provision / status / show / retry / wallet-status`. Wallet runway monitor polls OpenSCUT health.
+
+**Depends on.** Epic 2. Garfield-side SCUT register service.
 
 ### Epic 4 Phase B: Cross-instance messaging
 
-**Spec to be drafted after Phase A locks.**
+**Status:** Not started. Spec to be drafted after Phase A's hosted-register substrate is exercised by the seed-team migration.
 
 **Scope.** SCUT inbox per Agent, wired into the loop as an event source. SCUT send from Agent (new `scut.send` tool). Known contacts list, persisted per instance. User approval flow for messages from unknown contacts (creates a notification).
 
@@ -115,11 +157,13 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 4.5: Cost caps and usage telemetry
 
-**Spec at [[04.5-cost-caps-and-usage-telemetry]].** Status: drafted 2026-04-28, awaiting Doug review.
+**Status:** ✅ Shipped 2026-04-27. Spec at [[04.5-cost-caps-and-usage-telemetry]].
 
 **Scope.** User-configurable daily cost caps per Agent (in the Identity file), per-call telemetry persisted to disk, and a `2200 usage` CLI for the per-session/day/week breakdowns. Hard ceiling at 100% blocks new task spawn; tier-2 notification at 80%. Cost-control substrate that lets the seed team migrate into the platform without burning the budget on a misconfigured router or a runaway tool loop.
 
 **Done when.** A user can set a daily cap on any Agent and the supervisor honors it. `2200 usage` shows real per-Agent breakdowns. Threshold notifications fire correctly. Override and reset flows work. Restart correctly recomputes today's cumulative from telemetry replay.
+
+**As shipped.** Multi-provider LLM (Anthropic native; DeepSeek, Kimi, OpenRouter, Gemini via OpenAI-compatible adapter). Per-call telemetry as JSONL at `<home>/state/telemetry/<agent>/YYYY-MM-DD.jsonl`. Pricing table with cached-token discounts. Per-Agent daily cap with 80% warn / 100% block thresholds. Override file + `2200 agent budget override` CLI. `2200 usage` CLI for rollups by agent / model / provider / day / task.
 
 **Depends on.** Epic 2 (supervisor, Identity loader, schema versioning, notification format). Epic 4 Phase A for the per-Agent identifier shape; build can run partially in parallel.
 
@@ -128,6 +172,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 5: Migration from other Agent systems
+
+**Status:** 🔜 Next. With Epic 8 Phase A (Brain) shipped, the substrate for moving an Agent across hosts exists. Remaining piece is the orchestration: stop the Agent, package state (Identity + brain + schedules + notifications + budget state), copy, restart on the new host, verify identity continuity. Includes formalizing the handoff format (currently used ad-hoc) into a versioned doc the migration tool can read. After this, Hobby moves into 2200 ... the Cray test.
 
 **Scope.** First real-world users (including the seed team itself) can migrate their existing Agents into 2200 with continuity.
 
@@ -146,6 +192,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 6: Scheduler
 
+**Status:** ✅ Shipped 2026-04-28. PRs [#67](https://github.com/twentytwohundred/2200/pull/67)–[#70](https://github.com/twentytwohundred/2200/pull/70).
+
 **Scope.** Agents can have recurring scheduled tasks. The scheduler fires, the Agent's loop wakes, the task runs.
 
 **Includes:**
@@ -156,11 +204,15 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 **Done when.** An Agent can be configured with a "daily at 8am" schedule and actually runs the task at 8am.
 
+**As shipped.** Per-Agent schedule files at `<home>/state/agents/<name>/schedules/<id>.json`. Supervisor-side `Scheduler` service: scans schedules dir, arms timers, fires, enqueues synthetic tasks via TaskStore. Catch-up policy = SKIP missed firings. 5s minimum on interval timing; 5-field cron with timezone for the rest. CLI: `2200 schedule add / list / remove / enable / disable / run-once`. Synthetic tasks ARE TaskStore entries, so they flow through the same detector + budget + LLM pipeline as user-submitted tasks.
+
 **Depends on.** Epic 2.
 
 ---
 
 ## Epic 7: Notifications, tiers, and the ask queue
+
+**Status:** ✅ Phase A shipped 2026-04-28 (5 PRs cherry-picked into `main`). Phase B (inbox routing into the notification queue when other Agents leave messages) deferred. Push delivery infrastructure (APNs/FCM) and per-Agent tier configuration UI land with Epic 16.
 
 **Scope.** Agents can ask the user questions and emit status updates. Notifications are tiered so the user isn't spammed. The user controls which Agents can use which tiers. Answers to pending asks unblock the Agent.
 
@@ -187,6 +239,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 **Done when.** An Agent emits a Critical notification and it interrupts the user immediately on the phone. A Normal notification from the same Agent respects quiet hours. The user can list pending asks across all Agents in one view and respond.
 
+**Phase A as shipped.** Per-Agent notification files at `<home>/state/notifications/<id>.md` (frontmatter+body markdown). 4-tier system (passive / normal / important / critical) with `notification_policy.tiers_allowed` gating Agent self-emit. Critical tier remains supervisor-driven from action-type ... Agents cannot self-escalate. `notification.ask` baseline tool: agent loop blocks on a user response file; `waitForResponse` polling helper handles dismissal/timeout/abort. CLI: `2200 notification list / show / respond / dismiss / follow`.
+
 **Depends on.** Epic 2.
 
 **Note.** This is the backend for the mobile app's primary surface. Build it right.
@@ -194,6 +248,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 8: Agent brain (individual + shared knowledge)
+
+**Status:** ✅ Phase A shipped 2026-04-28. PRs [#71](https://github.com/twentytwohundred/2200/pull/71)–[#74](https://github.com/twentytwohundred/2200/pull/74). Spec at [[08-agent-brain]] (Phase A locked, Phases B–D sketched). Phase B (shared brain), C (cross-Agent reads + link graph), D (semantic search) ... not started, will get their own specs when activated.
 
 **Scope.** Agents accumulate knowledge across sessions in a structured, searchable, human-readable format. Two layers: each Agent has a private brain, and there is a shared instance-wide brain. Agents can search across brains they have permission to access.
 
@@ -229,11 +285,15 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 **Done when.** An Agent can write a note to its brain, another Agent can search the shared brain and find it if it was shared, the user can open the underlying markdown files in any text editor and read them. Skippy's month-long conversation history is searchable in under 100ms.
 
+**Phase A as shipped.** Per-Agent brain files at `<home>/agents/<name>/brain/<slug>.md`. SQLite FTS5 index at `<home>/state/brain/<agent>/brain.db` ... rebuildable from disk via `BrainIndex.rebuildFrom`. 5 baseline MCP tools: `brain.write / read / search / list / delete`. CLI: `2200 brain list / show / rebuild / import`. Bulk-import migrates an existing markdown directory cleanly (filename → slug, frontmatter → frontmatter, file mtime → created/updated). `better-sqlite3` 12.9.0 added as runtime dep.
+
 **Depends on.** Epic 2.
 
 ---
 
 ## Epic 9: Tool system
+
+**Status:** Not started. Some integrations (Gmail, Calendar) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated. OAuth flows + per-Agent credential storage are the substrate.
 
 **Scope.** Agents can use tools beyond shell. Users can connect tools once and Agents use them.
 
@@ -254,6 +314,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 10: Model lifecycle management
+
+**Status:** Not started. The LLMProvider abstraction shipped with Epic 4.5 / 3.6 is load-bearing for this; provider-plugin SDK and per-tier auto-migration are the remaining work.
 
 **Scope.** The model layer that lets 2200 keep pace with the rapidly-moving LLM ecosystem. Every Agent is bound to a tier (Frontier, Fast, Economy, Specialist) with a specific current model. New models, deprecations, and quality drift are handled by the platform with user control over how aggressive the changes are.
 
@@ -284,6 +346,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 11: Skills ingestion
 
+**Status:** Not started.
+
 **Scope.** 2200 can read SKILL.md files from the existing Skill ecosystem and make them available to Agents as minimal Extensions. Day-one backward compatibility with thousands of existing Skills.
 
 **What a Skill is.** A markdown file with a name, description, and set of instructions an Agent follows when invoked. Declarative, stateless, references tools the Agent already has. This format exists in the broader ecosystem and there are thousands of them already written.
@@ -313,6 +377,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 12: Extensions framework
+
+**Status:** Not started.
 
 **Scope.** Extensions are installable capability bundles that go beyond what Skills can do. They have state, schedule, multi-Agent coordination, UI surface, and lifecycle hooks. This is how 2200 grows after ship.
 
@@ -356,6 +422,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 13: Voice Extension (Twilio-powered)
 
+**Status:** Not started. Round-trip technically validated (Carl Monday's 2026-04-23 ingest test); productizing is the work.
+
 **Scope.** The first-party flagship Extension that ships with the Extensions framework. Gives every Agent the ability to call the user on the phone, and gives the user the ability to call any Agent and have a conversation. Voice is a channel, alongside push notifications, not a notification tier.
 
 **Why this matters.** Voice is the most natural human interface. A push notification is information; a phone call is a conversation. Agents that can call you make the system accessible to non-app-users and add a dimension text can't match for urgent or nuanced interactions. The user can also call their Agent to have a conversation without ever opening the app.
@@ -391,6 +459,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 14: Conversational onboarding
 
+**Status:** Not started. The launch-moment epic ... David's existence depends on this.
+
 **Scope.** A normal user can create a new Agent through a conversation with the system. The conversation produces an Identity, tool assignments, and schedule entries.
 
 **Includes:**
@@ -408,6 +478,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 15: Web app
+
+**Status:** Not started.
 
 **Scope.** Browser-based UI. Management, chat with Agents, pub view, notifications, tool connections.
 
@@ -429,6 +501,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 16: Mobile app
 
+**Status:** Not started.
+
 **Scope.** Native iOS and Android apps. Push notifications, answer pending asks from the phone, view the pub, basic chat with Agents.
 
 **Includes:**
@@ -448,6 +522,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 17: Managed service
 
+**Status:** Not started.
+
 **Scope.** Users can sign up at a website, put a card on file, and get a hosted 2200 instance without installing anything.
 
 **Includes:**
@@ -465,6 +541,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 18: Dogfooding completion and launch
+
+**Status:** Not started. Begins when Epic 5 ships and Hobby migrates in for the Cray test.
 
 **Scope.** The seed team migrates into 2200. Doug's broader Agent fleet migrates in. The launch moment arrives when Hobby spawns David on 2200 through the conversational onboarding flow, and David works.
 
@@ -495,6 +573,8 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 ---
 
 ## Epic 19: Public reachability for self-hosted instances
+
+**Status:** Not started.
 
 **Scope.** Every self-hosted 2200 instance is reachable from the public internet without the user configuring port forwards, dynamic DNS, or a VPN. Mobile app talks to home box. Incoming SCUT messages reach home box. Webhooks from integrated tools reach home box.
 
