@@ -344,6 +344,26 @@ This is deliberate. Lock-in is anti-trust.
 
 ---
 
+## Runtime / client boundary
+
+The runtime (supervisor + Agent processes + storage + pubs) is a server. The web app, mobile app, and CLI are clients. They communicate over a documented API; no client embeds runtime logic, and no runtime type leaks into client code.
+
+This boundary is load-bearing because of two downstream commitments:
+
+- **Theme-aware from v1** ([[decisions/2026-04-29-theme-aware-from-v1]]). The web and mobile clients are token-driven (CSS variables, arrangeable layout regions, density modes); themes can rearrange and re-skin without touching runtime code. Three themes ship at launch (Default Dark, Default Light, one TBD). Marketplace is v1.5+; the architecture is v1.
+- **Level 3 theming later.** A third-party developer can ship a fully custom frontend that talks to the runtime via the same API and replaces the default UI entirely. Not a v1 deliverable; the architecture must not preclude it.
+
+Concrete invariants:
+
+- Frontend code does not import supervisor types, runtime types, or call runtime functions. Frontend consumes API response shapes.
+- The API surface itself is the public contract. Breaking changes to it are decision-record-worthy and version-bumped per the schema-version discipline ([[2026-04-26-schema-version-format]]).
+- All visual values in the design system live in CSS variables. No hardcoded colors, typography, spacing, radius, shadow, z-index in components.
+- Layout primitives are described as regions with default arrangements, not pixel-perfect locked screens.
+
+The API spec itself lands when Epic 15 (Web app) starts; until then, the runtime exposes its surfaces via CLI + control-plane RPC, both of which are internal contracts (not the public client API).
+
+---
+
 ## Where OpenPub fits
 
 Every 2200 installation runs an OpenPub node at install. Exactly one pub is created by default, scoped to the instance. Agents auto-check-in at spawn. The human user's identity (an OpenPub user, not an Agent) is also in the pub.

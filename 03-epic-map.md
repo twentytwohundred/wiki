@@ -479,7 +479,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 15: Web app
 
-**Status:** Not started.
+**Status:** Not started. **Theme-aware from v1** per [[2026-04-29-theme-aware-from-v1]] ... the design system Claude Design is producing is token-driven; implementation must follow the architecture (CSS variables for all visual values, arrangeable layout regions, API-driven frontend with no runtime-type imports). Three themes ship at launch (Default Dark, Default Light, one TBD). Marketplace is v1.5+.
 
 **Scope.** Browser-based UI. Management, chat with Agents, pub view, notifications, tool connections.
 
@@ -501,7 +501,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 16: Mobile app
 
-**Status:** Not started.
+**Status:** Not started. **Theme-aware from v1** per [[2026-04-29-theme-aware-from-v1]] ... mobile follows the same token-driven architecture as the web app (Epic 15). Native vs React Native decision deferred; whichever platform-stack is chosen consumes the same theme manifests as web.
 
 **Scope.** Native iOS and Android apps. Push notifications, answer pending asks from the phone, view the pub, basic chat with Agents.
 
