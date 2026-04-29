@@ -173,7 +173,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 5: Migration from other Agent systems
 
-**Status:** 🔜 Next. With Epic 8 Phase A (Brain) shipped, the substrate for moving an Agent across hosts exists. Remaining piece is the orchestration: stop the Agent, package state (Identity + brain + schedules + notifications + budget state), copy, restart on the new host, verify identity continuity. Includes formalizing the handoff format (currently used ad-hoc) into a versioned doc the migration tool can read. After this, Hobby moves into 2200 ... the Cray test.
+**Status:** 🔜 In flight. Spec drafted 2026-04-29 at [[05-migration]] (Phase A). Implementation under way on the `epic-5/*` branch family. With Epic 8 Phase A (Brain) shipped, the brain bulk-import substrate is in place; the remaining work is the orchestration layer that turns a handoff document into a fully-provisioned 2200 Agent. After this, Hobby moves into 2200 ... the Cray test.
 
 **Scope.** First real-world users (including the seed team itself) can migrate their existing Agents into 2200 with continuity.
 
