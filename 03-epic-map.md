@@ -23,7 +23,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-13 of 19 numbered epics have shipped phases on `main` as of 2026-04-29. Today's adds: Epic 5 (Migration), Epic 9 Phase A (Tool system), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app), Epic 8 Phase B (Shared brain). Next, continuing down the map: 7B inbox routing, 9B OAuth + credential vault, 10 model lifecycle, 11 skills ingestion, 12 extensions framework, 13 voice extension, 16 mobile, 17 managed service, 18 dogfooding, 19 public reachability.
+15 of 19 numbered epics have shipped phases on `main` as of 2026-04-29. Today's adds (across four sessions): Epic 5 (Migration), Epic 9 Phase A (Tool system), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app), Epic 8 Phase B (Shared brain), Epic 10 Phase A (Model lifecycle catalog), Epic 12 Phase A (Extensions framework substrate), Epic 11 Phase A (Skills ingestion). Remaining: 4B cross-instance messaging (blocked on Garfield), 7B inbox routing, 8C-D cross-Agent + semantic, 9B/C tool depth, 13 voice extension, 15B/C web app deeper, 16 mobile app, 17 managed service, 18 dogfooding, 19 public reachability.
 
 | # | Epic | Status |
 |---|---|---|
@@ -31,18 +31,19 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 2 | Agent runtime minimum | ✅ Shipped 2026-04-26 |
 | 3 | Local pub integration (incl. sub-epics 3.5–3.8) | ✅ Shipped 2026-04-27 |
 | 4A | SCUT identity at spawn | ✅ Shipped 2026-04-28 (v0.4) |
-| 4B | Cross-instance messaging | Not started |
+| 4B | Cross-instance messaging | Not started (blocked on Garfield's relay) |
 | 4.5 | Cost caps and usage telemetry | ✅ Shipped 2026-04-27 |
 | 5 | Migration from other Agent systems | ✅ Phase A shipped 2026-04-29 |
 | 6 | Scheduler | ✅ Shipped 2026-04-28 |
 | 7A | Notifications + ask queue | ✅ Shipped 2026-04-28 |
 | 7B | Inbox routing into notifications | Deferred |
 | 8A | Agent brain (private, filesystem + FTS5) | ✅ Shipped 2026-04-28 |
-| 8B–D | Shared brain, cross-Agent reads, semantic search | Not started |
+| 8B | Shared brain | ✅ Shipped 2026-04-29 |
+| 8C–D | Cross-Agent reads, semantic search | Not started |
 | 9 | Tool system | ✅ Phase A shipped 2026-04-29 |
-| 10 | Model lifecycle management | Not started |
-| 11 | Skills ingestion | Not started |
-| 12 | Extensions framework | Not started |
+| 10 | Model lifecycle management | ✅ Phase A shipped 2026-04-29 |
+| 11 | Skills ingestion | ✅ Phase A shipped 2026-04-29 |
+| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 |
 | 13 | Voice Extension (Twilio) | Not started |
 | 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29 |
 | 15 | Web app | ✅ Phase A shipped 2026-04-29 |
@@ -51,7 +52,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 18 | Dogfooding completion and launch | Not started |
 | 19 | Public reachability for self-hosted instances | Not started |
 
-Runtime + web-app `main@04498d3` ... 884 runtime tests + 64 web tests / 100+ files / lint+typecheck+format+build clean across both workspace packages.
+Runtime + web-app `main@8ee4026` ... 911 runtime tests + 64 web tests / 110+ files / lint+typecheck+format+build clean across both workspace packages.
 
 ---
 
