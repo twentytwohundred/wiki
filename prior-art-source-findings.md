@@ -19,7 +19,7 @@ canonical_path: wiki/prior-art-source-findings.md
 
 Permanent reference appendix to [[prior-art-analysis]]. The executive synthesis lives in [[prior-art-analysis]] v0.3 Section 8 ("Synthesis by Epic"). This doc holds the deep per-target source-reading findings produced during the v0.3 execution pass.
 
-**How to read this doc.** One section per Section 7 study-plan target. Each section quotes file paths and line numbers from the OpenClaw clone at `/Users/dhardman/code/2200-reference/openclaw/` so findings are verifiable. Use this when the executive synthesis names a pattern but you need the underlying mechanics, file pointers, or code-shape detail before implementing.
+**How to read this doc.** One section per Section 7 study-plan target. Each section quotes file paths and line numbers from the OpenClaw clone at `~/Library/CloudStorage/Dropbox/Business/2200/hobby/code/2200-reference/openclaw/` so findings are verifiable. Use this when the executive synthesis names a pattern but you need the underlying mechanics, file pointers, or code-shape detail before implementing.
 
 **License posture.** OpenClaw is MIT (Copyright (c) 2025 Peter Steinberger), 2200 ships under Elastic License v2. MIT → Elastic v2 is permitted. Architectural patterns are not copyrightable — free to emulate. Verbatim code copies require preserving the MIT copyright notice; default to "lift the pattern, reimplement" rather than "lift the code." See [[license-posture]] for the standing rule.
 
