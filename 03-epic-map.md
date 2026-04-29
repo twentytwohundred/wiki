@@ -23,7 +23,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-8 of 19 numbered epics shipped on `main` as of 2026-04-29. Epic 5 (Migration tooling) is the next deliverable, after which Hobby migrates into 2200 ... the Cray test.
+10 of 19 numbered epics shipped on `main` as of 2026-04-29. Epic 5 (Migration) and Epic 9 Phase A (Tool system substrate) shipped today. Hobby's first migration + first integration target (GitHub MCP) are the immediate next-step runbooks; the Cray test begins as soon as `agent migrate` brings Hobby in.
 
 | # | Epic | Status |
 |---|---|---|
@@ -39,7 +39,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 7B | Inbox routing into notifications | Deferred |
 | 8A | Agent brain (private, filesystem + FTS5) | ✅ Shipped 2026-04-28 |
 | 8B–D | Shared brain, cross-Agent reads, semantic search | Not started |
-| 9 | Tool system | 🔜 In flight (Phase A) |
+| 9 | Tool system | ✅ Phase A shipped 2026-04-29 |
 | 10 | Model lifecycle management | Not started |
 | 11 | Skills ingestion | Not started |
 | 12 | Extensions framework | Not started |
@@ -293,7 +293,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 9: Tool system
 
-**Status:** 🔜 In flight. Spec locked 2026-04-29 at [[09-tool-system]] (Phase A: stdio MCP server registration). Implementation under way on the `epic-9/*` branch family. Some integrations (Gmail, Calendar) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated. OAuth flows + per-Agent credential storage are Phase B.
+**Status:** ✅ Phase A shipped 2026-04-29. PRs [#81](https://github.com/twentytwohundred/2200/pull/81), [#82](https://github.com/twentytwohundred/2200/pull/82), [#83](https://github.com/twentytwohundred/2200/pull/83), [#84](https://github.com/twentytwohundred/2200/pull/84). Spec at [[09-tool-system]]. An Agent's Identity declares `mcp_servers[]` with stdio command + SecretRef env; the Agent process spawns each at start, namespaces tools, expands wildcard grants, and the restart manager keeps servers alive with the locked backoff/notification policy. Phase B (OAuth + encrypted credential vault) and Phase C (HTTP transport + integration health) sketched in spec. Some integrations (Gmail, Calendar, GitHub) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated.
 
 **Scope.** Agents can use tools beyond shell. Users can connect tools once and Agents use them.
 
