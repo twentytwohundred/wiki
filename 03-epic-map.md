@@ -44,7 +44,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 11 | Skills ingestion | Not started |
 | 12 | Extensions framework | Not started |
 | 13 | Voice Extension (Twilio) | Not started |
-| 14 | Conversational onboarding | 📋 Spec drafted (Phase A, awaiting sign-off) |
+| 14 | Conversational onboarding | 🔜 In flight (Phase A) |
 | 15 | Web app | Not started |
 | 16 | Mobile app | Not started |
 | 17 | Managed service | Not started |
@@ -459,7 +459,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 14: Conversational onboarding
 
-**Status:** Spec drafted 2026-04-29 at [[14-conversational-onboarding]]; three open product calls awaiting Doug sign-off before Phase A code lands. Phase A is text/CLI-based onboarding without voice (`2200 spawn`); voice / web / mobile variants are later phases. The launch-moment epic ... David's existence depends on this.
+**Status:** 🔜 In flight. Spec locked 2026-04-29 at [[14-conversational-onboarding]] (Phase A: text/CLI onboarding via `2200 spawn`). Implementation under way on the `epic-14/*` branch family. Voice / web / mobile variants are later phases. The launch-moment epic ... David's existence depends on this.
 
 **Scope.** A normal user can create a new Agent through a conversation with the system. The conversation produces an Identity, tool assignments, and schedule entries.
 

@@ -1,8 +1,8 @@
 ---
 title: "Epic 14: Conversational onboarding"
 type: epic
-status: draft
-version: 0.1
+status: locked
+version: 1.0
 tags: [epic, onboarding, identity, ux, launch-moment]
 created: 2026-04-29
 updated: 2026-04-29
@@ -181,15 +181,15 @@ No new external dependencies for Phase A.
 
 The interview script's curated mappings (purpose → tools, cadence → schedule) need a real-world test. Hobby spawns a "test agent" via `2200 spawn`, runs through the email flow, and sanity-checks the resulting Identity against what an experienced operator would have authored by hand. Discrepancies become script revisions; ship after parity.
 
-## Open product calls (Phase A)
+## Locked decisions (Phase A)
 
-Three to flag for Doug before locking:
+Doug signed off 2026-04-29:
 
-- **Question script format: YAML vs TS.** YAML is editable by non-engineers (Doug, Guppi). TS is type-safe and IDE-friendly. Recommendation: YAML with Zod validation at load time. Easier for Doug to iterate on the question flow without code changes.
+- **Question script format: YAML with Zod validation at load time.** Non-engineers (Doug, Guppi) edit the question flow without code changes. The script lives in `src/runtime/onboarding/scripts/default-v1.yaml` (or similar); a small Zod schema at the loader catches malformed scripts at boot rather than mid-conversation.
 
-- **Tool suggestions: curated list vs LLM-generated.** A curated list (purpose → mcp_servers[]) is predictable and auditable; an LLM-generated suggestion uses the interview transcript to dynamically pick. Recommendation: curated list at v1, LLM augmentation post-v1. Predictability matters during the launch window.
+- **Tool suggestions: curated list at v1; LLM-augmentation post-v1.** A static mapping (`purpose-tag → mcp_servers[] template`) is predictable and auditable during the launch window. Operators see the same suggestions for the same answers, which makes onboarding debuggable. Post-v1 polish can let the LLM enrich the suggestions (e.g., refine arg flags or suggest additional tools based on free-form context).
 
-- **Confirmation default.** The preview asks `[y/N]` (default no) ... destructive operations should default to "no." But the friction of typing `y` matters for first-time-user UX. Recommendation: default `[y/N]` (default no); add a `--yes` flag for repeat users / scripted runs / tests.
+- **Confirmation default: `[y/N]` (default no), with a `--yes` flag.** Destructive operations default to no. The `--yes` flag exists for repeat users, scripted runs, and tests. Onboarding is a one-shot operation where reading the preview before confirming is the entire point ... defaulting to yes would erode the safety the preview provides.
 
 ## Upgrade-readiness
 
@@ -203,8 +203,8 @@ Three to flag for Doug before locking:
 
 ## Format provenance
 
-Spec drafted by Hobby, 2026-04-29 evening, after Epic 9 Phase A landed. Builds entirely on substrate already on `main`. Implementation begins on `epic-14/onboarding-substrate` once the three open product calls above are signed off.
+Spec drafted by Hobby, 2026-04-29 evening, after Epic 9 Phase A landed. Doug locked the three open product calls the same day; status moved from draft to locked. Builds entirely on substrate already on `main`. Implementation begins on `epic-14/onboarding-substrate`.
 
 ---
 
-*Phase A scope locks once Doug signs off on the open product calls. Phases B–D sketched for sequencing.*
+*Phase A scope locked. Phases B–D sketched for sequencing.*
