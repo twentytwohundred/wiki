@@ -23,7 +23,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 ## Status at a glance
 
-10 of 19 numbered epics shipped on `main` as of 2026-04-29. Epic 5 (Migration) and Epic 9 Phase A (Tool system substrate) shipped today. Hobby's first migration + first integration target (GitHub MCP) are the immediate next-step runbooks; the Cray test begins as soon as `agent migrate` brings Hobby in.
+11 of 19 numbered epics shipped on `main` as of 2026-04-29 ... Epic 5 (Migration), Epic 9 Phase A (Tool system substrate), and Epic 14 Phase A (Conversational onboarding) all shipped this day. The next moment is the UX epic (15: Web app); when that gets built against the theme-aware substrate locked in [[../decisions/2026-04-29-theme-aware-from-v1]], the architecture choices made today get tested for real.
 
 | # | Epic | Status |
 |---|---|---|
@@ -44,7 +44,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 11 | Skills ingestion | Not started |
 | 12 | Extensions framework | Not started |
 | 13 | Voice Extension (Twilio) | Not started |
-| 14 | Conversational onboarding | 🔜 In flight (Phase A) |
+| 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29 |
 | 15 | Web app | Not started |
 | 16 | Mobile app | Not started |
 | 17 | Managed service | Not started |
@@ -459,7 +459,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 14: Conversational onboarding
 
-**Status:** 🔜 In flight. Spec locked 2026-04-29 at [[14-conversational-onboarding]] (Phase A: text/CLI onboarding via `2200 spawn`). Implementation under way on the `epic-14/*` branch family. Voice / web / mobile variants are later phases. The launch-moment epic ... David's existence depends on this.
+**Status:** ✅ Phase A shipped 2026-04-29. PRs [#85](https://github.com/twentytwohundred/2200/pull/85), [#86](https://github.com/twentytwohundred/2200/pull/86), [#87](https://github.com/twentytwohundred/2200/pull/87), [#88](https://github.com/twentytwohundred/2200/pull/88). Spec at [[14-conversational-onboarding]]. `2200 agent spawn` runs a YAML-scripted conversation, generates an Identity via Epic 5's builder, suggests tools + schedules, previews, and (on confirm) materializes the Agent. Voice / web / mobile variants are later phases. The launch-moment epic ... David is born via this flow.
 
 **Scope.** A normal user can create a new Agent through a conversation with the system. The conversation produces an Identity, tool assignments, and schedule entries.
 
