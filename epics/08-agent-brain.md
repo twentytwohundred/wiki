@@ -152,14 +152,25 @@ No other new deps.
 - **PR #73 ... C: `brain.*` MCP tools + perm checks.** Wired into baseline tool registry. Per-Agent BrainIndex registry caches one open SQLite handle per Agent process. Tool count: 19 → 20.
 - **PR #74 ... D: CLI + bulk import.** `2200 brain list/show/rebuild/import`. Import walks top-level `*.md` files, parses frontmatter when present, infers `type` and a leading `tag` from filename prefixes (feedback_*, project_*, user_*, reference_*), preserves file mtime as `created` / `updated`.
 
-## Phase B — shared brain
+## Phase B — shared brain ✅ shipped 2026-04-29 (PR [#99](https://github.com/twentytwohundred/2200/pull/99))
 
-Adds an instance-wide brain at `<home>/commons/brain/` (or `<home>/state/brain/shared/` if commons is reserved for purely human-organized content ... TBD).
+Instance-wide brain at `<home>/shared/brain/` (chose this over `<home>/commons/brain/` so commons stays purely human-organized content per [[../decisions/2026-04-26-commons-and-storage-root]]).
 
-- All Agents read freely.
-- Default writes restricted; capability-gated. The vision doc says "usually reserved for David-type Agents" ... Phase B picks an explicit gating mechanism (Identity flag, perm check, or supervisor-mediated write).
+**As shipped (Phase B substrate, read-only):**
+- `BrainStore.forShared(home)` factory pointing at `<home>/shared/brain`. Same store class, different dir resolution. Existing `(home, agentName)` constructor preserved for backwards compatibility.
+- `BrainIndex.openShared(home)` factory pointing at `<home>/state/brain/__shared__/brain.db`.
+- `homePaths` exposes `sharedBrain` + `sharedBrainIndex`.
+- `importFromDir` gains a `sharedBrain: true` mode (mutually exclusive with `agentName`) for bulk-importing markdown into the shared corpus.
+- `2200 shared-brain list / show / search / rebuild / import` CLI mirroring the per-Agent `2200 brain` shape verbatim except the `<agent>` positional is replaced by a single shared root.
+- 3 shared-store tests covering write/read, no-collision-with-per-Agent, rebuild + search.
+
+**Done when (Phase B substrate).** A user can drop or import markdown into `<home>/shared/brain/`, rebuild the index, and search across the shared corpus from the CLI. Per-Agent and shared brains do not collide. Shipped.
+
+**Phase B-write is the next slice and is gated on:**
+- Default writes are restricted; capability-gated via an Identity flag (`capabilities.shared_brain_writer: true`). The vision doc says "usually reserved for David-type Agents" ... we lock the gating mechanism as an Identity flag (the cleanest existing surface for per-Agent capabilities).
 - `brain.search` gains a `scope: 'shared' | 'mine' | 'all'` arg.
-- The shared brain has its own SQLite FTS5 index, owned by the supervisor.
+- A `shared_brain.write` MCP tool surfaced through the baseline registry, gated on the capability.
+- Cross-Agent brain reads remain in Phase C; Phase B-write is shared-corpus-only.
 
 ## Phase C — cross-Agent reads + link graph
 
