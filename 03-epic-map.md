@@ -293,7 +293,7 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 9: Tool system
 
-**Status:** Not started. Some integrations (Gmail, Calendar) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated. OAuth flows + per-Agent credential storage are the substrate.
+**Status:** Spec drafted 2026-04-29 at [[09-tool-system]]; awaiting Doug sign-off on three open product calls before Phase A implementation begins. Some integrations (Gmail, Calendar) are commodity per the integrate-over-build feedback ... pattern-lift over code-lift, prefer existing OSS where it is non-differentiated. OAuth flows + per-Agent credential storage are Phase B.
 
 **Scope.** Agents can use tools beyond shell. Users can connect tools once and Agents use them.
 
