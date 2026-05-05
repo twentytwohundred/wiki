@@ -224,17 +224,28 @@ Expected response: GitHub user object including `login`, `id`, etc. for whicheve
 
 ---
 
-## Part 3: Publisher verification (deferred, separate work)
+## Part 3: Publisher verification (deferred until real scope demos exist)
 
 Google's "verified publisher" status is what removes the "unverified app ... proceed at your own risk" warning end-users see on the consent screen. **Required before any non-test-user authenticates against the production OAuth client.** Submission timeline: ~4-6 weeks.
 
-Prerequisites that block submission:
+Status as of 2026-05-05: **all infrastructure prerequisites are in place** (logo on consent screen, `https://2200.ai/privacy` + `https://2200.ai/terms` + home page live). Doug deferred the actual submission until 2200 has working end-to-end demos per requested sensitive scope — Google's review team requires a recorded screencast showing each scope being USED by the app, and submitting before those flows exist would either reject outright or burn the 4-6 week clock on back-and-forth.
 
-- `https://2200.ai/privacy` must resolve to a real privacy policy page.
-- `https://2200.ai/terms` must resolve to a real TOS page.
-- `https://2200.ai` must resolve to a real home page (or at least a placeholder splash).
-- The OAuth consent screen must have a 120x120 PNG logo uploaded.
-- The full sensitive-scope list (Gmail, Drive, Calendar, etc.) must be added to the consent screen ... Google verifies justification per scope, so add them all in one submission.
+The unblock condition is **at least one working Agent demo per requested sensitive scope** that we can screencast end-to-end:
+
+- Gmail.send + Gmail.readonly + Gmail.modify ... Agent composes/sends/reads/archives a real email
+- Calendar.events ... Agent creates a real calendar event from a chat request
+- Drive.file ... Agent creates or modifies a real per-file Drive document
+- Contacts.readonly ... Agent looks up a contact
+- Tasks ... Agent creates a Google Task
+
+When all of those work in the web app or chat surface, we record the screencast (~5 minutes total, ~30 seconds per scope), draft per-scope justification text, and submit. Until then, the production OAuth client runs in test-user mode (only `dh@2200.ai` and any other email added to the test-users list can authenticate without seeing the "unverified app" warning).
+
+Original prerequisites checklist (all satisfied as of 2026-05-05):
+
+- [x] `https://2200.ai/privacy` resolves to a real privacy policy page
+- [x] `https://2200.ai/terms` resolves to a real TOS page
+- [x] `https://2200.ai` resolves to a real home page linking to both
+- [x] The OAuth consent screen has a 120x120 PNG logo uploaded
 
 Sensitive/restricted scopes 2200 will eventually request:
 
@@ -248,13 +259,14 @@ Sensitive/restricted scopes 2200 will eventually request:
 - `https://www.googleapis.com/auth/contacts.readonly`
 - `https://www.googleapis.com/auth/tasks`
 
-Submission steps (when prerequisites land):
+Submission steps (when the unblock condition fires):
 
-1. Console → OAuth consent screen → Edit.
-2. Upload logo. Add full scope list. Provide justification per sensitive scope.
+1. Confirm all sensitive-scope demos work in the web app or chat surface. Record an OBS screencast walking each one for ~30 seconds. Total length ~5 minutes.
+2. Console → OAuth consent screen → Edit. Add the full sensitive-scope list (Gmail readonly + send + modify, Calendar + Calendar.events, Drive.file, Contacts + Contacts.readonly, Tasks). Paste per-scope justification text (drafted by Hobby at submission time, not pre-canned ... text needs to reflect the actual demos).
 3. Save.
-4. Click "Publish App" → "Prepare for verification" → submit.
-5. Watch `dh@2200.ai` for Google's verification correspondence. Respond promptly to questions (delays push the clock back).
+4. Upload the screencast.
+5. Click "Publish App" → "Prepare for verification" → submit.
+6. Watch `dh@2200.ai` for Google's verification correspondence. Respond promptly to questions (delays push the clock back).
 
 GitHub has no equivalent verification gate. The OAuth app is usable as soon as the Client ID + Secret exist.
 
