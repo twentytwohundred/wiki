@@ -37,7 +37,7 @@ If you have a different preference (bare nginx on Heisenberg when it lands, S3 +
 Both drafts are ready to ship as-is. A couple of placeholders Doug should fill in:
 
 - **Mailing address.** Both docs say "TBD (will be added when 2200 forms a legal entity for the managed service)." Doug, if you want a P.O. box or business address listed now, drop it in. Otherwise the placeholder is fine for verification submission ... Google's primary check is that the policy exists, is comprehensive, and is hosted on the verified domain.
-- **Governing-law jurisdiction.** ToS says Alabama (Doug confirmed 2026-05-05 that the LLC is forming there). Specific county is left unspecified ... if Doug wants to lock the venue to a particular county once the LLC is registered (Jefferson / Madison / Mobile / wherever), say the word and I'll tighten it.
+- **Governing-law jurisdiction.** ToS says Alabama, Tuscaloosa County (Doug confirmed 2026-05-05). Locked in.
 - **Subprocessors page.** Privacy Policy links to `https://2200.ai/subprocessors` as a future page. Don't need that today ... the link can 404 until the managed service launches and we actually have subprocessors to list.
 
 # Format
