@@ -115,7 +115,7 @@ You will indemnify, defend, and hold harmless 2200, its operators, and their suc
 
 ## 13. Governing law and disputes
 
-These Terms are governed by the laws of the State of Texas, USA, without regard to conflict-of-law rules. Disputes will be resolved in the state or federal courts located in Travis County, Texas; you and we consent to the personal jurisdiction of those courts.
+These Terms are governed by the laws of the State of Alabama, USA, without regard to conflict-of-law rules. Disputes will be resolved in the state or federal courts located in Alabama; you and we consent to the personal jurisdiction of those courts.
 
 If you are a consumer in a jurisdiction whose mandatory law gives you a different forum or governing law, those mandatory rules apply notwithstanding this section.
 
