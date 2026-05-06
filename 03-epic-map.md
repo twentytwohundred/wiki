@@ -544,21 +544,35 @@ Split into two phases. Phase A is the identity substrate; Phase B is messaging o
 
 ## Epic 17: Managed service
 
-**Status:** Not started.
+**Status:** Not started. Architecture and pricing locked in [[decisions/2026-05-05-managed-service]]. Build target: v1.5 (after v1 self-host launch).
 
-**Scope.** Users can sign up at a website, put a card on file, and get a hosted 2200 instance without installing anything.
+**Scope.** Users can sign up at 2200.ai, put a card on file, and get a hosted 2200 instance without installing anything. Two managed tiers (BYOK and managed-tokens) on top of the free self-host Tier 1.
+
+**Tier structure (locked):**
+- **Tier 2: hosted, BYOK** ... $15/mo base + $2/Agent above 3. User brings their own LLM keys. Starter inference (DeepSeek V4-Flash, rate-limited, unstated allowance) lets new users evaluate before adding keys.
+- **Tier 3: hosted, managed tokens** ... $15/mo + $2/Agent + 12.5% markup. We manage provider relationships. $25 prepaid token balance with auto-top-up; service pauses at $1.
+
+**Architecture (locked):**
+- Containerized per-tenant on shared hosts (~30-50 tenants per beefy server). Per-user data volume; resource limits prevent noisy-neighbor starvation.
+- **LLM proxy** for Tier 3: hosted instances never see provider API keys. Proxy holds keys, meters usage, applies markup, returns response. Estimated 200-400 lines of Fastify. Caching / failover / audit are future-extensions on the same proxy.
+- **Self-expiring proxy tokens (24h)** with renewal endpoint that gates on billing standing + abuse flags. Bounded blast radius, instant revocation.
+- **Encrypted MCP-credential vault** for user-installed integrations. Per-user encryption derived from account credentials. Substrate (Vaultwarden vs HashiCorp Vault vs custom) deferred to implementation; the architectural principle is locked.
 
 **Includes:**
-- Marketing site with sign-up
-- Provisioning infrastructure (Terraform or similar, per-user instance or multi-tenant TBD)
-- Billing (Stripe, card on file, $10 promo credit, token usage tracking, monthly invoicing)
-- Model picker with pass-through pricing
-- Token usage metering and soft caps
-- Admin dashboard (for us)
+- Marketing site with sign-up + pricing page
+- Provisioning infrastructure (container orchestration substrate TBD: Docker Swarm / Nomad / Kubernetes / well-orchestrated docker-compose)
+- LLM proxy service (separate Fastify deployment)
+- Billing (Stripe, card on file, prepaid balance for Tier 3, monthly invoicing for hosting)
+- Model picker (Tier 3) and BYOK key setup (Tier 2)
+- Per-user logging with 90-day retention; users see metadata + own activity, content access restricted to support staff with audit
+- Admin dashboard (for us): per-tenant health, billing state, abuse flagging
+- MCP secrets vault (its own decision record before implementation)
 
-**Done when.** A stranger can go to the website, sign up, pay, and have a working 2200 instance in under five minutes.
+**Done when.** A stranger can go to the website, sign up, pay, and have a working 2200 instance in under five minutes. The instance can spawn Agents, route LLM calls through the proxy (Tier 3) or the user's own keys (Tier 2), and the operator (us) sees per-tenant health + billing without manual intervention.
 
-**Depends on.** Epics 15, 16.
+**Depends on.** Epics 15, 16. The proxy + secrets vault are sub-projects with their own decision records (proxy details captured in the parent decision; secrets vault deferred to its own).
+
+**See also:** [[conventions/security-architecture-hosted-mode]] for the consolidated proxy + token-refresh + secrets-vault pattern.
 
 ---
 

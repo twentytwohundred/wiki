@@ -19,12 +19,13 @@ By using the Service, you agree to these Terms. If you do not agree, do not use 
 
 ## 1. The Service
 
-2200 lets you create autonomous Agents that take actions on your behalf, including: holding state in a per-Agent "Brain", calling third-party services you have authorized, scheduling work, and coordinating with other Agents you have created. The Service is offered in two modes:
+2200 lets you create autonomous Agents that take actions on your behalf, including: holding state in a per-Agent "Brain", calling third-party services you have authorized, scheduling work, and coordinating with other Agents you have created. The Service is offered in three tiers:
 
-- **Self-hosted.** You install and run 2200 on infrastructure you control. We provide the software (under the Elastic License v2) and the OAuth client credentials your Agents use to authenticate against third-party services.
-- **Managed service** (when available). We host 2200 for you. Your Agents and their state live on our infrastructure.
+- **Tier 1 — Self-hosted (free).** You install and run 2200 on infrastructure you control. We provide the software (under the Elastic License v2) and the OAuth client credentials your Agents use to authenticate against third-party services. You bring your own LLM API keys.
+- **Tier 2 — Hosted, BYOK** (when available). We host 2200 for you on our infrastructure. You bring your own LLM API keys; you pay LLM providers directly for tokens.
+- **Tier 3 — Hosted, Managed Tokens** (when available). We host 2200 for you AND manage the LLM provider relationships. You prepay a token balance; we bill at provider rate plus a markup (currently 12.5%, displayed transparently in your usage dashboard).
 
-These Terms apply to both modes, with mode-specific provisions noted where relevant.
+These Terms apply to all three tiers, with tier-specific provisions noted where relevant. "Managed service" (or "hosted service") below refers to Tier 2 and Tier 3 collectively.
 
 ## 2. Your account
 
@@ -75,9 +76,23 @@ For self-hosted use, the Service runs on your infrastructure and its availabilit
 
 ## 8. Pricing and payment
 
-Self-hosted use of 2200 is free under the Elastic License v2.
+**Tier 1 (Self-hosted) is free** under the Elastic License v2. No payment is owed to us; you pay your LLM provider directly for tokens.
 
-The managed service may have free and paid tiers. Pricing for the managed service will be published at https://2200.ai/pricing when it launches. We may change managed-service pricing with 30 days' notice; if you do not agree to the new pricing, you may cancel before it takes effect.
+**Tier 2 (Hosted, BYOK)** is a paid hosting subscription. Current pricing will be published at https://2200.ai/pricing when the managed service launches. The hosting fee is charged in advance for the billing period (monthly by default). You bring your own LLM API keys; you pay LLM providers directly for tokens.
+
+**Tier 3 (Hosted, Managed Tokens)** is a paid hosting subscription plus a prepaid token balance:
+- The hosting fee is charged the same way as Tier 2.
+- The token balance is funded by you in advance and consumed as your Agents make LLM calls. We bill at the LLM provider's published rate plus our markup (currently 12.5%; both the provider rate and our markup are displayed in your usage dashboard).
+- The balance auto-tops up by a configurable amount when it crosses a low threshold. You can disable auto-top-up.
+- Service pauses at $1.00 remaining balance to give you a small buffer to wind down or top up gracefully. In-flight tasks complete; scheduled tasks queue but do not execute; data is preserved indefinitely until you top up or formally cancel.
+
+We may change managed-service pricing or markup percentages with 30 days' notice; if you do not agree to the new pricing, you may cancel before it takes effect. Token-balance markup changes apply only to balance funded after the change takes effect.
+
+**Refunds and balance policy.**
+- The prepaid token balance is non-refundable but usable indefinitely (or until account termination). Unused balance does not expire.
+- The hosting subscription is prorated on cancellation if you cancel mid-period (we refund unused days).
+- If a payment is disputed or flagged as fraudulent, we may pause the affected instance immediately while we investigate. We will work with you in good faith to resolve disputes.
+- If you are a consumer in a jurisdiction that requires a cooling-off period for digital services (e.g., EU member states), you may have additional rights under local law that override these terms.
 
 If you owe us money for the managed service and do not pay, we may suspend or terminate your access.
 

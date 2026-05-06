@@ -216,11 +216,16 @@ If you're building consumer AI hardware and you want to ship 2200 pre-installed,
 
 ## Business model
 
-Open source core. Managed service. Hardware licensing.
+Open source core. Three-tier delivery (one self-hosted, two managed). Hardware licensing on top.
 
-**Open source core.** 2200's source code is published under the Elastic License v2. Individual users, small teams, and organizations can self-host freely for their own use. Commercial redistribution as a managed service requires a separate license.
+**Open source core (Tier 1: self-hosted, free).** 2200's source code is published under the Elastic License v2. Individual users, small teams, and organizations can self-host freely for their own use. They bring their own LLM API keys; they never see a bill from us. This is the v1 launch product. Commercial redistribution as a managed service requires a separate license.
 
-**Managed service.** We host 2200 for users who don't want to self-host. Sign up, put a card on file, get $10 in promo credits, and a working instance is ready in minutes. Token usage is billed pass-through from the LLM provider plus a small margin to keep the lights on. Mobile app, push notifications, backups, uptime, and updates are included. You can pick your model from a dropdown. Advanced users can still point at their own LLM and pay only the hosting fee.
+**Managed service.** We host 2200 for users who don't want to run it themselves. Sign up at the website, get an instance in minutes. Two flavors per the locked decision in [[decisions/2026-05-05-managed-service]]:
+
+- **Tier 2: hosted, BYOK** ... we host the runtime; the user brings their own LLM API keys. $15/month base for up to 3 Agents, $2/month per additional Agent. The user pays LLM providers directly for tokens. New users get a starter inference allowance (DeepSeek V4-Flash, rate-limited) so they can evaluate the product before adding their own keys.
+- **Tier 3: hosted, managed tokens** ... we host the runtime AND manage the LLM provider relationships. Same $15/month + $2/Agent base, plus a prepaid token balance ($25 starter, auto-tops-up when low). We bill at provider rate plus a 12.5% markup. Single billing relationship, no API keys for the user to manage.
+
+The three tiers map to three real audiences: developers who want full control (Tier 1), developers who want hosting convenience but still manage their LLM relationships (Tier 2), and normals who want everything to "just work" without setting up multiple billing relationships (Tier 3).
 
 **Hardware licensing.** OEMs who want to ship 2200 bundled with their hardware license the software commercially. Separate negotiation, not subject to the Elastic License restrictions.
 

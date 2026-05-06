@@ -314,9 +314,11 @@ Blocked Agents do not retry silently. They wait. This is intentional... silent r
 
 ## Hosting model
 
-### Local (self-hosted)
+Three modes, all running the same core software. The pricing + architecture for the two managed tiers is locked in [[decisions/2026-05-05-managed-service]]; security details for hosted mode are consolidated in [[conventions/security-architecture-hosted-mode]].
 
-User runs 2200 on their own hardware. Could be Heisenberg-class (plenty of CPU/RAM for 10+ Agents), could be a Mac Mini (3-5 Agents comfortably), could be a cloud VM they manage.
+### Tier 1: local (self-hosted, free)
+
+User runs 2200 on their own hardware. Could be Heisenberg-class (plenty of CPU/RAM for 10+ Agents), could be a Mac Mini (3-5 Agents comfortably), could be a cloud VM they manage. Elastic License v2.
 
 Self-hosted users:
 - Install via one command (`curl | bash` or similar)
@@ -324,13 +326,25 @@ Self-hosted users:
 - Get the full mobile app experience pointed at their local box (via Tailscale, ngrok, or similar NAT traversal)
 - Own their data entirely
 
-### Managed (hosted by us)
+### Tier 2: hosted, BYOK ($15/mo base + $2/Agent above 3)
 
-User signs up, puts a card on file, gets $10 in promo tokens, and a 2200 instance is provisioned for them. Could be a shared multi-tenant deployment with per-user isolation, or a dedicated micro-instance per user. TBD at implementation time based on resource economics.
+User signs up at 2200.ai, gets a hosted instance in minutes, brings their own LLM API keys. New users get a starter inference allowance (DeepSeek V4-Flash, rate-limited) so they can evaluate before adding keys.
 
-Managed users:
+### Tier 3: hosted, managed tokens ($15/mo base + $2/Agent + 12.5% token markup)
+
+Same hosting, plus we manage the LLM provider relationships. User prepays a token balance ($25 starter, auto-tops-up when low). Single billing relationship; no API keys for the user to manage.
+
+### Architecture for Tiers 2 + 3
+
+**Containerized per-tenant on shared hosts.** Each managed user runs in their own isolated container (Docker or Podman) with a dedicated data volume. Resource limits prevent any single user from starving others. ~30-50 tenants per beefy server in capacity planning. Chosen over per-VM (margin too thin) and multi-tenant supervisor (isolation too weak).
+
+**LLM proxy (Tier 3 only).** Hosted instances NEVER see real provider API keys. All LLM calls route through a 2200 proxy service that holds the actual keys, meters usage, applies markup, and deducts from user balance. The proxy is also the natural point for future caching, failover, and audit. See [[conventions/security-architecture-hosted-mode]] for the full pattern.
+
+**Self-expiring proxy tokens.** Each hosted instance gets a 24-hour proxy token, refreshed by the supervisor through a renewal endpoint that checks billing standing + abuse flags. Bounded blast radius, instant revocation, audit trail.
+
+**Managed users get:**
 - Zero install
-- Pick model from dropdown, tokens billed to their account
+- Pick model from dropdown (Tier 3) or wire your own keys (Tier 2)
 - Mobile app works out of the box
 - We handle backups, uptime, updates
 

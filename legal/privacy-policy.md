@@ -21,14 +21,17 @@ We try to keep this policy short, plain, and accurate. If anything is unclear, e
 
 The Service is operated by Doug Hardman, doing business as 2200. Contact: **dh@2200.ai**.
 
-## 2. The two ways you may use 2200
+## 2. The three ways you may use 2200
 
-Your privacy posture depends on which mode you are using:
+Your privacy posture depends on which tier you are using:
 
-- **Self-hosted.** You run 2200 on your own machine. Your data, your OAuth tokens, your Agent state, and any third-party information your Agents access never leave your machine and never reach our servers. We do not have access to it. The only role we play in self-hosted mode is publishing the OAuth client credentials you authenticate against (so the consent screen says "2200" instead of "unverified app"). We do not log your authentications or your activity.
-- **Managed service** (when available). You run 2200 on infrastructure we operate. Your data, OAuth tokens, and Agent state live on our servers, encrypted at rest. The sections below describe what we do with that data.
+- **Tier 1 — Self-hosted (free).** You run 2200 on your own machine. Your data, your OAuth tokens, your Agent state, and any third-party information your Agents access never leave your machine and never reach our servers. We do not have access to it. The only role we play in self-hosted mode is publishing the OAuth client credentials you authenticate against (so the consent screen says "2200" instead of "unverified app"). We do not log your authentications or your activity.
+- **Tier 2 — Hosted, BYOK** (when available). You run 2200 on infrastructure we operate, and you provide your own LLM API keys (Anthropic, OpenAI, etc.). Your data, OAuth tokens, and Agent state live on our servers, encrypted at rest. Your LLM keys are stored encrypted at rest and are passed directly to the LLM providers when your Agents make calls.
+- **Tier 3 — Hosted, Managed Tokens** (when available). You run 2200 on our infrastructure AND we manage the LLM provider relationships on your behalf. Your hosted instance never sees provider API keys directly; LLM calls route through a 2200 proxy service that holds the keys, applies rate limits, and meters usage against your prepaid balance.
 
-If you are not sure which mode applies to you, you are almost certainly self-hosted: managed service is in development as of the effective date above and is not generally available.
+The sections below describe what we do with data in each tier. "Managed service" (or "hosted service") refers to Tier 2 and Tier 3 collectively.
+
+If you are not sure which tier applies to you, you are almost certainly self-hosted: managed service is in development as of the effective date above and is not generally available.
 
 ## 3. Information we collect
 
@@ -40,7 +43,8 @@ In **managed service** mode, we collect:
 - **OAuth tokens.** When you authorize 2200 to access a third-party service (Google, GitHub, etc.), we receive and store the access and refresh tokens that the third party issues. These tokens are stored encrypted at rest in a per-Agent vault and are used only by the Agents you have created.
 - **Data accessed by your Agents.** When your Agent acts on your behalf using an OAuth token (e.g., reads a Gmail message, writes a Calendar event, lists a Drive folder), we transiently process the third-party data the Agent retrieves. We do not retain copies of this data beyond what is required to complete the operation, except where you have explicitly asked an Agent to write something to its persistent memory ("Brain") on your behalf.
 - **Operational logs.** Standard server logs (timestamps, request paths, error stacks) are retained for up to 30 days for debugging and security purposes. We do not log message bodies or third-party data.
-- **Billing information.** If the managed service has paid tiers, our payment processor (Stripe) collects the information needed to process payment. We do not store full payment card numbers.
+- **LLM-call audit logs (Tier 3 only).** When your hosted instance routes a call through our LLM proxy, the proxy logs metadata (token counts, model used, latency, cost, instance identifier) for billing accuracy and operational support. The proxy retains these audit records for 90 days. The audit records may transiently include prompt and response content; this content is access-restricted to support staff with explicit authorization, and all such access is itself logged. Our standard practice is that prompt and response content is NOT visible to users through log inspection (your Agent's own brain is the place to read what your Agents have done); this prevents log inspection from being a vector to extract Agent state.
+- **Billing information.** Our payment processor (Stripe) collects the information needed to process payment. We do not store full payment card numbers.
 
 ## 4. Google API data, specifically
 
@@ -112,15 +116,16 @@ If you are in California, you have rights under CCPA including the right to know
 
 ## 9. Data retention
 
-In **managed service** mode:
+In **managed service** mode (Tiers 2 and 3):
 
 - Account information is retained for as long as your account is active, plus 30 days after deletion.
 - OAuth tokens are retained for as long as the underlying authorization is valid, or until you revoke the grant.
 - Agent state ("Brain" notes, conversation history) is retained for as long as your account is active, plus 30 days after deletion, unless you delete it sooner.
 - Operational logs are retained for up to 30 days, then purged.
+- LLM-call audit logs (Tier 3 only) are retained for up to 90 days, then purged.
 - Backups are retained for up to 90 days.
 
-In **self-hosted** mode, retention is entirely under your control.
+In **self-hosted** mode (Tier 1), retention is entirely under your control.
 
 ## 10. Children's privacy
 

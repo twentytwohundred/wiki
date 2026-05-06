@@ -268,6 +268,43 @@ These are deferred to implementation but flagged for visibility:
 - **2026-04-29 Theme-Aware From v1:** Architecture decision that made it possible for a single 2200 codebase to serve self-hosted, hosted-BYOK, and hosted-managed-tokens users with consistent UI/UX. Without theme-aware-from-v1, we'd need different builds for different deployment modes.
 - **Voice and framing convention:** All user-facing copy for the managed service follows the established voice conventions. No marketing speak, ellipses not em-dashes, Agent capitalized as a proper noun.
 
+## Hobby's technical feedback (2026-05-06)
+
+Per "Next steps" §2 above. I read the full decision after writing the doc-integration changes, so my comments below are about implementation shape rather than the high-level design (which I think is sound).
+
+### Strong agreement
+
+- **Containerized per-tenant on shared hosts is the right call** at our scale + price point. Per-VM is a real margin killer at $15/mo; multi-tenant supervisor is a security liability the moment we have a misbehaving user. The 30-50 tenants per beefy box estimate aligns with what I'd expect for a Node-based supervisor + per-Agent processes; the resource limits can be tuned per box once we observe real usage.
+- **Self-expiring proxy tokens with a renewal endpoint is the right baseline auth pattern.** It's the same shape as the OAuth refresh-token loop we already have working in Epic 9. The renewal-as-gate-check (billing standing, abuse flags, instance validity) is cheap to implement and gives instant revocation as a side effect.
+- **No provider keys in user-facing instances (Tier 3) is non-negotiable.** Anything else creates an extraction surface that is provably exploitable by motivated users. The proxy is the cleanest answer.
+- **The 12.5% markup is well-calibrated.** Defensible publicly as covering aggregated billing infrastructure, generates real margin on heavy users, small enough not to read as gouging. 10% would be too small to cover any real cost; 20% would read as gouging. 12.5% is the right number.
+
+### Implementation-shape feedback
+
+These are not pushback on the decisions, but observations that affect how the build sequences:
+
+- **The runtime needs a hosted-mode flag, sooner rather than later.** Several of the decisions above (the system-prompt clarification, the proxy URL injection, the starter-inference rate limits, the "no provider key in env" invariant) need a runtime-level mode signal. Right now there is no `mode: 'self-hosted' | 'hosted-byok' | 'hosted-managed'` switch in the runtime. The natural place is the supervisor's startup config (read from env var or `<home>/config/supervisor-mode.yaml`), surfaced through to AgentLoop construction. **Suggestion:** add this flag in the v1 substrate (it's a 50-line change), defaulting to `self-hosted`, and consume it in two places that already have hooks for it: AgentLoop's system-prompt builder, and the LLMProvider registry. That way Epic 17 doesn't have to retrofit the rest of the runtime.
+
+- **The LLM proxy is small and self-contained, but its API contract is load-bearing.** A 200-400 line Fastify service is the right size estimate. The contract that hosted instances depend on (auth header shape, request/response shape, error codes for "balance exhausted" vs "abuse flag" vs "instance unknown") needs to be specced before either side is built. **Suggestion:** when Epic 17 starts, write the proxy API spec as `wiki/conventions/llm-proxy-api.md` first; build both sides against the spec. The hosted instance's existing `LLMProvider` abstraction (which we already use for Anthropic / DeepSeek / etc.) is the natural integration point ... a `HostedProxyProvider` slots in alongside the others.
+
+- **The MCP-credential vault is the riskiest piece.** It holds user OAuth tokens and other third-party credentials in our infrastructure. The "per-user encryption derived from account credentials" pattern is right; the substrate choice is where the hard work lives. **Suggestion:** the separate decision record for the vault should be written before any build work begins. The Vaultwarden vs HashiCorp Vault vs custom decision touches operational complexity, dependency surface, and how we respond to a substrate-vendor compromise. This is the one place where I'd push back on "deferred to implementation" and ask for the decision to land first.
+
+- **The 90-day audit-log retention has a side effect to think about.** Logs that may transiently include prompt and response content + 90-day retention + access by support staff = a small but real surface for the kind of subpoena that targets logs rather than user-controlled data. The decision implicitly accepts this surface (log access requires authorization, all access is itself logged). The implementation should make sure the audit log is structured so that a subpoena specific to a user's content can be honored without bulk dumping all users' content. **Suggestion:** when implementing the proxy, partition logs by user from the start. Per-user log files (or per-user table partitions) make targeted retention + targeted disclosure straightforward, and they make GDPR right-to-deletion straightforward too.
+
+- **The starter-inference rate limits are easy to specify but easy to under-spec.** Rate limits on a "free" tier need both per-call (calls per minute) and aggregate (total tokens this month) caps to defend against the obvious exploits. The decision says "throttled (per-user rate limits) and capped (the unstated allowance)" which I read as both. **Suggestion:** when implementing, express the limits as configuration the operator (us) can tune at runtime, not as code constants. Operating-thesis-relevant: starter inference budget is a customer acquisition cost line item; we will want to tune it.
+
+### Things that probably don't need to change
+
+- The three-tier shape (free / BYOK / managed-tokens) maps well to real audiences. Adding a fourth tier would dilute the messaging; collapsing to two would lose the BYOK developer audience.
+- The $15/mo + $2/Agent pricing has predictable economics. The "above 3" framing is a small win (most casual users will be at 1-3 Agents and pay $15/mo flat; heavy users self-select into per-Agent pricing).
+- The $1.00 pause threshold is correctly small. Big enough that an honest user has time to react to the warnings; small enough that we don't carry meaningful float when a payment method goes dark.
+- The "build for the button" deployment instinct (per the prior-art findings on OpenClaw managed deployments) is preserved here. A hosted instance is one container + one volume + one proxy token; provisioning is a single API call.
+
+### Things to flag for Doug now
+
+- **Hosted-mode flag in the v1 runtime substrate.** Decide-and-tell candidate: I add it as a small follow-up PR, defaulting to `self-hosted`. The cost is 50 lines + a test; the benefit is that Epic 17 has a substrate to consume rather than retrofit. Asking now because if you'd rather not paint hosted-mode into v1's substrate at all, that's a different posture and I shouldn't commit to it without a green light.
+- **MCP-credential vault decision record.** I'm flagging this as a thing to land before Epic 17 implementation begins (per the substrate-decision-first posture above). Whether you want me to draft it now (off the back of this work) or wait until Epic 17 starts is a posture call.
+
 ---
 
-*Decision drafted from a session on May 5, 2026. Captured for Hobby's reference and for the wiki's public history of architectural decisions.*
+*Decision drafted from a session on May 5, 2026. Captured for Hobby's reference and for the wiki's public history of architectural decisions. Hobby's technical feedback added 2026-05-06 after doc-integration work.*

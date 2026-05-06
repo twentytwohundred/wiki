@@ -165,6 +165,7 @@ tests/runtime/onboarding/
 - Multi-turn negotiation. The interview is structured: questions in order, answers captured, system summarizes. It is not a free-flow conversation. The freeform branch admits open prose; the other branches lead with structure.
 - Auto-OAuth. Phase A surfaces "you will need GITHUB_TOKEN_EMMA" in the preview; the operator wires the env var manually before starting the Agent. Phase B of Epic 9 automates the OAuth dance.
 - Spawn for someone else. Phase A spawns Agents for the local user. Multi-tenant onboarding (managed-service users spawning their own Agents) is the same flow; Epic 17 handles the tenancy layer.
+- Starter-inference path for Tier 2 / Tier 3 users. Phase A assumes the operator has wired LLM API keys before running `2200 spawn`. Per [[../decisions/2026-05-05-managed-service]] § Starter access, hosted Tier 2 users spawn their first Agent against the platform-provided DeepSeek V4-Flash via the proxy without bringing their own keys; once the unstated allowance is exhausted, the spawn flow prompts to add keys or upgrade to Tier 3. Tier 1 self-host onboarding is unchanged (the user must wire keys first; appropriate for the power-user audience and eliminates the abuse surface). The starter-inference path is its own sub-epic (Epic 17, not Epic 14).
 - Edit-in-place after spawn. Once the Agent is created, future edits go through Identity-file editing (open the file, change values, restart the Agent). A future "edit Agent via conversation" flow is post-v1.
 
 ## Dependencies

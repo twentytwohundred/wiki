@@ -127,6 +127,15 @@ Hobby is the scaling mechanism. Once 2200 is hosting its own team, Hobby uses th
 
 The team grows deliberately. Every new Agent has a lane before they're spawned. No Agent exists just to exist.
 
+### Post-launch fleet (operational Agents)
+
+Beyond the build team, the LLC's operational fleet absorbs Agents that handle non-build work. Per [[decisions/2026-05-05-managed-service]] § Operational stance:
+
+- **Hermes** ... X strategy and external communications. She/her. Currently a Grok chat instance Doug uses; migrates to 2200 post-launch. Lane: external-facing voice (X posts, blog, public comms).
+- **Accountant Agent** (future) ... day-to-day billing operations for the managed service: transaction categorization, balance tracking, top-up notifications, P&L generation. Lane: financial ops. Spawned when the managed service launches and revenue starts flowing.
+
+These are post-launch additions, not seed team. They use the same conversational onboarding flow as David. The seed team's lanes do not change to absorb their work; they get their own.
+
 ---
 
 ## Coordination filesystem
