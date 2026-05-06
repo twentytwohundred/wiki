@@ -74,9 +74,7 @@ Agent processes receive credentials at runtime via short-lived references, follo
 
 - All access (resolution events) is audit-logged.
 - Instant revocation when a user disconnects an integration.
-- The substrate (Vaultwarden self-hosted vs. HashiCorp Vault vs. custom encrypted-at-rest store) is deferred to implementation; the architectural principle (per-user encryption, short-lived runtime references, audit logging, instant revocation) is locked.
-
-A separate decision record will land before Epic 17 implementation begins to pick the substrate and document migration boundaries.
+- The substrate is locked: extend the existing Epic 9 Phase B per-Agent vault primitive (AES-256-GCM seal + HKDF-SHA256 wrapping-key derivation) into a per-user, per-Agent vault for hosted mode. Vaultwarden and HashiCorp Vault were considered and rejected. See [[../decisions/2026-05-06-mcp-credential-vault-substrate]] for the locked decision and rough implementation outline.
 
 ### 4. Per-tenant containers on shared hosts
 
@@ -122,7 +120,7 @@ These are deferred to Epic 17 implementation but flagged for visibility:
 - **Geographic hosting** ... single US region at v1.5 launch, or EU-hosted option for users with data residency requirements? Affects the proxy deployment topology.
 - **Compliance scope** ... SOC 2 lightweight at what user count? GDPR compliance from day one (probably yes given EU users will sign up). HIPAA out of scope.
 - **Backup architecture** ... user-data backup with encryption, restoration without exposing data across users. Critical for compliance and user trust; details deferred but architecturally must not break the per-tenant isolation invariant.
-- **MCP secrets vault substrate** ... Vaultwarden / HashiCorp Vault / custom. A separate decision record before Epic 17 implementation.
+- ~~**MCP secrets vault substrate** ... Vaultwarden / HashiCorp Vault / custom. A separate decision record before Epic 17 implementation.~~ Resolved 2026-05-06 in [[../decisions/2026-05-06-mcp-credential-vault-substrate]] (extend existing Epic 9 Phase B primitive).
 
 ## References
 

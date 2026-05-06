@@ -191,9 +191,7 @@ Tier 2 and Tier 3 users will plug their Agents into external services (Gmail, Gi
 
 The right architecture: encrypted secrets vault where each user's secrets are encrypted with a key derived from their account credentials. Our infrastructure cannot read them without the user's authentication. Agent processes receive secrets at runtime via short-lived references, following the same principle as the LLM proxy.
 
-Implementation candidates: Vaultwarden self-hosted, HashiCorp Vault, or a custom encrypted-at-rest store. Decision deferred to implementation, but the architectural principle (per-user encryption, short-lived runtime references, audit logging, instant revocation) is locked.
-
-This is a larger piece of work than the LLM proxy and warrants its own decision record before Epic 17 implementation begins.
+**Substrate decision: extend the existing Epic 9 Phase B per-Agent vault primitive, not Vaultwarden or HashiCorp Vault.** See [[2026-05-06-mcp-credential-vault-substrate]] for the locked decision and implementation outline. Architectural principle (per-user encryption, short-lived runtime references, audit logging, instant revocation) is preserved; the substrate choice rejects shoehorning Vaultwarden (wrong shape, GPLv3, operational overhead) and rejects HashiCorp Vault (too heavy at our scale, different operational ceremony) in favor of a custom extension on top of the AES-256-GCM seal pattern we already have working.
 
 ### Logging and audit architecture
 
