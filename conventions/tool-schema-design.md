@@ -243,9 +243,43 @@ When tightening an existing tool that's been failing in the field:
 4. Update the corresponding shared-brain `2200-tools` note so spawned
    agents see the new arg names during orientation.
 
+### 9. Tool names are underscored, single-token-after-namespace
+
+Per [[../decisions/2026-05-09-canonical-tool-names]], tool names use
+`namespace_verb` form throughout the runtime (`fs_read`,
+`brain_search_shared`, `schedule_add`). The dotted form
+(`fs.read`) is no longer the internal canonical, though the
+dispatcher still accepts it as a tolerant fallback for models
+that emit it from training-set memory.
+
+Why: Anthropic and OpenAI both validate tool names server-side
+against `^[a-zA-Z0-9_-]+$`; dotted names break native tool-use.
+Using underscored as the canonical internal name eliminates the
+"two names for the same tool" footgun where the model saw
+dotted in the system prompt and underscored in the native spec.
+
+When you author a new baseline tool: declare
+`name: 'namespace_verb'`. Done.
+
+### 10. Pair every fs_write with implicit recall, not just docs
+
+Per [[../decisions/2026-05-09-path-discipline]], the agent loop
+now tracks paths the agent writes during a task and surfaces them
+on subsequent ENOENT errors. This is a runtime guardrail, not a
+schema rule per se ... but worth noting here: the same pattern
+("when the model needs to recall something it produced earlier in
+the task, the runtime surfaces it on the failure path") is
+generalizable. Tools that produce ids the model needs later
+(schedule ids, notification ids, pub message ids) should consider
+similar recall-on-error wiring. Documentation alone is
+insufficient for working-memory recall across many turns.
+
 ## Provenance
 
-Drafted 2026-05-08 after the schedule.add discriminated-union failure
+Drafted 2026-05-08 after the schedule_add discriminated-union failure
 landed Jodin in `blocked_on_detector`. The session that incident
 sits in: see the supervisor.log around 2026-05-08T21:09 for the
 five consecutive arg errors that tripped error_storm.
+
+Updated 2026-05-09 with rules 9 and 10 after Antigravity's
+codebase review and the Jodin path-hallucination incident.
