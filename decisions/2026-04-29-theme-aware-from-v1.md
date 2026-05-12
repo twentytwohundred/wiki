@@ -1,7 +1,9 @@
 ---
 title: "Theme-aware runtime from v1"
 type: decision
-status: locked
+status: superseded
+superseded_by: "[[2026-05-12-themes-deferred-to-v15]]"
+superseded_on: 2026-05-12
 date: 2026-04-29
 tags: [decision, design, themes, frontend, marketplace, v1-scope]
 linked_docs:
@@ -12,6 +14,8 @@ canonical_path: wiki/decisions/2026-04-29-theme-aware-from-v1.md
 ---
 
 # Theme-aware runtime from v1
+
+> **Superseded 2026-05-12** by [[2026-05-12-themes-deferred-to-v15]]. Themes are now deferred to v1.5+ in full. The original content of this decision is preserved below as historical context.
 
 ## Context
 
