@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>2200 · Design System</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────────────
+     2200 — Design System tokens
+     Light is the default; .dark on <html> flips to dark mode.
+     All component CSS reads from these custom properties.
+  ───────────────────────────────────────────────────────────────────────── */
+  :root {
+    /* TYPE */
+    --ds-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --ds-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+    /* TYPE SCALE (px) */
+    --ds-text-2xs: 11px;
+    --ds-text-xs:  12px;
+    --ds-text-sm:  13px;
+    --ds-text-md:  15px;
+    --ds-text-lg:  17px;
+    --ds-text-xl:  22px;
+    --ds-text-2xl: 30px;
+    --ds-text-3xl: 44px;
+
+    /* LINE HEIGHT */
+    --ds-lh-tight: 1.18;
+    --ds-lh-snug:  1.35;
+    --ds-lh-prose: 1.55;
+
+    /* SPACING */
+    --ds-1: 4px;
+    --ds-2: 8px;
+    --ds-3: 12px;
+    --ds-4: 16px;
+    --ds-5: 20px;
+    --ds-6: 24px;
+    --ds-8: 32px;
+    --ds-10: 40px;
+    --ds-12: 48px;
+    --ds-16: 64px;
+    --ds-20: 80px;
+
+    /* RADIUS */
+    --ds-r-1: 4px;
+    --ds-r-2: 6px;
+    --ds-r-3: 10px;
+    --ds-r-4: 14px;
+    --ds-r-pill: 999px;
+
+    /* MOTION */
+    --ds-ease: cubic-bezier(.2,.7,.2,1);
+    --ds-dur-fast: 120ms;
+    --ds-dur: 200ms;
+    --ds-dur-slow: 360ms;
+
+    /* DENSITY (compact toggle scales these) */
+    --ds-row-h: 36px;
+    --ds-pad-x: 14px;
+    --ds-pad-y: 10px;
+
+    /* ── LIGHT THEME ─────────────────────────────────────────────────────── */
+    /* Neutrals: oklch warm-cool neutral, no saturation drift */
+    --bg:        oklch(99% 0.003 240);   /* canvas */
+    --bg-elev:   oklch(98% 0.004 240);   /* card/sheet */
+    --bg-sunk:   oklch(96% 0.005 240);   /* input/well */
+    --bg-hover:  oklch(94% 0.006 240);
+    --line:      oklch(91% 0.005 240);
+    --line-soft: oklch(94% 0.005 240);
+    --line-strong: oklch(82% 0.008 240);
+
+    --text:      oklch(22% 0.008 240);   /* body */
+    --text-2:    oklch(40% 0.008 240);   /* secondary prose */
+    --text-3:    oklch(55% 0.008 240);   /* tertiary / data dim */
+    --text-4:    oklch(68% 0.008 240);   /* placeholder / muted */
+
+    /* ACCENT — the ONE color (green). Used for primary action + "alive" states. */
+    --accent-h: 150;
+    --accent:        oklch(58% 0.16 var(--accent-h));
+    --accent-strong: oklch(48% 0.18 var(--accent-h));
+    --accent-soft:   oklch(94% 0.06 var(--accent-h));
+    --accent-ink:    oklch(28% 0.10 var(--accent-h));
+    --on-accent:     #ffffff;
+
+    /* SEMANTIC: borrow accent hues, no rainbow */
+    --danger:      oklch(56% 0.18 25);
+    --danger-soft: oklch(94% 0.05 25);
+    --warn:        oklch(70% 0.13 75);
+    --warn-soft:   oklch(95% 0.06 75);
+    --info:        oklch(60% 0.10 240);
+    --info-soft:   oklch(95% 0.03 240);
+
+    /* AGENT HUES — distinct, NEVER reuse for state */
+    --agent-1: oklch(62% 0.14 145);   /* sage      */
+    --agent-2: oklch(62% 0.12 275);   /* iris      */
+    --agent-3: oklch(64% 0.14 35);    /* clay      */
+    --agent-4: oklch(64% 0.10 210);   /* steel     */
+    --agent-5: oklch(60% 0.13 320);   /* plum      */
+    --agent-6: oklch(66% 0.13 85);    /* ochre     */
+
+    /* SHADOW — used sparingly */
+    --shadow-1: 0 1px 0 rgba(15,18,22,.04), 0 1px 2px rgba(15,18,22,.04);
+    --shadow-2: 0 1px 0 rgba(15,18,22,.04), 0 8px 24px -8px rgba(15,18,22,.10);
+    --shadow-pop: 0 12px 48px -12px rgba(15,18,22,.22);
+
+    /* FOCUS */
+    --focus: 0 0 0 2px var(--bg), 0 0 0 4px color-mix(in oklch, var(--accent) 70%, transparent);
+
+    color-scheme: light;
+  }
+
+  html.dark {
+    --bg:        oklch(15% 0.008 240);
+    --bg-elev:   oklch(18% 0.009 240);
+    --bg-sunk:   oklch(13% 0.008 240);
+    --bg-hover:  oklch(22% 0.010 240);
+    --line:      oklch(26% 0.008 240);
+    --line-soft: oklch(22% 0.008 240);
+    --line-strong: oklch(36% 0.010 240);
+
+    --text:      oklch(96% 0.005 240);
+    --text-2:    oklch(78% 0.006 240);
+    --text-3:    oklch(62% 0.007 240);
+    --text-4:    oklch(48% 0.007 240);
+
+    --accent:        oklch(72% 0.16 var(--accent-h));
+    --accent-strong: oklch(80% 0.17 var(--accent-h));
+    --accent-soft:   oklch(28% 0.08 var(--accent-h));
+    --accent-ink:    oklch(86% 0.13 var(--accent-h));
+    --on-accent:     oklch(15% 0.04 var(--accent-h));
+
+    --danger:      oklch(72% 0.16 25);
+    --danger-soft: oklch(28% 0.08 25);
+    --warn:        oklch(78% 0.13 75);
+    --warn-soft:   oklch(28% 0.07 75);
+    --info:        oklch(72% 0.10 240);
+    --info-soft:   oklch(26% 0.04 240);
+
+    --agent-1: oklch(72% 0.14 145);
+    --agent-2: oklch(72% 0.13 275);
+    --agent-3: oklch(74% 0.14 35);
+    --agent-4: oklch(74% 0.10 210);
+    --agent-5: oklch(70% 0.13 320);
+    --agent-6: oklch(76% 0.13 85);
+
+    --shadow-1: 0 1px 0 rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.5);
+    --shadow-2: 0 1px 0 rgba(0,0,0,.4), 0 8px 28px -8px rgba(0,0,0,.6);
+    --shadow-pop: 0 12px 56px -12px rgba(0,0,0,.7);
+
+    --focus: 0 0 0 2px var(--bg), 0 0 0 4px color-mix(in oklch, var(--accent) 60%, transparent);
+
+    color-scheme: dark;
+  }
+
+  /* DENSITY */
+  html[data-density="compact"] {
+    --ds-row-h: 30px;
+    --ds-pad-x: 10px;
+    --ds-pad-y: 7px;
+  }
+
+  /* RADIUS preset */
+  html[data-radius="sharp"] {
+    --ds-r-1: 0px; --ds-r-2: 2px; --ds-r-3: 4px; --ds-r-4: 6px;
+  }
+  html[data-radius="soft"] {
+    --ds-r-1: 6px; --ds-r-2: 10px; --ds-r-3: 14px; --ds-r-4: 18px;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--ds-font-sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: var(--ds-text-md);
+    line-height: var(--ds-lh-prose);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'cv11','ss01';
+  }
+  .mono { font-family: var(--ds-font-mono); font-feature-settings: 'zero','ss02'; }
+  ::selection { background: color-mix(in oklch, var(--accent) 35%, transparent); }
+
+  /* App-level layout */
+  .ds-app { max-width: 1240px; margin: 0 auto; padding: var(--ds-12) var(--ds-8) var(--ds-20); }
+  .ds-nav {
+    position: sticky; top: 0; z-index: 5;
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    background: color-mix(in oklch, var(--bg) 78%, transparent);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .ds-nav-inner {
+    max-width: 1240px; margin: 0 auto;
+    display: flex; align-items: center; gap: var(--ds-6);
+    padding: var(--ds-3) var(--ds-8);
+  }
+  .ds-nav a {
+    color: var(--text-2); text-decoration: none;
+    font: 500 13px/1 var(--ds-font-sans);
+    padding: 8px 10px; border-radius: var(--ds-r-2);
+  }
+  .ds-nav a:hover { color: var(--text); background: var(--bg-hover); }
+  .ds-nav a.active { color: var(--text); }
+  .ds-brand { display: flex; align-items: center; gap: 10px; margin-right: auto; font-weight: 600; }
+  .ds-brand .glyph {
+    width: 22px; height: 22px; border-radius: var(--ds-r-2);
+    background: var(--text); color: var(--bg);
+    display: grid; place-items: center;
+    font: 700 11px/1 var(--ds-font-mono); letter-spacing: .02em;
+  }
+
+  section.ds-section { padding: var(--ds-16) 0 0; scroll-margin-top: 80px; }
+  section.ds-section > h2 {
+    font: 600 var(--ds-text-2xl)/var(--ds-lh-tight) var(--ds-font-sans);
+    letter-spacing: -0.02em; margin: 0 0 8px;
+  }
+  section.ds-section > p.lede {
+    color: var(--text-2); margin: 0 0 var(--ds-8);
+    font-size: var(--ds-text-md); max-width: 64ch;
+  }
+  .ds-eyebrow {
+    font: 600 var(--ds-text-2xs)/1 var(--ds-font-mono);
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 12px;
+  }
+  .ds-rule { height: 1px; background: var(--line-soft); margin: var(--ds-6) 0; }
+
+  /* Hero */
+  .ds-hero {
+    padding: var(--ds-12) 0 var(--ds-8);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .ds-hero h1 {
+    font: 600 var(--ds-text-3xl)/var(--ds-lh-tight) var(--ds-font-sans);
+    letter-spacing: -0.025em; margin: 16px 0 12px;
+  }
+  .ds-hero .meta {
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-text-xs);
+    color: var(--text-3);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .ds-hero .meta span { letter-spacing: .04em; }
+  .ds-hero p.lede {
+    max-width: 64ch; color: var(--text-2);
+    font-size: var(--ds-text-lg); line-height: 1.5;
+    margin: 0 0 var(--ds-6);
+  }
+
+  /* Tile grid (used by tokens) */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ds-4); }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--ds-4); }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: var(--ds-4); }
+  @media (max-width: 880px) {
+    .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Card */
+  .ds-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: var(--ds-r-3);
+  }
+  .ds-card.pad { padding: var(--ds-5); }
+
+  /* Footer note */
+  .ds-foot {
+    margin-top: var(--ds-16); padding-top: var(--ds-6);
+    border-top: 1px solid var(--line-soft);
+    color: var(--text-3); font-size: var(--ds-text-sm);
+    display: flex; justify-content: space-between; gap: var(--ds-4);
+  }
+
+  /* Tweaks button polish (overrides starter) */
+  button:focus-visible { outline: none; box-shadow: var(--focus); }
+
+  /* Splash for bundler */
+  .__boot { position: fixed; inset: 0; display: grid; place-items: center;
+    background: var(--bg); color: var(--text); z-index: 99; font: 500 14px/1 var(--ds-font-sans); }
+  .__boot.gone { display: none; }
+</style>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="200" fill="#0f1418"/>
+    <rect x="38" y="74" width="124" height="52" rx="6" fill="#22c55e"/>
+    <text x="100" y="108" font-family="JetBrains Mono, monospace" font-size="28" font-weight="700" fill="#0f1418" text-anchor="middle">2200</text>
+  </svg>
+</template>
+
+</head>
+<body>
+
+<div class="__boot" id="boot">2200 · loading design system…</div>
+<div id="root"></div>
+
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Tweaks shell -->
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<!-- 2200 design system modules -->
+<script type="text/babel" src="ds-primitives.jsx"></script>
+<script type="text/babel" src="ds-foundations.jsx"></script>
+<script type="text/babel" src="ds-components.jsx"></script>
+<script type="text/babel" src="ds-chat.jsx"></script>
+<script type="text/babel" src="ds-screens.jsx"></script>
+<script type="text/babel" src="ds-app.jsx"></script>
+
+<script>
+  // Hide splash once root has content
+  const obs = new MutationObserver(() => {
+    const r = document.getElementById('root');
+    if (r && r.firstChild) {
+      document.getElementById('boot').classList.add('gone');
+      obs.disconnect();
+    }
+  });
+  obs.observe(document.getElementById('root'), { childList: true });
+</script>
+
+</body>
+</html>
