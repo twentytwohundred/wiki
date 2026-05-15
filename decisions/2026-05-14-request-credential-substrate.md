@@ -1,10 +1,10 @@
 ---
 title: "Decision: request_credential Substrate"
 type: decision
-status: proposed
+status: accepted
 tags: [decision, credentials, security, agent-tool, secrets, ux]
 created: 2026-05-14
-updated: 2026-05-14
+updated: 2026-05-15
 linked_docs:
   - "[[02-architecture]]"
   - "[[03-epic-map]]"
@@ -15,7 +15,7 @@ canonical_path: wiki/decisions/2026-05-14-request-credential-substrate.md
 
 # Decision: `request_credential` Substrate
 
-**Status:** Proposed. Implementation queued behind operator review.
+**Status:** Accepted 2026-05-15 after operator review. No blockers; seven sharpening points folded in (see §"Provenance"). Implementation cleared to begin.
 
 ## Context
 
@@ -35,11 +35,12 @@ The decision: build a runtime tool that lets an Agent **request** a credential f
 
 ## The bar
 
-Three structural properties this substrate must guarantee:
+Four structural properties this substrate must guarantee:
 
 1. **The secret value never enters the Agent's loop context.** Not in tool args, not in tool results, not in narration, not in any post-fulfillment LLM call.
 2. **The secret value never transits the LLM provider.** Browser → runtime HTTP → vault. The model API never sees it.
 3. **The Agent cannot fabricate possession.** If the Agent narrates "I have the GitHub token," the audit substrate can verify that claim against (a) the request ledger and (b) `vault.has(name)`. False claims are caught by the existing audit pipeline with no new substrate work.
+4. **Credential prompts are surface-restricted to operator-private 1:1 chat by construction.** No Agent on this fleet can prompt for credentials in a shared channel. This closes the most plausible Agent-to-Agent social-engineering vector before it opens — a guarantee other agent platforms can't make because they lack a surface-aware task source.
 
 These together produce a property other agent platforms can't claim: **operator-paste credentials whose plaintext is never reachable from the model side**, ever.
 
@@ -75,7 +76,11 @@ returns:
   status: enum [fulfilled, declined, expired]
   credential_name: string  # confirmation of where the value landed (when fulfilled)
   set_at: timestamp        # when fulfillment completed (when fulfilled)
-  decline_reason: string   # operator's text (when declined; optional)
+  decline_reason: string   # structured code when runtime-generated ('rate_capped',
+                           # 'surface_invalid', 'invalid_credential_name'); operator-typed
+                           # text or empty when human-declined
+  expired_reason: string   # 'timeout' (default) when status=expired; 'agent_crashed' /
+                           # 'agent_archived' surface only in operator UI, never in tool result
 ```
 
 The tool is **blocking**. The Agent's loop transitions to `blocked_on_user` (existing state from Epic 6) when the tool dispatches. The loop unblocks on operator response or timeout.
@@ -92,6 +97,16 @@ The tool is **blocking**. The Agent's loop transitions to `blocked_on_user` (exi
 5. Transition the Agent loop to `blocked_on_user`.
 6. Wait for either a fulfill / decline RPC OR the 5-min timeout.
 7. Return the result to the Agent. The result NEVER contains the value.
+
+**Inline-validation rejection shape.** Each of the three validation failures returns immediately (no record written, no WS event) with a structured decline:
+
+- Slug-format violation → `{ status: 'declined', decline_reason: 'invalid_credential_name' }`
+- Wrong surface (pub / schedule / self-spawn) → `{ status: 'declined', decline_reason: 'surface_invalid' }`
+- Rate cap hit → `{ status: 'declined', decline_reason: 'rate_capped' }`
+
+When the rate cap is hit, the runtime ALSO emits an operator notification at `important` tier (`kind: 'credential_request_rate_capped'`, body names the Agent + window-start + cap value). Otherwise the operator would just see an Agent failing to make progress and not know why.
+
+**Rate-cap configuration.** Default `15 / hour` is set in `settings.json` under `requestCredential.ratePerHour`. Per-Agent override via the Agent's `identity.md` frontmatter (`request_credential_rate_per_hour: N`). The runtime resolves cap-at-dispatch as `identity.value ?? settings.value ?? 15`. There's no in-band way for the Agent to ask for a higher cap; that's an operator decision.
 
 ### Operator UX (1:1 chat surface only)
 
@@ -186,7 +201,9 @@ All four states are terminal. Re-issuing the same `credential_name` after expira
   "state": "pending | fulfilled | declined | expired",
   "fulfilled_at": null,
   "declined_at": null,
-  "decline_reason": null
+  "decline_reason": null,
+  "expired_at": null,
+  "expired_reason": null   // 'timeout' | 'agent_crashed' | 'agent_archived' when state=expired
 }
 ```
 
@@ -225,9 +242,28 @@ WebSocket events:
 ```
 credential_request.created    { agent, chat_id, request: {...metadata, no value...} }
 credential_request.fulfilled  { agent, request_id, fulfilled_at, credential_name }
-credential_request.declined   { agent, request_id, declined_at, reason? }
-credential_request.expired    { agent, request_id, expired_at }
+credential_request.declined   { agent, request_id, declined_at, decline_reason? }
+credential_request.expired    { agent, request_id, expired_at, expired_reason }
 ```
+
+### Supervisor + cost interactions
+
+The tool sits on top of the existing supervisor + cost-cap machinery; the integration points are worth naming so they don't surprise anyone in production.
+
+**Cost-cap clock pauses during `blocked_on_user`.** The wait is operator-latency, not Agent work. Charging it against the Agent's time-budget would create the wrong incentive (Agent races to dispatch the request before the budget expires, or worse, finalizes a fabricated reply rather than wait for the operator). The Agent's cost record gets a `blocked_on_user_total_ms` accumulator that's excluded from time-budget arithmetic. Token / dollar caps are unaffected ... no tokens flow during the wait.
+
+**Supervisor restart with pending requests.** On boot, the supervisor scans `<home>/state/credential-requests/*.json` for records with `state: 'pending'` and partitions them:
+
+- `expires_at > now` → the owning Agent is restored to `blocked_on_user` for that request. If the Agent itself isn't in `reviveStates` (e.g. archived), the request is marked `expired` with `expired_reason: 'agent_archived'` instead.
+- `expires_at <= now` → marked `expired` with `expired_reason: 'timeout'` on the next sweeper tick; WS `credential_request.expired` event fires so the operator's UI updates if open.
+
+The chat-thread system message inserted on dispatch persists in the chat log, so the operator sees the historical card with its final state regardless of restart timing.
+
+**Agent crash during the wait.** When the supervisor's existing crash-handler detects an Agent process death without graceful shutdown, it sweeps any `pending` requests for that Agent and marks them `expired` with `expired_reason: 'agent_crashed'`. The operator UI surfaces this state distinctly (card transitions to "agent crashed mid-request" rather than the normal "expired"), so the operator doesn't waste time pasting into a card whose recipient is gone.
+
+On Agent restart, the supervisor does NOT restore those requests ... they're terminal. If the Agent still needs the credential, its next reasoning step issues a fresh `request_credential`, subject to the rate cap. This deliberately avoids the "stale request from a previous reasoning context" trap.
+
+**Agent archive during the wait.** Same path as crash, with `expired_reason: 'agent_archived'`. The directory rename ([[2026-05-14]] archive substrate) doesn't touch the request file's `agent` field, so the archived-Agent's audit log retains the trail.
 
 ### Frozen wire shape
 
@@ -286,6 +322,7 @@ If the Agent claims possession without actually having requested OR if a request
 | Audit catches fabricated possession | `vault.has(name)` is the source of truth |
 | Audit catches fabricated request | Request ledger is the source of truth |
 | Cross-Agent overwrite impossible | Tool only writes to calling Agent's own vault |
+| Cross-Agent request forgery impossible | Tool dispatch sets the request record's `agent` field from the calling loop's identity (not from tool args); the audit verifier checks the request ledger's `agent` matches the Agent making the claim. No Agent can fabricate a request that appears to come from a different Agent. |
 | Pub-stream prompt impossible | Surface check refuses dispatch from non-chat tasks |
 | Loop spam impossible | 15 / hour rate cap with global override |
 
@@ -304,15 +341,28 @@ If the Agent claims possession without actually having requested OR if a request
 
 ## Open follow-ups (out of v1 scope)
 
-1. **File-shaped (`kind: file`) materialization.** Depends on the `mcp:` frontmatter extension shipping (separate decision; queued task #8). The credential lands in vault as content; the MCP transport materializes it at spawn time. The `request_credential` substrate handles the input UX; the use-at-MCP-spawn part lives in the other substrate.
-2. **Re-prompt detection.** If the Agent issues a `request_credential` for a `credential_name` that's already pending, surface as "re-prompt" in the UI rather than two cards. Low priority — the rate cap already discourages spam.
-3. **Cross-chat visibility.** A request issued in one chat thread shows up in that thread only. If the operator is in a different chat with the same Agent, they don't see the prompt unless they switch threads. Possible enhancement: notification-tier surfacing for high-priority requests.
-4. **Bulk request.** A skill that needs N credentials could batch them into one card rather than N. Probably not worth it for v1; the existing install wizard handles bulk-known-at-install-time.
-5. **Vault reset on decline.** If the operator declines, should we clear any pre-existing credential at that name? Default no — declining the request shouldn't remove an existing value. The Agent gets `{status: 'declined'}` and can decide what to do.
-6. **Audit telemetry dashboard hook.** Per-Agent counts of (requested, fulfilled, declined, expired) over time. Useful for operator sense-making. Belongs alongside the budget / audit telemetry work already queued.
+1. **Async-operator timeout hole.** The 5-minute timeout is correct for the keyboard-attended happy path. If the operator is in a meeting / at lunch / asleep, the Agent can churn through re-issue → expire → re-issue → rate-cap before the operator returns home. Two possible mitigations, neither in v1: (a) `wait_for_response_ms` parameter on `request_credential` so an Agent that knows the operator is async can request a longer window (Agent-side adaptation); (b) the operator UI surfaces recently-expired requests with a "still need this?" resurrection affordance, so the operator can revive a stale request without forcing the Agent to re-issue (operator-side adaptation). Leaning (b) ... keeps the Agent-facing surface narrow and the operator-facing surface adaptive. Worth picking the answer before this becomes a recurring complaint.
+2. **File-shaped (`kind: file`) materialization.** Depends on the `mcp:` frontmatter extension shipping (separate decision; queued task #8). **v1 accepts `kind: file` as a UI hint only**: the operator gets a textarea widget, and the pasted contents are stored as a regular vault credential string (same path as `value` / `secret`). Spawn-time materialization to a managed temp file ships in v1.x alongside the `mcp:` frontmatter extension. Until then, an MCP server that wants a file path can read the vault value directly (most can) or operators can fall back to the install-time wizard for file-shaped envs.
+3. **Re-prompt and stale-prompt detection.** If the Agent issues a `request_credential` for a `credential_name` that's already `pending`, the UI surfaces a single re-prompt indicator on the existing card rather than rendering two cards. For a recently-expired request of the same name (within ~30 minutes), the new card shows "you let this expire 12 minutes ago" inline rather than a fresh prompt ... this is the answer to the "snooze button" UX question without adding a `snoozed` state to the state machine. The terminal-state rule stands: the stale-expired record stays expired forever; the "resurrect" affordance from follow-up #1(b) creates a new `CredentialRequest` record with the same `credential_name` / `label` / `help` / `kind` / `reason`, and the UI collapses the linked pair into one visual card with continuity. Low priority on its own; the rate cap already discourages spam.
+4. **Cross-chat visibility.** A request issued in one chat thread shows up in that thread only. If the operator is in a different chat with the same Agent, they don't see the prompt unless they switch threads. Possible enhancement: notification-tier surfacing for high-priority requests.
+5. **Bulk request.** A skill that needs N credentials could batch them into one card rather than N. Probably not worth it for v1; the existing install wizard handles bulk-known-at-install-time.
+6. **Vault reset on decline.** If the operator declines, should we clear any pre-existing credential at that name? Default no ... declining the request shouldn't remove an existing value. The Agent gets `{status: 'declined'}` and can decide what to do.
+7. **Audit telemetry dashboard hook.** Per-Agent counts of (requested, fulfilled, declined, expired) over time. Useful for operator sense-making. Belongs alongside the budget / audit telemetry work already queued.
 
 ## Provenance
 
-Decision drafted 2026-05-14 evening following the OpenPub install round-trip + key-leak incident + multi-iteration substrate hardening. Doug's design call established the four constraints (5min, 15/hr, own-vault-only, 1:1 chat); this doc locks them in writing.
+Decision drafted 2026-05-14 evening following the OpenPub install round-trip, which surfaced a class of leak surfaces (stderr logs treating values as paths, MCP server env-error messages echoing pasted contents, etc.) alongside the multi-iteration substrate hardening from the same session. Doug's design call established the four constraints (5min, 15/hr, own-vault-only, 1:1 chat); this doc locks them in writing.
 
-Implementation queued for next session. Review window: operator reads the doc, signals approval or pushback, then build commences. The substrate is independent of any in-flight skill or tool ... it lands as its own PR with the order in §"Implementation order" above.
+Operator review delivered 2026-05-15. No blockers; seven sharpening points folded in:
+
+1. Async-operator timeout hole named as a known UX hole in §"Open follow-ups" with two mitigation paths sketched.
+2. Rate-cap rejection now returns structured `decline_reason: 'rate_capped'` and emits an operator notification at `important` tier; configuration location named (settings + identity override).
+3. Pub-stream surface restriction lifted from quiet design constraint to a load-bearing security property in §"The bar" (bullet 4).
+4. New §"Supervisor + cost interactions" section covers cost-cap clock pause, supervisor restart re-load, agent-crash sweep, and agent-archive sweep.
+5. `kind: file` deferral clarified: v1 stores as regular vault credential; spawn-time materialization ships in v1.x with the `mcp:` extension.
+6. "Snooze button" UX folded into expanded re-prompt-detection follow-up (stale-expired cards show "you let this expire N minutes ago" with optional one-click resurrect) rather than adding a `snoozed` state to the state machine.
+7. Cross-Agent request forgery property added to §"Security properties summary" naming the mechanism (agent field set from calling loop's identity, not tool args).
+
+Plus one copy edit on this Provenance section to neutralize the key-leak phrasing for public readers.
+
+Implementation cleared to begin. The substrate is independent of any in-flight skill or tool ... it lands as its own PR with the order in §"Implementation order" above.
