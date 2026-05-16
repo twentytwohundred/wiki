@@ -19,3 +19,9 @@ Thumbs.db
 *.key
 *.crt
 secrets.*
+
+# Inbox screenshots: private chat / Discord captures used as debug
+# aids during sessions; not for the public mirror.
+inbox/**/Screenshot*.png
+inbox/**/Screenshot*.jpg
+inbox/**/Screenshot*.jpeg
