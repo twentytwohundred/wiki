@@ -209,3 +209,48 @@ Spec drafted by Hobby, 2026-04-29 evening, after Epic 9 Phase A landed. Doug loc
 ---
 
 *Phase A scope locked. Phases B–D sketched for sequencing.*
+
+## Phase F (parked 2026-05-17): Hiring-manager tone + Capability Catalog
+
+Captured after David's first build against Qwen 3 30B exposed two follow-on gaps. Picking up next session.
+
+### Part 1 ... interview tone
+
+The LLM-driven planner currently asks "What kind of Agent do you want to spawn?" and follows up with the model's choice of next question. It works but feels formal / checklist-y. The framing Doug wants is closer to a hiring-manager interview: the operator is describing the ideal candidate they want to add to their team, the planner is curious and follow-up-driven rather than scripted.
+
+Implementation surface:
+- Rewrite the planner system prompt in `src/runtime/onboarding/session.ts` (around lines 290-330 where `provider.complete()` drives question generation). New framing: "You are a hiring manager interviewing a stakeholder about the ideal employee they want to add to their team."
+- Rewrite the opening seed: "Tell me about the Agent you want to bring on. What do you need this person to be good at?"
+- Keep the JSON output shape (index/total/question) so the web client does not need to change.
+- Test on multiple models (DeepSeek, Qwen 3 30B, Llama 3.3 70B). Smaller models may need a tighter constraint to stay on-shape.
+
+### Part 2 ... Capability Catalog
+
+Bigger initiative. Lets the operator say (or have the Agent infer) what integrations the Agent needs, then walks them through obtaining the credentials post-spawn.
+
+**Shape:**
+
+- **Catalog format.** One entry per integration at `wiki/catalog/capabilities/<id>.md` (or a single JSON manifest, TBD). Each entry declares:
+  - `id`, `label`, `description`
+  - `credentials_required`: list of `{ name, kind: 'http_bearer' | 'oauth' | 'api_key' | ..., scope?, env_var? }`
+  - `acquisition`: step-by-step prose with the provider's dashboard URL, exact click paths, screenshots if useful
+  - `unlocks`: which tools / skills become functional once the credentials are sealed
+  - `tags`: for capability-suggestion matching (email, calendar, music, dev, observability, ...)
+- **Onboarding integration.** The LLM-driven interview's preview phase already surfaces `OnboardingToolSuggestion[]`; extend that to `OnboardingCapabilitySuggestion[]` driven by catalog tags. Operator sees checkboxes for inferred-needed capabilities and can add/remove.
+- **Post-spawn walkthrough.** The new Agent's first action after spawn is to walk the operator through the chosen-but-not-yet-provisioned credentials, one at a time. Each one uses `credential_request` (the substrate is already there) plus the catalog entry's acquisition steps rendered inline in chat. Agent confirms each cred lands in vault before moving to the next.
+- **Catalog content.** ~30-50 seed entries: Gmail, Calendar, Drive, Contacts, Tasks, Slack, Discord, Spotify, GitHub, Notion, Linear, Stripe, Twilio, OpenAI, Anthropic, AWS, Cloudflare, Vercel, Supabase, Postgres, ... The bulk of this content can be lifted from OpenClaw's integration catalogs (Doug's prior project). Translation pass to fit 2200's format is the bigger time cost.
+
+**Sequencing for next session:**
+
+1. Land the tone-fix pass (Part 1) ... small, doable in one sitting.
+2. Decide catalog format (markdown-with-frontmatter vs JSON manifest) and write one seed entry by hand to feel the shape.
+3. Schedule a session to dig the OpenClaw source and pull / translate the integration content.
+4. Wire onboarding's preview + post-spawn walkthrough to consume the catalog.
+
+**Open questions for Phase F:**
+
+- Should the LLM be allowed to suggest capabilities NOT in the catalog, with a fallback "we do not have a walkthrough for this yet" message? Or strict catalog-only?
+- Where in the post-spawn flow do credentials get pulled? Right at first chat opening (forced)? Lazy on first tool use that requires it? Configurable?
+- Multi-Agent share of credentials (e.g., one Google OAuth across the fleet) vs strict per-Agent vault. v1 of the credential substrate is per-Agent; multi-Agent share is a separate epic.
+
+**Format provenance:** Captured by Hobby 2026-05-17 after Doug raised the tone + catalog issues during David's first build against Qwen 3 30B. Substantive design conversation deferred to next session.
