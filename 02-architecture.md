@@ -300,6 +300,8 @@ Context is infinite via three mechanisms:
 3. **Project segmentation.** Context for Project A doesn't bleed into Project B. The loop loads the relevant project's state when picking up a task. Brain notes are tagged by project.
 4. **Handoff documents.** At long intervals (weekly, or when context gets heavy), the Agent writes a handoff doc that compresses accumulated state into the brain. The next session starts by reading the most recent handoff. Handoff format is standardized so it's portable across instances (critical for onboarding Agents from other systems).
 
+**Prompt-cache integrity.** Separately from context loading: the system prompt is treated as cache-stable across turns by design; mutations default to next-session activation. The `apply_anthropic_cache_control` path (and equivalents per provider) is load-bearing convention. Four governance rules in [[decisions/2026-05-18-cache-as-invariant]] ... non-negotiable for any code change touching the system-prompt path.
+
 ### Blocker detection
 
 An Agent is blocked when:
