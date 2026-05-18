@@ -20,8 +20,6 @@ canonical_path: wiki/epics/16-loop-layer-reliability.md
 
 **Status:** Next-active after Phase F end-to-end demo (gmail seed Capability driving a complete onboarding flow). Activation trigger unchanged from v0.1 of this epic.
 
-**Numbering note:** Filed at `16-` because `15-` was already taken by [[15-web-app]]. The intended number was 15 per Doug's earlier note; flagging for renumber if the epic map prefers a different slot (13, 6, and 7 are open gaps).
-
 ## Purpose
 
 2200's agent loop currently fails fast and surfaces to operator. That's correct when failure is signal. It's wrong when failure is dumb-model noise.
