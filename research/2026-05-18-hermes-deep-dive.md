@@ -14,7 +14,7 @@ linked_docs:
   - "[[2026-05-14-claim-vs-evidence-audit]]"
   - "[[2026-05-14-request-credential-substrate]]"
   - "[[2026-05-18-capability-security-model]]"
-canonical_path: wiki/decisions/2026-05-18-hermes-deep-dive.md
+canonical_path: wiki/research/2026-05-18-hermes-deep-dive.md
 ---
 
 # Hermes Agent deep dive: architecture review for 2200, 2026-05-18

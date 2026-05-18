@@ -78,6 +78,8 @@ walkthrough:
 
 # Setup walkthrough
 
+*This walkthrough is for self-hosted 2200 installs. Hosted-tier operators see a different flow that we'll add when the hosted tier ships.*
+
 This sets up the Google Workspace bundle ... one OAuth consent unlocks Gmail, Calendar, Drive (read-only), Contacts (read-only), and Tasks. About 12 minutes start to finish.
 
 You'll create a project in Google Cloud Console, enable the API surfaces 2200 needs, download an OAuth client_secret JSON, and tell 2200 where to find it. You don't need to go through Google's app verification process because you're acting as both the publisher AND the end-user of the OAuth client ... the standard "internal use" pattern.
