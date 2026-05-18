@@ -159,7 +159,58 @@ When this epic activates (post-Phase-F end-to-end demo), order:
 4. **Item 3 (JSON-args retry with synthetic injection)**. Touches loop-state-machine; do after item 1 lands so the textual-parser surface is well-understood first.
 5. **Item 6 (provider-env runtime enforcement)**. Touches the launch substrate; coordinates with the supervisor.
 6. **Item 7 (Skills Guard)**. Pure data + scanner; can ship anywhere.
-7. **Item 5 (smart approvals)**. Last because it depends on the operator-approval-flow having matured through real Capability usage; want operator feedback on what would be ergonomic before adding the smart layer. Also pending Doug's scoping decision on plumbing vs product-surface.
+7. **Item 5 (smart approvals)**. Last because it depends on the operator-approval-flow having matured through real Capability usage; want operator feedback on what would be ergonomic before adding the smart layer. Smart-approvals positioning locked Option B-staged per [[../research/2026-05-18-smart-approvals-scoping]]: ship plumbing here (this item) as Stage 1, gather field data (judge accuracy >95% on curated test set, zero operator-reported false-approve incidents on destructive commands, audit-utility validated), promote to product-surface in a separate Stage 2 epic if data warrants. Curated test set is a Stage 1 deliverable, not a Stage 2 prerequisite.
+
+**Note on item 1 + item 2 bundling.** Both are parser/dispatch extensions touching adjacent surfaces. Bundle into a single PR for one review pass + faster ship, or keep separate for clearer commit history ... both defensible. Bank the call when starting the work.
+
+## Implementation notes (Doug review, 2026-05-18)
+
+Five implementation flags banked when context is fresh. These do NOT change the epic's scope or sequence; they're notes for the implementing PRs.
+
+### Item 1 ... JSON-fenced fallback needs stricter matching
+
+When the parser accepts a ```json fenced block as a fallback tool-call wrapper (alongside `<tool_call>` XML and ```tool fences), it must require the JSON to have a `name` or `tool` field as the top-level key BEFORE attempting dispatch. Otherwise this opens a new failure class: the model emits a sample JSON object in a code fence (illustrating a tool's args, or showing a data shape), the runtime tries to dispatch it as a tool call, the dispatch fails with a confusing error.
+
+The stricter rule: only treat fenced JSON as a tool-call attempt when the top-level object has a recognized dispatch key. Plain JSON in a code fence (no dispatch key) is rendered as text, not parsed.
+
+### Item 2 ... Fuzzy repair events land in the audit substrate
+
+Every fuzzy tool-name repair event is logged through the claim-vs-evidence audit substrate ([[../decisions/2026-05-14-claim-vs-evidence-audit]]) as a structured event:
+
+```jsonc
+{
+  "kind": "fuzzy_tool_repair",
+  "emitted_name": "read_files",
+  "corrected_name": "read_file",
+  "distance": 1,
+  "timestamp": "2026-05-18T..."
+}
+```
+
+Operator can `audit_search fuzzy_tool_repair` to see what was auto-corrected. Sustained patterns of fuzzy repairs against the same emitted-name indicate either a stale tool name in the model's training data OR a registry naming choice that needs reconsideration; the audit log surfaces both.
+
+### Item 4 ... Circuit-breaker structured error context
+
+When the circuit breaker fires (N consecutive same-tool failures), the structured error returned to the operator includes:
+
+- Which tool tripped the breaker.
+- The last 3 error messages verbatim.
+- The failure count.
+- Timestamps of each failure.
+
+This structured error is the operator's diagnostic surface. The loop must not return a generic "task failed" ... the breaker is most valuable when the operator can see exactly which call was looping and why.
+
+### Item 6 ... `PROVIDER_ENV_BLOCKLIST` is the single source of truth
+
+The runtime enforcement (subprocess-environment scrubbing) reads from the `PROVIDER_ENV_BLOCKLIST` constant exported by `src/runtime/onboarding/capability-schema.ts`. The schema-level rejection (refuse a Capability that *declares* a blocked env var) and the runtime-level scrubbing (refuse a Capability that *reads* a blocked env var from process env) MUST use the same set. Single source of truth; adding a new blocked variable updates both behaviors automatically.
+
+Standard env-var passthrough is preserved: `HOME`, `PATH`, `USER`, `LANG`, locale vars, terminal-control vars, etc. The blocklist scrubs *provider keys and platform tokens* specifically; the rest of the operator's environment flows through to subprocesses unmodified.
+
+### Item 7 ... Skills Guard pattern list in a discoverable location
+
+The pattern list itself lives in a single referenceable file. File at `wiki/conventions/skills-guard-patterns.md` when the External-Publisher Epic gets close (operators authoring external Capabilities need a public spec for what triggers the scanner).
+
+For v1 (first-party Capabilities only), the pattern list lives in code at `src/runtime/capability/guard-patterns.ts` and the convention doc can wait. The discipline: keep the pattern list in ONE file so the discoverable-location move is a single-file relocation when it's needed.
 
 ## Open follow-ups (deferred from Hermes deep dive)
 
