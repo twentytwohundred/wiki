@@ -155,7 +155,7 @@ The reasoning:
 ## Out of scope for this scoping doc
 
 - Specific implementation files. The mechanism lives in `src/runtime/approval/`; exact module structure is the implementation epic's call.
-- Judge prompt iteration beyond the Hermes verbatim. The starting point ships; field data shapes refinements.
+- Judge prompt iteration beyond the Hermes verbatim. The starting point ships; field data shapes refinements. **Banked as a v2 item** ... 2200's operator profile (fleet posture, long autonomous sessions, claim-vs-evidence audit context) probably wants a slightly different judge framing eventually. Not a v1 blocker.
 - Multi-judge consensus (two cheap judges with disagreement → escalate). Interesting; not v1.
 - ML-driven approval classifier. Different beast entirely.
 - Hosted-tier billing for judge calls. The platform proxy can absorb the cost for managed-tier operators or surface it as a line item; deferred to the managed-service decision doc.

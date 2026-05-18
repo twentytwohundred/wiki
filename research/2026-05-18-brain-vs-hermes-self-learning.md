@@ -129,7 +129,7 @@ A 2200-side analog of `background_review`, but with the operator in the loop:
 - **Trigger:** after every task completes (or every N turns within a long task), a background thread spawns a forked Agent with a memory/skill-management tool whitelist.
 - **Prompt:** *"Review the task above. Are there learnings worth banking to the Brain? If yes, propose Brain note writes (additions, edits to existing notes, deprecation of obsolete notes) ... do NOT write directly."*
 - **Output:** structured `BrainNoteProposal` objects ... not file writes. Each proposal includes: kind (add/edit/deprecate), target slug, body, rationale.
-- **Surfacing:** proposals land in the operator's inbox at `passive` tier (or `normal` if the proposal modifies a high-traffic note). Operator reviews, accepts, edits, or rejects.
+- **Surfacing:** proposals land in the operator's inbox at `passive` tier (or `normal` if the proposal modifies a high-traffic note). Operator reviews, accepts, edits, or rejects. (Inbox-tier semantics ... `passive`, `normal`, etc. ... are a separate substrate decision; this proposing layer depends on those tiers being defined before implementation.)
 - **Audit trail:** every proposal is logged with the conversation snapshot that produced it. Accept/reject decisions are part of the operator-visible record.
 
 The key inversion from Hermes: **Hermes writes first, operator audits after. 2200 proposes first, operator approves before write.**
@@ -144,11 +144,15 @@ Same self-improvement intent. Different execution. Human in the loop, transparen
 
 ## 5. Strategic positioning
 
-The thesis above produces a sentence that survives scrutiny:
+The thesis above produces a sentence that survives scrutiny. Four-beat version (more accurate to the §4 architecture):
+
+> *"Your Agents learn in the open. They propose what they want to remember. You approve before it lands. You can correct any of it with a text editor."*
+
+Three-beat is the tighter alternative if a shorter version is needed for compressed surfaces (taglines, deck slides):
 
 > *"Your Agents learn in the open. You see what they're learning. You own the learning."*
 
-That sentence is the spine of any 2200.ai positioning around self-improvement. It contrasts with every other agent platform's framing of "trust the platform to learn for you" without using competitor names, while making the architectural commitment concrete (files on disk, operator-readable, operator-editable).
+That sentence ... in whichever variant ... is the spine of any 2200.ai positioning around self-improvement. It contrasts with every other agent platform's framing of "trust the platform to learn for you" without using competitor names, while making the architectural commitment concrete (files on disk, operator-readable, operator-editable).
 
 Three substrate properties to name in any public security/control story:
 
