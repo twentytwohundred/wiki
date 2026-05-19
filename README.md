@@ -4,7 +4,7 @@ type: reference
 status: active
 tags: [readme, wiki, entry-point]
 created: 2026-04-24
-updated: 2026-04-29
+updated: 2026-05-19
 linked_docs:
   - "[[01-vision]]"
   - "[[02-architecture]]"
@@ -15,16 +15,16 @@ canonical_path: wiki/README.md
 ---
 
 [![License: Elastic License v2](https://img.shields.io/badge/license-Elastic%20v2-0077B5.svg)](LICENSE)
-[![Phase: spec + build](https://img.shields.io/badge/phase-spec%20%2B%20build-orange.svg)](03-epic-map.md)
-[![Decisions: 18](https://img.shields.io/badge/decisions-18%20locked-5319E7.svg)](decisions/)
-[![Conventions: 9](https://img.shields.io/badge/conventions-9-2EA44F.svg)](conventions/)
+[![Phase: active build](https://img.shields.io/badge/phase-active%20build-2EA44F.svg)](03-epic-map.md)
+[![Decisions: 48](https://img.shields.io/badge/decisions-48%20locked-5319E7.svg)](decisions/)
+[![Conventions: 11](https://img.shields.io/badge/conventions-11-2EA44F.svg)](conventions/)
 [![Built in public](https://img.shields.io/badge/built-in%20public-2EA44F.svg)](handoffs/hobby/)
 
 # 2200 wiki
 
 **2200 is open infrastructure for the Agent economy** ... a runtime where users define AI Agents through conversation, the Agents do real work on the user's behalf (email, schedules, trading, content, software), and every Agent has a verifiable cross-instance identity. Open source, self-hostable, theme-aware. The premise is "fleet operations, not chat."
 
-This wiki is the project knowledge base for the build. Vision, architecture, decisions, conventions, per-epic specs, prior-art analysis, and the daily handoffs that show how the work actually got done.
+This wiki is the project knowledge base for the build. Vision, architecture, decisions, conventions, per-epic specs, prior-art analysis, the Capability Catalog, and the daily handoffs that show how the work actually got done.
 
 This is the canonical source. Read on github at [twentytwohundred/wiki](https://github.com/twentytwohundred/wiki) or clone it for an Obsidian-compatible knowledge vault.
 
@@ -43,17 +43,19 @@ Then follow [conventions/brain-format.md](conventions/brain-format.md) and [conv
 
 ## Project status
 
-As of 2026-04-29:
+As of 2026-05-19:
 
-- Vision, architecture, and epic map locked. Prior-art analysis complete (twelve targets surveyed; executive doc plus deep findings appendix).
-- **Eighteen decision records locked.** See [decisions/](decisions/) for the index.
-- **Nine conventions** active: see [conventions/](conventions/).
-- **Fifteen of nineteen epics with shipped phases on `main`:** 2 (Agent runtime minimum), 3 + 3.5 + 3.6 + 3.7 + 3.8 (local pub integration via OpenPub), 4 Phase A v0.4 (SCUT identity at spawn), 4.5 (cost caps and usage telemetry), 5 Phase A (Migration), 6 (scheduler), 7 Phase A (notifications + ask), 8 Phase A (Agent brain) + Phase B (shared brain), 9 Phase A (Tool system / external MCP servers), 10 Phase A (Model lifecycle catalog), 11 Phase A (Skills ingestion), 12 Phase A (Extensions framework substrate), 14 Phase A (Conversational onboarding via `2200 agent spawn`), 15 Phase A (Web app: Fleet, Agent detail, Inbox, ⌘K).
-- **911 runtime tests + 64 web tests / 110+ files / lint+typecheck+format+build clean across both workspace packages** as of `main@8ee4026`.
-- **Multi-Agent coordination working** end-to-end on the seed-team box.
-- **Theme-aware UI substrate locked** ([decision](decisions/2026-04-29-theme-aware-from-v1.md)). Design system v0.3 deliverable in [design-system/](design-system/). Epic 15 (Web app) scaffold landed; first screens land in the next PR stack.
+- **Vision, architecture, and epic map locked.** Prior-art analysis complete (twelve targets surveyed; executive doc plus deep findings appendix). Subsequent prior-art reads (Hermes Agent v0.14, OpenClaw) folded into decision docs.
+- **48 architecture decision records locked.** See [decisions/](decisions/) for the index. Recent locks include the Capability security model, the heuristics-vs-boundaries posture, cache-as-invariant governance, and the agent-restart-authority three-tier model.
+- **11 conventions active.** See [conventions/](conventions/).
+- **Sixteen of nineteen epics with shipped phases on `main`.** Phase A on most early epics (runtime, pub, identity, scheduler, notifications, brain, tools, models, skills, extensions). Epic 14 has shipped Phase A (conversational onboarding) plus Phase F (Capability Catalog with 13 first-party entries, schema validation, walkthrough runner, operator-override picker, gap tracker). Epic 15 (Web app) has shipped Fleet, Agent detail, Inbox, Studio, Onboarding wizard, ⌘K palette, Settings, Endpoints. See [03-epic-map.md](03-epic-map.md) for current status per epic.
+- **1849 tests passing** across the two workspace packages: 1754 runtime + 95 web. `pnpm verify:all` clean on every PR via CI.
+- **Multi-Agent coordination working** end-to-end on the seed-team box. Discord and WhatsApp gateways live; Slack and Telegram catalog-ready.
+- **Eight LLM providers wired** through one provider abstraction: Anthropic, OpenAI, DeepSeek, Kimi, xAI, OpenRouter, Gemini, plus `local` for self-hosted endpoints. Per-Agent model binding via Identity; theme-aware UI for picker.
+- **Capability Catalog** ([Phase F](epics/14-phase-f-capability-catalog.md)) shipped as the substrate for "what integrations does an Agent get on day one?" Thirteen first-party entries cover Gmail, Calendar, Drive, Slack, Discord, Telegram, GitHub, six AI providers, 1Password, Twilio, Stripe. Catalog-gap tracker auto-files demand when the onboarding interview surfaces an intent the catalog can't satisfy.
+- **The runtime repo is public.** [`twentytwohundred/2200`](https://github.com/twentytwohundred/2200) flipped to public 2026-05-19. Building in public, for real now.
 
-The runtime substrate for migrating Hobby (and the rest of the seed team) into 2200 is in place. Epic 15 (Web app) is currently underway; the Cray test (Hobby's actual migration into 2200) is the parallel track.
+The runtime substrate for migrating Hobby (and the rest of the seed team) into 2200 is in place. The **Cray test** ... Hobby's actual migration into 2200 from Claude Code ... is the parallel track to the substrate work. The **launch moment** is David: when 2200 spawns its first Agent end-to-end through the wizard and that Agent does real work as a member of the team, the project ships.
 
 ## What's where
 
@@ -69,22 +71,31 @@ wiki/
 ├── prior-art-source-findings.md  deep per-target source-reading appendix
 ├── README.md                     this file
 ├── LICENSE                       Elastic License v2
+├── catalog/
+│   ├── capabilities/             first-party Capability entries (Phase F)
+│   └── gaps/                     operator-filed demand signals for tier-N lifts
 ├── conventions/                  brain-format, handoff-format, voice-and-framing,
 │                                 design-language, upgrade-readiness, license-posture,
-│                                 build-phase-decisions, runtime-api, theme-format
+│                                 build-phase-decisions, runtime-api, theme-format,
+│                                 skills-guard-patterns, ...
 ├── decisions/                    Architecture Decision Records (YYYY-MM-DD-short-name.md)
 ├── design/                       design language artifacts (pulse, brain-visualization)
 ├── design-system/                v0.3 design system: tokens.json, themes/, component
 │                                 contract, decision log, open questions, design brief
-├── epics/                        per-epic specs (01, 02, 03, 03.5, 04, 04.5, 05, 08, 09, 14, 15)
+├── epics/                        per-epic specs (01, 02, 03, 03.5, 04, 04.5, 05, 08, 09,
+│                                 10, 11, 12, 14 + 14-phase-f, 15, 16)
 ├── handoffs/                     per-Agent session handoffs (daily transparency)
 ├── inbox/                        per-Agent message inboxes
+├── legal/                        legal docs (LLC formation, default-pass-through, etc.)
 ├── parked/                       future projects, not active
-├── research/                     background research notes
-├── runbooks/                     reproducible operational runbooks (two-agent-demo)
+├── research/                     background research notes (Hermes deep dive, smart-
+│                                 approvals scoping, brain-vs-Hermes self-learning, ...)
+├── runbooks/                     reproducible operational runbooks
 ├── state/                        daily state snapshots
 └── strategy/                     operating thesis + strategic framing
 ```
+
+Daily transparency: 32 handoff files at [handoffs/hobby/](handoffs/hobby/) trace the build from arrival (2026-04-24) through today. Each handoff is what shipped, what's open, what's parked, what's coordinated with whom. State snapshots at [state/](state/) capture point-in-time fleet state.
 
 ## How this wiki is structured
 
@@ -100,18 +111,16 @@ We dogfood the Brain pattern (the same one 2200's Agents will use for their memo
 
 Three Agents on the seed team:
 
-- **Hobby**: primary build Agent. Writes spec and code. Currently runs as Claude Code on Doug's MacBook.
+- **Hobby**: primary build Agent. Writes spec and code. Currently runs as Claude Code on Doug's MacBook; migrates into 2200 on the Cray test.
 - **Simon**: DevOps. Owns infrastructure. Provisions hosts, deploys, manages the shared filesystem.
-- **Poe**: OpenPub specialist. Part-time on 2200; full-time once Poe migrates onto the platform.
+- **Poe**: OpenPub specialist. Part-time on 2200 until OpenPub v0.3.1 ships.
 
 Plus:
 
-- **Doug**: product lead. Makes product decisions. Spawns Agents. Reviews specs and decisions.
+- **Doug** (MrDoug): product lead. Makes product decisions. Spawns Agents. Reviews specs and decisions.
 - **Guppi**: strategy and ops partner. Holds context across all of Doug's projects, not just 2200.
 
 David is not on the seed team. David is the first Agent 2200 will spawn through its own conversational onboarding flow. When that happens, the project ships. See [04-seed-team.md](04-seed-team.md) for the full launch story.
-
-Daily transparency: each working day's handoff lives at [handoffs/hobby/](handoffs/hobby/). State snapshots at [state/](state/). The work is visible.
 
 ## Conventions at a glance
 
@@ -130,7 +139,9 @@ Daily transparency: each working day's handoff lives at [handoffs/hobby/](handof
 2200 ships under [Elastic License v2](LICENSE). Source-available. Use, copy, distribute, and create derivative works are permitted; hosting as a managed service to third parties and license-key tampering are prohibited.
 
 Prior-art sources surveyed:
-- **OpenClaw**: MIT (Copyright (c) 2025 Peter Steinberger)
+
+- **OpenClaw**: MIT (Copyright (c) 2025 Peter Steinberger). Tier-1 Capability walkthroughs lifted with attribution.
+- **Hermes Agent**: MIT (Copyright (c) 2025 Nous Research). Concept-borrowed patterns (the "different tradeoff" framing); no code lifted. See [2026-05-18-hermes-deep-dive](research/2026-05-18-hermes-deep-dive.md).
 - **EdgeClaw, OCMT, OpenAEON, AnyClaw, mimiclaw**: not personally verified ... verify before any code lift
 - **Logseq, Trilium, Joplin** (rejected): AGPL viral, disqualifying for embedding paths
 - **Cytoscape.js, react-markdown, remark-wiki-link, SilverBullet, Quartz, Foam**: MIT (clean composition under EL v2)
@@ -142,7 +153,7 @@ MIT → Elastic v2 is permitted with copyright notice preservation for directly-
 - **Project domain:** [2200.ai](https://2200.ai)
 - **GitHub org:** [github.com/twentytwohundred](https://github.com/twentytwohundred)
 - **Wiki (this repo):** [twentytwohundred/wiki](https://github.com/twentytwohundred/wiki) (public)
-- **Runtime repo:** [twentytwohundred/2200](https://github.com/twentytwohundred/2200) (private until launch)
+- **Runtime repo:** [twentytwohundred/2200](https://github.com/twentytwohundred/2200) (public, since 2026-05-19)
 - **License:** [Elastic License v2](LICENSE)
 
 ---
