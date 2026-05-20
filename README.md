@@ -159,3 +159,5 @@ MIT → Elastic v2 is permitted with copyright notice preservation for directly-
 ---
 
 *Built in public. Ship when ready.*
+
+2200 is developed by TWENTYTWOHUNDRED LLC. Licensed under the Elastic License v2.0.
