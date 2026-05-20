@@ -1,0 +1,42 @@
+name: CLA Assistant
+
+# Triggered on every PR open / sync / close and on issue-comment events
+# (the latter is how contributors sign by posting the sign-off phrase).
+#
+# Same configuration as the code repo's cla.yml; both repos enforce
+# the same agreement, signed once per repo. The path-to-document URL
+# points at the code repo's CLA.md so the canonical text is one file
+# (the wiki's CLA.md is a byte-identical mirror for discoverability).
+#
+# Signatures land on this repo's `cla-signatures` branch, keeping main
+# free of signature churn. Built-in GITHUB_TOKEN only.
+#
+# IMPORTANT: this workflow sets a status check on each PR but does
+# NOT block merge by itself. To enforce the block, configure branch
+# protection on `main` to require the "CLA Assistant" status check.
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, closed, synchronize]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  cla-assistant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CLA Assistant
+        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
+        uses: contributor-assistant/github-action@v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path-to-document: 'https://github.com/twentytwohundred/2200/blob/main/CLA.md'
+          path-to-signatures: 'cla.json'
+          branch: 'cla-signatures'
+          allowlist: 'douglashardman,dependabot*'
