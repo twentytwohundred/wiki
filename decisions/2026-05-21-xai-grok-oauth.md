@@ -67,13 +67,15 @@ The per-Agent CredentialVault is shape-specific: per-Agent salt, per-Agent HKDF 
 
 A standalone `oauth/token-store.ts` is ~150 lines and uses the same primitives (`loadOrCreateMasterKey`, AES-256-GCM, HKDF over master + salt) with a fleet-scoped info string. If/when a second fleet-scoped credential appears, the token store generalizes naturally.
 
-## Transport question (open, will resolve on first real call)
+## Transport question (resolved 2026-05-21: OAuth bearer works against chat-completions)
 
 xAI's OAuth bearer is documented (informally) as "scoped to the Responses transport." But xAI's OIDC `api:access` scope is generic; Hermes' implementation reuses a `codex_responses` adapter for the bearer; 2200 currently talks to xAI via the OpenAI-compatible `/v1/chat/completions` endpoint.
 
 The plan: send the OAuth bearer through the existing chat-completions adapter first (zero new transport code). If xAI rejects it with a scope/transport error, swap to a Responses-style adapter. Doug is the first real test case (SuperGrok Heavy); we learn from the actual response.
 
 If the chat-completions path doesn't work for OAuth, the fix is localized to the OpenAI-compatible provider's outbound URL (one constant in `OPENAI_COMPATIBLE_VENDORS`).
+
+**Resolution (2026-05-21, live):** verified end-to-end against Doug's SuperGrok Heavy subscription. `POST https://api.x.ai/v1/chat/completions` with the OAuth bearer returns HTTP 200 with a Grok 4.3 completion. The contingency Responses-adapter is NOT needed. The existing OpenAI-compatible adapter is the right shape; OAuth integration is a pure auth-header swap.
 
 ## Consequences
 
