@@ -2,7 +2,7 @@
 
 This is the operator-facing runbook for the MCP connector that exposes 2200 to Grok (and any other MCP-speaking client). It's "your tunnel, your fleet, your bearer" — 2200 does not host anything in the middle.
 
-The connector ships a deliberately narrow surface: structured contributions land as Brain notes, research threads accumulate a synthesized standing brief, and proposed work packages sit inert in the Inbox until you explicitly approve them through the Settings page or `2200 connector work-package approve`. **No execution tool is reachable through the connector until you approve.**
+The connector ships a deliberately narrow surface: structured contributions land in an **embassy Agent's** brain (the fleet's diplomatic mission to that external model), research threads accumulate a synthesized standing brief, the embassy curates a per-model **shelf** of continuity items for next inbound call, and proposed work packages sit inert in the Inbox until you explicitly approve them through the Settings page or `2200 connector work-package approve`. **No execution tool is reachable through the connector until you approve.**
 
 ## What you need
 
@@ -14,12 +14,14 @@ The connector ships a deliberately narrow surface: structured contributions land
 
 The connector serves two auth paths simultaneously on the same `/mcp` endpoint:
 
-| Path | Surface | Use for |
-|---|---|---|
-| **OAuth 2.0 + PKCE** | `Settings → OAuth clients` or `2200 connector oauth-client register` | grok.com/connectors, Tesla in-car Grok, anything that wires through the consumer connector flow |
-| **Static bearer** | `Settings → MCP Connector → Generate connector token` or `2200 connector token regenerate` | Claude Desktop's MCP UI, headless scripts, any caller that pastes a fixed bearer into an Authorization field |
+| Path                               | Surface                                                                                    | Use for                                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **OAuth 2.0 + PKCE** (recommended) | `Settings → Embassies → Register a new embassy` (atomic) or `2200 connector mcp register`  | grok.com/connectors, Tesla in-car Grok, anything that wires through the consumer connector flow              |
+| **Static bearer**                  | `Settings → MCP Connector → Generate connector token` or `2200 connector token regenerate` | Claude Desktop's MCP UI, headless scripts, any caller that pastes a fixed bearer into an Authorization field |
 
 The grok.com/connectors form is OAuth-only and rejects static bearers at the Custom Connector save step; use the OAuth path for it. The static bearer is for the developer-API surface and other MCP clients that accept long-lived credentials.
+
+For the OAuth path, `Settings → Embassies` is the primary recommended surface. It mints the OAuth client AND provisions the embassy Agent in one step, returning the full paste block for `grok.com/connectors → Custom`. Power users who want finer control can use the two-step path under `Settings → OAuth clients` + `Settings → Embassies` separately, or the CLI verbs `2200 connector oauth-client register` then `2200 connector mcp register --client-id <id> ...`.
 
 ## 1. Stand up a tunnel
 
@@ -34,6 +36,7 @@ ngrok http 2201
 ngrok prints a public HTTPS URL like `https://abc123.ngrok-free.app`. Copy it; you'll use it in step 2 or 3.
 
 Caveats:
+
 - The free tier rotates the URL on each restart. If you re-launch ngrok, you'll have to update the connector URL at grok.com/connectors.
 - Paid ngrok lets you reserve a stable URL.
 
@@ -58,17 +61,20 @@ Surfaces the listener at `https://<your-tailscale-hostname>.<tailnet>.ts.net`. S
 
 Anything that gives you `https://<some-host>/` → `http://127.0.0.1:2201/` works. The connector requires HTTPS upstream; xAI's "Bring Your Own MCP" rejects plaintext connectors.
 
-## 2. Register an OAuth client (consumer-side path, grok.com / Tesla)
+## 2. Register an embassy (recommended consumer-side path, grok.com / Tesla)
 
-Pre-authorize Grok to call your fleet by registering an OAuth client at the loopback Settings UI:
+The **embassy** is the local Agent that owns the fleet's relationship with one remote model. Registering an embassy mints the OAuth client AND provisions the embassy Agent atomically — one operation, one paste block, no orphaned credentials on failure.
 
-**Settings → OAuth clients → Register a new OAuth client.**
+**Settings → Embassies → Register a new embassy.**
 
-- **Display name:** "Grok" (or whatever helps you identify the client later).
-- **Redirect URI:** defaults to `https://grok.com/connectors-oauth-exchange-code/` (the actual URI grok.com uses, discovered empirically 2026-05-23). Leave it on the default for grok.com/connectors; override only for a different consumer-side client.
-- **Client secret:** leave unchecked. PKCE-only is the recommended path and matches grok.com's default "Token Auth Method: none (PKCE only)."
+- **Display name:** "Grok (Doug's subscription)" or whatever helps you identify the relationship later.
+- **External model:** the slug identifying the remote model (e.g., `grok`). Used for `target_model` provenance on shelf items + display in the conduits index.
+- **Embassy agent:** the Agent name. With **mode = dedicated** (recommended), a fresh Agent is created with this name + the embassy identity template + the nine `shelf_*` tools on its allowlist. With **mode = attached**, you point at an existing Agent and the embassy role is added.
+- **Model (dedicated mode only):** tier / provider / `model_id` for the new Agent (e.g., `frontier` / `xai` / `grok-4`).
+- **Redirect URI:** defaults to `https://grok.com/connectors-oauth-exchange-code/` (the actual URI grok.com uses, discovered empirically 2026-05-23). Leave on the default for grok.com/connectors.
+- **Mint client_secret:** leave unchecked. PKCE-only is the recommended path and matches grok.com's default `Token Auth Method: none (PKCE only)`.
 
-The registration result page displays the values you need to paste at grok.com:
+The result page displays the values you paste at grok.com:
 
 ```
 MCP server URL:           https://<your-tunnel>/mcp
@@ -81,7 +87,9 @@ Token Auth Method:        none (PKCE only)
 Redirect URI:             https://grok.com/connectors-oauth-exchange-code/
 ```
 
-CLI alternative: `2200 connector oauth-client register --display-name "Grok"` prints the same block.
+The embassy is now provisioned. Any contributions Grok makes via `contribute_to_thread` will land in the embassy's brain (not the shared brain), and the embassy can curate items onto Grok's shelf for next-call continuity.
+
+**CLI equivalent:** the two-step path is `2200 connector oauth-client register` then `2200 connector mcp register --client-id <id> --external-model grok --embassy-agent grok-embassy --mode dedicated --display-name "Grok" --model-tier frontier --model-provider xai --model-id grok-4`. The web Settings tile combines both into one atomic call.
 
 ### Now register the connector at grok.com/connectors
 
@@ -95,14 +103,17 @@ CLI alternative: `2200 connector oauth-client register --display-name "Grok"` pr
 8. **Token Auth Method:** leave on `none (PKCE only, recommended)`.
 9. **Save and Continue.**
 
-The OAuth handshake fires when you next use the connector (or immediately, depending on grok.com's UI state). 2200 emits `connector.oauth_authorize_succeeded` + `connector.oauth_token_issued` Inbox events on success.
+The OAuth handshake fires when you next use the connector (or immediately, depending on grok.com's UI state). 2200 emits `connector.embassy_registered` + `connector.oauth_authorize_succeeded` + `connector.oauth_token_issued` Inbox events as the chain completes.
 
-### Operator surfaces for OAuth clients
+### Operator surfaces
 
-- **Web:** `Settings → OAuth clients` lists every registered client with redirect URI, scopes, registered-at, last-authorize-at, and Revoke / Rotate Secret buttons (two-step confirms).
-- **CLI:** `2200 connector oauth-client list | revoke <client_id> | rotate-secret <client_id>` cover the same surface.
+- **Embassies:** `Settings → Embassies` lists every registered conduit with mode, external model, embassy agent, registered-at, last-seen-at, retired-at. Two-step retire confirm. CLI: `2200 connector mcp list | retire <client_id>`.
+- **OAuth clients (advanced):** `Settings → OAuth clients` exposes the OAuth credentials behind the embassy — useful for rotating secrets or revoking clients without retiring the embassy. CLI: `2200 connector oauth-client list | revoke <client_id> | rotate-secret <client_id>`. Revoking invalidates every outstanding access + refresh token for the client; rotating keeps existing tokens valid but requires the new secret on subsequent `client_credentials` uses.
+- **Work packages:** `Settings → Work packages` is where proposals from the connector wait for your approval. CLI: `2200 connector work-package approve <id> | reject <id> --reason "..."`.
 
-Revoking invalidates every outstanding access + refresh token for the client. Rotating the secret keeps existing tokens valid but requires the new secret on subsequent client_credentials uses.
+### What happens on first register
+
+When the FIRST embassy is registered, the supervisor runs a one-time migration: any pre-embassy notes the connector previously wrote ownerless (research threads + standing briefs in shared brain, per-Agent `grok-contribution` notes) get copied into the new embassy's brain with `relationship-history` tag and a `target_agent` extra on per-Agent items. The originals are deleted. Re-runs are no-ops (sentinel at `<home>/state/connector/note-migration-complete.json`).
 
 ## 3. Static bearer (developer-API / Claude Desktop path)
 
@@ -153,17 +164,20 @@ The connector enforces the following invariants. Every one of them is mechanical
 
 ## Common knobs
 
-| Setting | Where | Default |
-|---|---|---|
-| Listener port | env `TWENTYTWOHUNDRED_CONNECTOR_PORT` | `2201` |
-| Body limit | env `TWENTYTWOHUNDRED_CONNECTOR_BODY_LIMIT_BYTES` | `8388608` (8 MiB) |
-| Disable static bearer | `2200 connector token disable` | (listener stops if no OAuth clients; vault wiped) |
-| Status | `2200 connector status` | — |
-| List OAuth clients | `2200 connector oauth-client list` or Settings → OAuth clients | — |
-| Revoke OAuth client | `2200 connector oauth-client revoke <client_id>` | (invalidates all tokens for that client) |
-| Rotate OAuth client secret | `2200 connector oauth-client rotate-secret <client_id>` | (existing tokens stay valid) |
-| Synthesis-blocked recovery | `2200 connector synthesis unblock <thread>` | (after 3 consecutive synthesis failures) |
-| Work-package approval | `2200 connector work-package approve <id>` or Settings → Work packages | — |
+| Setting                           | Where                                                                                                     | Default                                           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Listener port                     | env `TWENTYTWOHUNDRED_CONNECTOR_PORT`                                                                     | `2201`                                            |
+| Body limit                        | env `TWENTYTWOHUNDRED_CONNECTOR_BODY_LIMIT_BYTES`                                                         | `8388608` (8 MiB)                                 |
+| Disable static bearer             | `2200 connector token disable`                                                                            | (listener stops if no OAuth clients; vault wiped) |
+| Status                            | `2200 connector status`                                                                                   | —                                                 |
+| List embassies                    | `2200 connector mcp list` or Settings → Embassies                                                         | —                                                 |
+| Retire embassy                    | `2200 connector mcp retire <client_id>`                                                                   | (listener stops routing through it; Agent stays)  |
+| List OAuth clients                | `2200 connector oauth-client list` or Settings → OAuth clients                                            | —                                                 |
+| Revoke OAuth client               | `2200 connector oauth-client revoke <client_id>`                                                          | (invalidates all tokens for that client)          |
+| Rotate OAuth client secret        | `2200 connector oauth-client rotate-secret <client_id>`                                                   | (existing tokens stay valid)                      |
+| Approve sensitive shelf placement | `2200 connector mcp shelf approve <token>` or Settings → Inbox (`embassy_shelf_human_approval_requested`) | —                                                 |
+| Synthesis-blocked recovery        | `2200 connector synthesis unblock <thread>`                                                               | (after 3 consecutive synthesis failures)          |
+| Work-package approval             | `2200 connector work-package approve <id>` or Settings → Work packages                                    | —                                                 |
 
 ## When something goes wrong
 
