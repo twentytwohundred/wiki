@@ -11,7 +11,9 @@ linked_docs:
 
 # Epic 5 Phase B: OpenClaw migration adapter
 
-**v0.1 · 2026-06-12 · spec'd against a live survey of Skippy's OpenClaw 2026.4.11 instance on valkyrie. First migration target: Skippy (seed-team order). Second: Geoff's OC server (first external user).**
+**v0.2 · 2026-06-12 · spec'd against a live survey of Skippy's OpenClaw 2026.4.11 instance on valkyrie. First migration target: Skippy (seed-team order). Second: Geoff's OC server (first external user).**
+
+**v0.2 deltas (Doug's same-evening direction + as-shipped state):** LLM provider keys DO migrate (copied into `runtime.env` by default, existing keys never overwritten, `--no-migrate-llm-keys` opts out) ... ease-of-adoption beats re-auth purity for LLM creds specifically. Channel tokens still never ride. The flow ends with **disable-not-delete** guidance for the source instance (no double API spend). **Shipped 2026-06-12 in `2026.612.2230`** (PR #274): survey + convert + CLI + LLM-key copy + `--validate` preview, validated against Skippy's live data (54 memories, 6/7 cron jobs, persona verbatim; the rsync'd-copy workspace-path bug found and fixed). **Still open for the follow-on PR:** first-run/installer OC detection with a one-prompt migrate offer, same-host automated disable (currently printed commands), Discord-token vault carry for connector continuity, opt-in session-transcript import.
 
 ## Why
 
