@@ -11,12 +11,21 @@ canonical_path: wiki/decisions/2026-06-12-calver-versioning.md
 
 **Decision (Doug, 2026-06-12):** 2200 versions are calendar dates, not semver counters, starting with the first version ever published: `2026.6.12`.
 
-## Shape
+**v2 (same day):** Doug called for room to go finer than one-per-day ... the literal ask was `2026.6.12.1234`. npm hard-rejects four-segment versions (semver is exactly three numeric slots), so the extended shape packs the same information into three: **`YYYY.MDD.HHMM`**, e.g. `2026.612.1234` = 2026, June 12, cut at 12:34 UTC. Adopted from the first npm publish so the registry history carries one scheme end to end.
 
-- `YYYY.M.D` ... the UTC date of the cut.
-- **No leading zeros.** npm enforces semver syntax, and semver rejects leading zeros in numeric identifiers, so `2026.06.12` is invalid; the canonical form is `2026.6.12`. Same readability, valid everywhere.
-- **At most one release per UTC day.** The date IS the version; there is no patch slot. A second cut in one day waits for the next UTC day (UTC rolls at 7pm Central, so in practice an evening emergency fix ships "tomorrow" within hours).
-- Git tags keep the `v` prefix (`v2026.6.12`), which the existing release workflow's `v*.*.*` pattern and version-match check accept unchanged.
+## Shape (extended, from first npm publish)
+
+- **Major = `YYYY`.** The year.
+- **Minor = `M*100 + DD`** ... month and day packed: June 12 → `612`, November 2 → `1102`, January 5 → `105`. Monotonic within a year, unambiguous to read back (last two digits are the day).
+- **Patch = UTC time of the cut as `H*100 + MM`** ... 12:34 → `1234`, 09:05 → `905`, 00:05 → `5`. Stateless (no counter to look up), self-describing, and two cuts in the same minute don't happen in practice.
+- **No leading zeros anywhere** ... semver rejects them, which is why `2026.06.12` and `0905` are invalid forms.
+- Git tags keep the `v` prefix (`v2026.612.1234`); the release workflow's `v*.*.*` pattern and version-match check accept this unchanged.
+- Sorting holds everywhere semver compares: within a day by time, across days/months by the packed minor, across years by major. The GitHub-only `v2026.6.12` release also sorts below every extended-form version (`6 < 612`).
+
+## History of the shape
+
+- **`YYYY.M.D`** (`2026.6.12`) was the v1 shape, used for the first-ever release ... GitHub-only, since `NPM_TOKEN` wasn't configured yet. That release stays as-is.
+- **`YYYY.MDD.HHMM`** applies from the first version that reaches npm, and everything after.
 
 ## Why
 
