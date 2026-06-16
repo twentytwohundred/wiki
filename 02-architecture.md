@@ -165,7 +165,9 @@ An integration the Agent can use. Tools include:
 
 **MCP-native runtime.** Per [[2026-04-25-mcp-native]], the runtime speaks MCP as both client and server. Built-in tools and user-registered tools are MCP servers; there is no parallel internal tool protocol. Other systems can also invoke 2200 capabilities over MCP.
 
-**Tool baseline.** Per [[2026-04-25-tool-baseline]], every Agent gets a baseline tool set by default (filesystem-scoped-to-project, shell, web fetch, web search, Brain read/write, time, and a few small utilities; exact list locked in the Epic 2 spec). Skills and Extensions add to the baseline; they do not replace it.
+**Tool baseline.** Per [[2026-04-25-tool-baseline]], every Agent gets a baseline tool set by default (filesystem-scoped-to-project, shell, web fetch, web search, Brain read/write, time, schedule, notification, credential, and a few small utilities). Skills and Extensions add to the baseline; they do not replace it. Web search is a configurable bring-your-own-key tool (Brave default + Gemini + Google, [[decisions/2026-06-16-web-search-byo-key]]).
+
+**Connectors.** A human reaches an Agent on a chat platform it already uses via a per-Agent **connector** (Discord, Telegram, Slack ... [[design/connectors/README]]). A small per-Agent gateway process holds the bot token (sealed in the Agent's vault, injected only at spawn), receives inbound messages, and routes them through the same plan/run/perm pipeline; the Agent replies with a `<connector>_send` baseline tool. Connectors are installed per-Agent from the Extensions Store.
 
 **Plan/run/perm wrapping.** Every tool call passes through three layers: **Plan** (Agent emits a structured statement of what it is about to do and why; logged to the Brain), **Run** (execute the MCP call and capture inputs, outputs, errors, latency), **Perm** (verify authorization against the tool set, user preferences, Extension permission scope, and the cost-behavior gate). The wrapping is universal; there is no fast path that skips it. This is the substrate for loop and stuck detection ([[2026-04-24-cost-behavior-shape]] layer 1) and for incident replay.
 

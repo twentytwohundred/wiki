@@ -27,6 +27,8 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 
 16 of 19 numbered epics have shipped phases on `main` as of 2026-04-29 (sessions 1-7). Today's adds across the seven sessions: Epic 5 (Migration), Epic 8 Phase B (Shared brain), Epic 8 Phase C (cross-Agent reads), Epic 9 Phase A (Tool system), Epic 9 Phase B (vault + OAuth flows + token refresh), Epic 9 Phase C (HTTP MCP transport + tool health), Epic 10 Phase A (Model lifecycle catalog), Epic 11 Phase A (Skills ingestion), Epic 12 Phase A (Extensions framework substrate), Epic 14 Phase A (Conversational onboarding), Epic 15 Phase A (Web app). Plus the scheduler flake fix (#103), Pulse runtime emitter (#111), and a build-warning cleanup (#110). Remaining open: 4B cross-instance messaging (blocked on Garfield), 7B inbox routing (deferred-unblocked), 8D semantic search (parked), 11B/12B/14B Phase B follow-ons, 13 voice extension, 15B/C web app deeper, 16 mobile app, 17 managed service, 18 dogfooding, 19 public reachability.
 
+**2026-06 adds (sessions toward first external users):** CalVer releases on npm (`@twentytwohundred/2200-cli`, scheme [[decisions/2026-06-12-calver-versioning]]). **Web search** as a configurable BYO-key tool (Brave default + Gemini grounding + Google, hot-reloaded, carried on migration ... [[decisions/2026-06-16-web-search-byo-key]]). **OpenClaw migration** now vaults *every* credential, not just LLM/search keys ([[decisions/2026-06-16-secrets-to-vault]]). **Chat connectors** brought to parity: Discord, Telegram, and Slack are full per-Agent connectors that ship in npm ([[design/connectors/README]], [[decisions/2026-06-16-connectors-dependency-free-gateways]]); WhatsApp remains dev-only (Baileys doesn't bundle).
+
 | # | Epic | Status |
 |---|---|---|
 | 1 | Seed team coordination before the pub | ✅ Shipped |
@@ -35,7 +37,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 4A | SCUT identity at spawn | ✅ Shipped 2026-04-28 (v0.4) |
 | 4B | Cross-instance messaging | Not started (blocked on Garfield's relay) |
 | 4.5 | Cost caps and usage telemetry | ✅ Shipped 2026-04-27 |
-| 5 | Migration from other Agent systems | ✅ Phase A shipped 2026-04-29 |
+| 5 | Migration from other Agent systems | ✅ Phase A shipped 2026-04-29; OpenClaw adapter + full-credential vaulting 2026-06 |
 | 6 | Scheduler | ✅ Shipped 2026-04-28; flake fix 2026-04-29 (#103) |
 | 7A | Notifications + ask queue | ✅ Shipped 2026-04-28 |
 | 7B | Inbox routing into notifications | Deferred (unblocked) |
@@ -46,7 +48,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 9 | Tool system | ✅ Phases A + B + C shipped 2026-04-29 (#81-#84, #99-#109; manual-test smoke pending) |
 | 10 | Model lifecycle management | ✅ Phase A shipped 2026-04-29 (catalog + CLI); B/C/D not started |
 | 11 | Skills ingestion | ✅ Phase A shipped 2026-04-29 (parse + read-only registry); B not started |
-| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 (manifest + registry substrate); B not started |
+| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 (manifest + registry substrate); chat connectors (Discord/Telegram/Slack) shipped 2026-06 ([[design/connectors/README]]) |
 | 13 | Voice Extension (Twilio) | Not started |
 | 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29; B (interview persistence + replay) not started |
 | 15 | Web app | ✅ Phase A shipped 2026-04-29; B/C deferred |
