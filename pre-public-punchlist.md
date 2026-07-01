@@ -46,10 +46,10 @@ Doug directly, never in this public wiki (see [[handoffs/hobby/2026-07-01]]).
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 1.1 | **CRITICAL: default network-bind + bearer-transport posture.** Recommend loopback + Tailscale default, non-loopback explicit opt-in. | 🔶 | Install-contract change (Simon). Doug's call on posture. |
-| 1.2 | Auth-coverage / token-scope drifts at the HTTP edge. | ⬜ | Detail with Doug. |
-| 1.3 | OAuth discovery-metadata hardening item. | ⬜ | Detail with Doug. |
-| 1.4 | Operator credential-at-rest item (rotate + tighten mode). | 🔶 | Doug's hands; no repo change. |
+| 1.1 | **CRITICAL: default network-bind + bearer-transport posture.** | 🔵 | **Decided: Cloudflare Tunnel by default** (`{name}.2200.ai`, real HTTPS, box binds loopback ... kills the cleartext-LAN vector), with local-network and Tailscale as opt-in modes. This is the frictionless-HTTPS answer AND the security fix in one. Broker/infra brief sent to Simon: [[inbox/simon/2026-07-01-cloudflare-tunnel-broker]] (Epic 19). Box-side access-mode work is mine, starts when Simon's broker lands; demo box gets a hand-provisioned tunnel this week. |
+| 1.2 | Auth-coverage / token-scope drifts at the HTTP edge. | ✅ | PR #348. Gateway-internal routes (`connectors/:id/inbound`, `pair/state`) now loopback-gated; `?token=` scoped to WS + avatar-image only (never in a URL for ordinary calls). |
+| 1.3 | OAuth discovery-metadata hardening item. | ✅ | PR #348. Connector OAuth AS issuer now pinned to `TWENTYTWOHUNDRED_PUBLIC_URL` (the tunnel hostname) instead of reflecting the request `Host`; per-request derivation removes the concurrency race. |
+| 1.4 | Operator credential-at-rest item (rotate + tighten mode). | 🔶 | Doug's hands; no repo change. Live keys in the Dropbox-synced `.env` (mode 0644) ... rotate + `chmod 600`. |
 
 ## Tier 2 ... shows on camera (not a hard block)
 
