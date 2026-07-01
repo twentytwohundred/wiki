@@ -32,13 +32,15 @@ Doug directly, never in this public wiki (see [[handoffs/hobby/2026-07-01]]).
 
 ## Tier 0 ... stranger-path blockers (the demo dies without these)
 
+**All five fixed in PR #343** (branch `fix/stranger-path-blockers`). `pnpm verify:all` green: 2268 runtime + 111 web + chaos.
+
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 0.1 | **Fresh install never gets a Studio.** Trigger `ensureStudioPub` on Agent create/confirm, not just daemon boot. First Agent's seeded orientation post targets `studio` and fails too. | ⬜ | Verified by hand 2026-07-01. `supervisor.ts:2495`, `server.ts:4189` |
-| 0.2 | **Provider failure mid-interview is swallowed** → onboarding "succeeds" with a dead Agent. Reachability-check `local` on the web path; surface the real error. | ⬜ | `session.ts:336-406`, `registry.ts:138-147` |
-| 0.3 | **CLI-wizard API keys dead until a restart the wizard never performs.** Call the existing `restartDaemonForMigratedKeys`. | ⬜ | `first-run.ts:162, 560` |
-| 0.4 | **Main chat screen silently eats failed sends + spins "Thinking…" forever** on Agent death. Error surface + `pendingTaskId` timeout. | ⬜ | `AgentDetailScreen.tsx:203-341` |
-| 0.5 | **Name normalization throws unrecoverable 500s; no rename in preview.** Normalize-or-fallback + collision pre-check + surface the error. | ⬜ | `identity-from-interview.ts:190`, `server.ts:4153` |
+| 0.1 | **Fresh install never gets a Studio.** Trigger `ensureStudioPub` on Agent create/confirm, not just daemon boot. First Agent's seeded orientation post targets `studio` and fails too. | ✅ | Ensured in `migrateFromHandoff`'s `seedFirstTask` block (covers web-confirm + CLI-spawn + CLI-migrate); regression tests added. Verified by hand. |
+| 0.2 | **Provider failure mid-interview is swallowed** → onboarding "succeeds" with a dead Agent. Reachability-check `local` on the web path; surface the real error. | ✅ | `/v1/models` probe at onboarding start for `local`; actionable 503 `llm_provider_unreachable`; injectable + tested. |
+| 0.3 | **CLI-wizard API keys dead until a restart the wizard never performs.** Call the existing `restartDaemonForMigratedKeys`. | ✅ | Wizard returns key count; orchestrator restarts when > 0 (`restartDaemonForProviderKeys`, shared with OpenClaw path). |
+| 0.4 | **Main chat screen silently eats failed sends + spins "Thinking…" forever** on Agent death. Error surface + `pendingTaskId` timeout. | ✅ | Inline error + Retry (re-sends exact args); spinner gives up on `errored_at` or a tool-activity-aware 90s backstop; real theme tokens. |
+| 0.5 | **Name normalization throws unrecoverable 500s; no rename in preview.** Normalize-or-fallback + collision pre-check + surface the error. | ✅ | Non-throwing `deriveAgentName` ("2200" → "agent-2200"); collision → actionable 409 before any file write. Rename-in-preview UI still open (see 2.x follow-up). |
 
 ## Tier 1 ... security before strangers (transport edge; crypto/perms underneath are clean)
 
@@ -59,6 +61,7 @@ Doug directly, never in this public wiki (see [[handoffs/hobby/2026-07-01]]).
 | 2.4 | Six CSS vars reference non-existent `--ds-danger/-error/-warning/-success` tokens → off-palette hex in Settings. | ⬜ | rename to real tokens |
 | 2.5 | No runtime Node-version guard (npm-direct install on Node 18/20 dumps `ERR_DLOPEN_FAILED`). | ⬜ | 5-line guard atop `main.ts` |
 | 2.6 | Onboarding: no back button, loses state on refresh. | ⬜ | at minimum persist session id + exit guard |
+| 2.7 | Preview has no rename control, so the auto-derived name ships as-is ("Let's call it Mira" → `lets-call-it-mira`). | ⬜ | Surfaced by the 0.5 fix ... the 500 is gone, but an inline rename in the preview is the real UX close. |
 
 ## Tier 3 ... docs & hygiene
 
