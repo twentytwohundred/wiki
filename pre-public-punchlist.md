@@ -55,7 +55,7 @@ Doug directly, never in this public wiki (see [[handoffs/hobby/2026-07-01]]).
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 2.1 | Upgrade UI regresses to a stale button mid-restart. | ⬜ | `SystemUpdateSection.tsx:84` |
+| 2.1 | Upgrade UI regresses to a stale button mid-restart. | ✅ | PR #349 (released `2026.701.2304`). Mid-upgrade latch keeps the poller alive through the daemon-restart blip; pure `nextUpgradePollInterval` + regression test. |
 | 2.2 | `/dev/components` exposed in the Cmd-K palette. | ✅ | PR #346. Palette entry removed; route gated behind `import.meta.env.DEV`. |
 | 2.3 | Schedule delete is one-click (no confirm). | ✅ | PR #346. Two-step inline confirm, auto-disarms. |
 | 2.4 | Six CSS vars reference non-existent `--ds-danger/-error/-warning/-success` tokens → off-palette hex in Settings. | ✅ | PR #346. Mapped to `--danger`/`--warn`; added the missing `--success`/`--success-soft` to the token system. |
