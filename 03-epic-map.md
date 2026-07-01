@@ -4,7 +4,7 @@ type: epic-map
 status: active
 tags: [epic-map, runtime, extensions, voice, model-layer, agents]
 created: 2026-04-24
-updated: 2026-06-18
+updated: 2026-07-01
 linked_docs:
   - "[[01-vision]]"
   - "[[02-architecture]]"
@@ -13,7 +13,19 @@ canonical_path: wiki/03-epic-map.md
 ---
 
 # 2200 — Epic Map
-## v0.7 · 2026-04-29 (post-session-7)
+## v0.8 · 2026-07-01 (pre-public final push)
+
+*v0.8 (2026-07-01): Refreshed after eight releases since 2026-06-18
+(`2026.622.2027` → `2026.625.1807`, full delta in [[state/2026-07-01]] and
+[[handoffs/hobby/2026-07-01]]): SuperGrok-only onboarding (one sign-in, no API key),
+the `xai-subscription` bearer hot-read (fixes the ~6h Agent-silence), Studio port
+adoption + detached daemon restart on `2200 update`, a from-tarball install smoke gate
+in CI, and the Settings → System restart-fleet button. **Corrected the record:**
+connector gateway recovery on reboot was flagged open across four docs but actually
+shipped 2026-05-16 (`recoverGateways()`). A pre-public four-agent QA sweep this session
+surfaced a ranked blocker list (stranger-path Studio-on-first-Agent, swallowed provider
+errors, chat-screen failure states, and a transport-edge security cluster) ... that
+list drives the final push and lives in the 2026-07-01 handoff.*
 
 *v0.7 (2026-04-29): Sessions 6 + 7 closed Epic 9 Phases B and C, shipped the Pulse runtime emitter (Epic 2 follow-on), shipped Epic 8 Phase C (cross-Agent brain reads). Build is now warning-free after a refactor that split unused-import-leaking modules. Manual-test sweep (real Google/GitHub OAuth, hosted MCP, Pulse-in-UI) deferred to a single focused session post-NY trip.*
 
@@ -48,7 +60,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 9 | Tool system | ✅ Phases A + B + C shipped 2026-04-29 (#81-#84, #99-#109; manual-test smoke pending) |
 | 10 | Model lifecycle management | ✅ Phase A shipped 2026-04-29 (catalog + CLI); B/C/D not started |
 | 11 | Skills ingestion | ✅ Phase A shipped 2026-04-29 (parse + read-only registry); B not started |
-| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 (manifest + registry substrate); chat connectors (Discord/Telegram/Slack) shipped 2026-06 ([[design/connectors/README]]) |
+| 12 | Extensions framework | ✅ Phase A shipped 2026-04-29 (manifest + registry substrate); chat connectors (Discord/Telegram/Slack) shipped 2026-06 ([[design/connectors/README]]); gateway recovery on daemon reboot shipped 2026-05-16 (`recoverGateways()`) |
 | 13 | Voice Extension (Twilio) | Not started |
 | 14 | Conversational onboarding | ✅ Phase A shipped 2026-04-29; B (interview persistence + replay) not started |
 | 15 | Web app | ✅ Phase A shipped 2026-04-29; B/C deferred |
@@ -57,7 +69,7 @@ The ordering follows the Cray principle: build the smallest thing that can host 
 | 18 | Dogfooding completion and launch | Not started |
 | 19 | Public reachability for self-hosted instances | Not started |
 
-Runtime `main` ... 1030+ runtime tests + 64 web tests across the workspace. `pnpm verify` clean, `pnpm build` warning-free.
+Runtime `main` ... 2234 runtime tests + 111 web tests across the workspace (as of 2026-07-01). `pnpm verify:all` clean, `pnpm build` warning-free. Shipped version `2026.625.1807`.
 
 ---
 
