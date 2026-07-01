@@ -56,10 +56,10 @@ Doug directly, never in this public wiki (see [[handoffs/hobby/2026-07-01]]).
 | # | Item | Status | Notes |
 |---|---|---|---|
 | 2.1 | Upgrade UI regresses to a stale button mid-restart. | ⬜ | `SystemUpdateSection.tsx:84` |
-| 2.2 | `/dev/components` exposed in the Cmd-K palette. | ⬜ | one-line removal |
-| 2.3 | Schedule delete is one-click (no confirm). | ⬜ | copy existing two-step confirm |
-| 2.4 | Six CSS vars reference non-existent `--ds-danger/-error/-warning/-success` tokens → off-palette hex in Settings. | ⬜ | rename to real tokens |
-| 2.5 | No runtime Node-version guard (npm-direct install on Node 18/20 dumps `ERR_DLOPEN_FAILED`). | ⬜ | 5-line guard atop `main.ts` |
+| 2.2 | `/dev/components` exposed in the Cmd-K palette. | ✅ | PR #346. Palette entry removed; route gated behind `import.meta.env.DEV`. |
+| 2.3 | Schedule delete is one-click (no confirm). | ✅ | PR #346. Two-step inline confirm, auto-disarms. |
+| 2.4 | Six CSS vars reference non-existent `--ds-danger/-error/-warning/-success` tokens → off-palette hex in Settings. | ✅ | PR #346. Mapped to `--danger`/`--warn`; added the missing `--success`/`--success-soft` to the token system. |
+| 2.5 | No runtime Node-version guard (npm-direct install on Node 18/20 dumps `ERR_DLOPEN_FAILED`). | ✅ | PR #346. `node-version-guard` imported first in the CLI, before the native addon loads. |
 | 2.6 | Onboarding: no back button, loses state on refresh. | ⬜ | at minimum persist session id + exit guard |
 | 2.7 | Preview has no rename control, so the auto-derived name ships as-is ("Let's call it Mira" → `lets-call-it-mira`). | ⬜ | Surfaced by the 0.5 fix ... the 500 is gone, but an inline rename in the preview is the real UX close. |
 
