@@ -55,9 +55,11 @@ secure tunnel is the *only* path in. That means:
 ## Only you get in, and it only reaches your 2200
 
 Reaching your instance requires **your login** ... a stranger who somehow learned
-your address still can't do anything without it. (Cloud mode adds a second check
-right at Cloudflare's front door, so a stranger is turned away *before* they even
-reach the login screen.)
+your address is refused without it. Every request to your data is checked against
+your token; nothing is served without it. (Coming, before self-serve opens to the
+public: an additional Cloudflare Access gate that turns strangers away at the edge
+*before* they even reach the login screen. It is not enabled yet ... today your
+login is the identity check.)
 
 And the tunnel can **only** ever connect to your 2200 app, on one specific port.
 *We* control that ... not the tunnel, not an attacker. It can never be pointed at
@@ -83,16 +85,24 @@ to one app, that you control.
 - The tunnel is **remotely-managed** ... its routing (one hostname → `127.0.0.1`
   on one port) is set server-side by us, so the box operator can't repoint it at
   arbitrary local targets or the rest of the LAN.
-- **Every request is authenticated** at the 2200 app; Cloud mode additionally gates
-  the hostname at Cloudflare's edge.
+- **Every request is authenticated** at the 2200 app: a 256-bit random bearer,
+  compared in constant time (`timingSafeEqual`), required on every `/api/*` route
+  and the WebSocket. Off-box requests with no/invalid token get `401` (HTTP) or a
+  `4401` close with zero data (WebSocket) ... verifiable with `curl` against any
+  live instance.
+- **Planned, not yet enabled:** a Cloudflare **Access** policy that gates the
+  hostname at the edge (an identity check before the box). Until it ships, the
+  edge provides DDoS/proxy protection but not an identity gate ... the login is
+  the identity check.
 - Abuse controls on our side: per-identity rate limits, a reserved-name blocklist,
   one active tunnel per install, and an instant quarantine/kill path.
 
 ## Where this is in the product
 
-The same explanation appears **at the moment you choose Cloud mode** in setup (and
-in Settings), so you're not asked to trust a black box ... you see exactly what
-you're turning on before you turn it on.
+This same explanation will appear **at the moment you choose Cloud mode** in setup
+(and in Settings), so you're not asked to trust a black box ... you'll see exactly
+what you're turning on before you turn it on. (The Cloud access-mode picker is in
+build; today's tunnels are provisioned by the 2200 team.)
 
 ---
 
