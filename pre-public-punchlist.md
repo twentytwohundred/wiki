@@ -60,8 +60,8 @@ Doug directly, never in this public wiki (see [[handoffs/hobby/2026-07-01]]).
 | 2.3 | Schedule delete is one-click (no confirm). | ✅ | PR #346. Two-step inline confirm, auto-disarms. |
 | 2.4 | Six CSS vars reference non-existent `--ds-danger/-error/-warning/-success` tokens → off-palette hex in Settings. | ✅ | PR #346. Mapped to `--danger`/`--warn`; added the missing `--success`/`--success-soft` to the token system. |
 | 2.5 | No runtime Node-version guard (npm-direct install on Node 18/20 dumps `ERR_DLOPEN_FAILED`). | ✅ | PR #346. `node-version-guard` imported first in the CLI, before the native addon loads. |
-| 2.6 | Onboarding: no back button, loses state on refresh. | ⬜ | at minimum persist session id + exit guard |
-| 2.7 | Preview has no rename control, so the auto-derived name ships as-is ("Let's call it Mira" → `lets-call-it-mira`). | ⬜ | Surfaced by the 0.5 fix ... the 500 is gone, but an inline rename in the preview is the real UX close. |
+| 2.6 | Onboarding: no back button, loses state on refresh. | ✅ | PR #351 (released `2026.702.32`). Session id + transcript persist to `sessionStorage`; reload / in-tab nav resumes via the GET endpoint; expired sessions self-heal. (No `beforeunload` needed since resume works.) |
+| 2.7 | Preview has no rename control, so the auto-derived name ships as-is ("Let's call it Mira" → `lets-call-it-mira`). | ✅ | PR #352 (released `2026.702.32`). Editable name in the preview; confirm accepts an `agent_name` override, re-normalized via `deriveAgentName`, collision-checked before build. |
 
 ## Tier 3 ... docs & hygiene
 
