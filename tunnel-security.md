@@ -65,10 +65,11 @@ an extra lock can turn on a Cloudflare Access gate at the edge, which stops
 strangers before they even reach the login screen. It's optional and off by
 default ... your login is the identity check.)
 
-And the tunnel can **only** ever connect to your 2200 app, on one specific port.
-*We* control that ... not the tunnel, not an attacker. It can never be pointed at
-other devices on your home network, at your files, or at anything else. One door,
-to one app, that you control.
+And the tunnel can **only** ever reach one port on your own machine ... the one
+2200 runs on. That target is fixed on our side, not on your box: it can never be
+aimed at other devices on your home network, at your files, or at any other port.
+You decide what runs on that port (it's your computer); we make sure the tunnel
+can't be pointed anywhere but there.
 
 ## You're in control, always
 
