@@ -50,7 +50,9 @@ secure tunnel is the *only* path in. That means:
 
 - **nothing is open on your home Wi-Fi** ... other people or devices on your
   network can't reach it either,
-- your **login never travels across your network in the clear.**
+- your **login never crosses a network in the clear**: in the default setup it
+  stays on your own machine (loopback), and over the tunnel it's inside
+  Cloudflare's HTTPS end to end.
 
 ## Only you get in, and it only reaches your 2200
 
@@ -88,10 +90,15 @@ to one app, that you control.
   on one port) is set server-side by us, so the box operator can't repoint it at
   arbitrary local targets or the rest of the LAN.
 - **Every request is authenticated** at the 2200 app: a 256-bit random bearer,
-  compared in constant time (`timingSafeEqual`), required on every `/api/*` route
-  and the WebSocket. Off-box requests with no/invalid token get `401` (HTTP) or a
-  `4401` close with zero data (WebSocket) ... verifiable with `curl` against any
-  live instance.
+  carried in an `HttpOnly` session cookie (page JS can't read it; it never rides
+  in a URL) or an `Authorization: Bearer` header for non-browser clients, compared
+  in constant time (`timingSafeEqual`), required on every `/api/*` route and the
+  WebSocket. Off-box requests with no/invalid token get `401` (HTTP) or a `4401`
+  close with zero data (WebSocket) ... verifiable with `curl` against any instance.
+- **The WebSocket validates `Origin` server-side.** Since the socket authenticates
+  off the cookie, a cross-origin `Origin` (a page at another site trying to open a
+  socket here) is rejected on the handshake with `4403`, before auth ... an
+  explicit check, not a reliance on the cookie's SameSite policy.
 - **Login lockout** at the box, independent of Cloudflare: repeated failed auth
   from one client (real client resolved via `CF-Connecting-IP` behind the tunnel)
   is locked out (`429` + `Retry-After`), checked before the token compare.
