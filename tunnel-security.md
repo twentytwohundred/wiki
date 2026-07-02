@@ -56,10 +56,12 @@ secure tunnel is the *only* path in. That means:
 
 Reaching your instance requires **your login** ... a stranger who somehow learned
 your address is refused without it. Every request to your data is checked against
-your token; nothing is served without it. (Coming, before self-serve opens to the
-public: an additional Cloudflare Access gate that turns strangers away at the edge
-*before* they even reach the login screen. It is not enabled yet ... today your
-login is the identity check.)
+your token; nothing is served without it. And repeated wrong guesses from one
+source get **locked out** (after a handful of failures, that source is refused for
+a cooldown) ... so nobody can sit there hammering the door. (Power users who want
+an extra lock can turn on a Cloudflare Access gate at the edge, which stops
+strangers before they even reach the login screen. It's optional and off by
+default ... your login is the identity check.)
 
 And the tunnel can **only** ever connect to your 2200 app, on one specific port.
 *We* control that ... not the tunnel, not an attacker. It can never be pointed at
@@ -90,10 +92,13 @@ to one app, that you control.
   and the WebSocket. Off-box requests with no/invalid token get `401` (HTTP) or a
   `4401` close with zero data (WebSocket) ... verifiable with `curl` against any
   live instance.
-- **Planned, not yet enabled:** a Cloudflare **Access** policy that gates the
-  hostname at the edge (an identity check before the box). Until it ships, the
-  edge provides DDoS/proxy protection but not an identity gate ... the login is
-  the identity check.
+- **Login lockout** at the box, independent of Cloudflare: repeated failed auth
+  from one client (real client resolved via `CF-Connecting-IP` behind the tunnel)
+  is locked out (`429` + `Retry-After`), checked before the token compare.
+- **Optional:** a Cloudflare **Access** policy can add an edge identity check
+  (turn strangers away before the box) for operators who want it. Off by default;
+  the 2200 login + lockout are the identity gate. The edge otherwise provides
+  DDoS/proxy protection.
 - Abuse controls on our side: per-identity rate limits, a reserved-name blocklist,
   one active tunnel per install, and an instant quarantine/kill path.
 
