@@ -4,12 +4,13 @@ type: reference
 status: active
 tags: [readme, wiki, entry-point]
 created: 2026-04-24
-updated: 2026-05-19
+updated: 2026-07-02
 linked_docs:
   - "[[01-vision]]"
   - "[[02-architecture]]"
   - "[[03-epic-map]]"
   - "[[04-seed-team]]"
+  - "[[tunnel-security]]"
   - "[[brain-format]]"
 canonical_path: wiki/README.md
 ---
@@ -29,6 +30,10 @@ This wiki is the project knowledge base for the build. Vision, architecture, dec
 This is the canonical source. Read on github at [twentytwohundred/wiki](https://github.com/twentytwohundred/wiki) or clone it for an Obsidian-compatible knowledge vault.
 
 For the full pitch, read [01-vision.md](01-vision.md). This page orients you in the wiki itself.
+
+> **"Is it safe to let 2200 be reachable from anywhere?"** Yes ... your home box is
+> never exposed to the internet, Cloudflare stands guard in front, and only you get
+> in. The plain-language explanation is in **[tunnel-security.md](tunnel-security.md)**.
 
 ## Reading order
 
@@ -67,6 +72,7 @@ wiki/
 ├── 02-architecture.md            object model, runtime shape
 ├── 03-epic-map.md                the epics
 ├── 04-seed-team.md               who builds this
+├── tunnel-security.md            "is it safe to reach my box from anywhere?" (yes ... why)
 ├── prior-art-analysis.md         executive prior-art analysis
 ├── prior-art-source-findings.md  deep per-target source-reading appendix
 ├── README.md                     this file
