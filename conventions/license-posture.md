@@ -4,7 +4,7 @@ type: convention
 status: active
 tags: [convention, licensing, posture, third-party]
 created: 2026-04-28
-updated: 2026-04-28
+updated: 2026-08-16
 linked_docs:
   - "[[brain-format]]"
   - "[[upgrade-readiness]]"
@@ -20,7 +20,7 @@ The standing rule for any decision that touches third-party code, third-party co
 License decisions are load-bearing in two directions:
 
 1. **What we can and cannot embed.** Some upstream licenses (notably AGPL) impose viral obligations that would force us to relicense 2200. Embedding such code, even by accident, is a one-way door.
-2. **What attribution we owe.** Permissive licenses (MIT, BSD, Apache 2.0) allow embedding under EL v2 but require copyright-notice preservation on copied portions. Skipping attribution is a license violation.
+2. **What attribution we owe.** Permissive licenses (MIT, BSD, Apache 2.0) allow embedding under 2200's Apache 2.0 license but require copyright-notice preservation on copied portions. Skipping attribution is a license violation.
 
 Both failure modes are silent at the moment they happen and expensive when caught. The rule is meant to slow the hand at exactly the moment the temptation is "just copy that helpful function over."
 
@@ -35,7 +35,9 @@ Both failure modes are silent at the moment they happen and expensive when caugh
 | **Pattern lift** | An architectural idea reimplemented from understanding. Reading the upstream code, internalizing the shape, then writing fresh code that does a similar thing. | None. Architectural patterns are not copyrightable. Default to this. |
 | **Code lift** | Verbatim or near-verbatim reuse. Copy-paste with light edits, or copy with renames. | Preserve the source's copyright notice for the lifted portion. Document the lift in `THIRD_PARTY_NOTICES.md` of the consuming repo. |
 
-### License compatibility under EL v2
+### License compatibility under Apache 2.0
+
+(2200 relicensed from Elastic License v2 to Apache 2.0 on 2026-08-16; see [[2026-08-16-apache-relicense]]. The compatibility analysis below is unchanged by the relicense ... permissive-in is still fine with attribution, copyleft-in is still incompatible for embedding.)
 
 - **MIT, BSD-3-Clause, Apache 2.0, ISC, Unlicense:** compatible for code-lift with notice preservation. Compatible for pattern-lift without obligation.
 - **MPL 2.0:** compatible if lifted files keep their MPL header. Pattern lift is fine.
@@ -65,7 +67,7 @@ When proposing or making a code-lift:
 - **OpenClaw** (MIT, Copyright (c) 2025 Peter Steinberger): pattern source for the supervisor model, plan/run/perm wrapping discipline, Skills runtime model, baseline tool shape, profile/state-dir affordance, BOOT.md per-Agent ritual. Pattern-lifted; no code copied.
 - **EdgeClaw, OCMT, OpenAEON, AnyClaw, mimiclaw**: licenses not personally verified... verify before any code lift.
 - **Logseq, Trilium, Joplin**: AGPL viral. Rejected for any embedding path.
-- **Cytoscape.js, react-markdown, remark-wiki-link, SilverBullet, Quartz, Foam**: MIT. Compatible for composition under EL v2 if ever pulled.
+- **Cytoscape.js, react-markdown, remark-wiki-link, SilverBullet, Quartz, Foam**: MIT. Compatible for composition if ever pulled.
 - **Tavily and Brave Search APIs**: API-only integrations. No code copy from provider SDKs; no notice obligation. Provider names recorded in `THIRD_PARTY_NOTICES.md` per discipline.
 
 ## Cross-references
