@@ -65,7 +65,7 @@ Relicense authority is unambiguous: all 391 commits are Doug plus dependabot dep
 
 ### Phase 2: Pre-announcement hygiene (gates the post)
 
-- [ ] Dependency advisory triage: 66 advisories at time of writing (6 low / 35 moderate / 25 high), mostly transitive `hono` via the MCP SDK; bump, `pnpm verify:all`, release
+- [x] Dependency advisory triage: 66 → 5 (2026-08-17). Dependabot group bump merged (#380, with reformat for the prettier bump), `@fastify/static` 9→10 plus js-yaml/protobufjs overrides (#381). The remaining five are all transitive via `@openpub-ai/pub-server@0.3.3`; upstream ask in Poe's inbox recommending a 0.3.4 on fastify 5 ... that release is the named unblock, not a 2200-side item
 - [ ] Security posture sweep: confirm nothing category-tracked is open before raising the repo's profile (Doug + Hobby, handled privately per the redaction discipline)
 - [x] Secrets scan of the working tree: clean (the repo has been public since May, so history was already exposed; nothing found)
 - [ ] Fresh-clone install test in Docker (Linux): shell installer path and npm path, bare `2200` first-run through Agent creation ... never on a live instance
